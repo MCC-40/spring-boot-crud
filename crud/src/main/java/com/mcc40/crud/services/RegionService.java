@@ -72,24 +72,24 @@ public class RegionService {
     public void getJobs(int id) {
 
         Region region = regionRepository.findById(id).get();
-        List<Country> countryList = new ArrayList<>(region.getCountriesCollection());
+        List<Country> countryList = region.getCountryList();
         for (Country country : countryList) {
             
-            List<Location> locationList = new ArrayList<>(country.getLocationsCollection());
+            List<Location> locationList = country.getLocationList();
             for (Location location : locationList) {
                 
-                List<Department> departmentList = new ArrayList<>(location.getDepartmentsCollection());
+                List<Department> departmentList = location.getDepartmentList();
                 for (Department department : departmentList) {
                     
-                    List<Employee> employeeList = new ArrayList<>(department.getEmployeesCollection());
+                    List<Employee> employeeList = department.getEmployeeList();
                     for (Employee employee : employeeList) {
                         
-                        System.out.print(employee.getJobId().getJobTitle() + " | ");
+                        System.out.print(employee.getJob().getTitle() + " | ");
                         System.out.print(employee.getFirstName() + " | ");
 //                        System.out.print(department.getDepartmentName()+ " | ");
 //                        System.out.print(location.getLocationId() + " | ");
 //                        System.out.print(country.getCountryName()+ " | ");
-                        System.out.println(region.getRegionName());
+                        System.out.println(region.getName());
                     }
                 }
             }
