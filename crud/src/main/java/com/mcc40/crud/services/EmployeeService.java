@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EmployeeService {
+
     EmployeeRepository employeeRepository;
 
     @Autowired
@@ -69,5 +70,13 @@ public class EmployeeService {
     public boolean deleteEmployee(int id) {
         employeeRepository.deleteById(id);
         return !employeeRepository.findById(id).isPresent();
+    }
+
+    public void getFirstNameAndLocation() {
+        List<Employee> employees = employeeRepository.findAll();
+        for (Employee employee : employees) {
+            System.out.print(employee.getFirstName() + "  |   ");
+                System.out.println(employee.getDepartmentId().getLocationId().getLocationId());
+        }
     }
 }

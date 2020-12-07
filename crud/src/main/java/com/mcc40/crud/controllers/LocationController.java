@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author asus
  */
 @Controller
-@RequestMapping("locations")
+@RequestMapping("location")
 public class LocationController {
     
     LocationService service;
@@ -53,6 +53,12 @@ public class LocationController {
     public String saveLocation(int id){
             System.out.println(service.deleteLocation(id));
         
+        return "index";
+    }
+    
+    @RequestMapping("test")
+    public String test(){
+        service.test();
         return "index";
     }
 }

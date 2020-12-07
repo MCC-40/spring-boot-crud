@@ -5,9 +5,11 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Location;
-import com.mcc40.crud.entities.Region;
 import com.mcc40.crud.repositories.LocationRepository;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,5 +61,15 @@ public class LocationService {
     public boolean deleteLocation(int id) {
         locationRepository.deleteById(id);
         return !locationRepository.findById(id).isPresent();
+    }
+    
+    public void test(){
+        Location location = locationRepository.findById(1700).get();
+        Collection<Department> departmentCollection = location.getDepartmentsCollection();
+        List<Department> departmentList = new ArrayList<>(departmentCollection);
+        for (Department department : departmentList) {
+            System.out.print(department.getDepartmentName() + " | ");
+            System.out.println(department.getLocationId().getLocationId());
+        }
     }
 }

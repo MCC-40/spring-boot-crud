@@ -57,5 +57,11 @@ public class EmployeeController {
         }
         return "index";
     }
+    
+    @RequestMapping("test")
+    public String getFirstNameLocation(){
+        service.getFirstNameAndLocation();
+        return "index";
+    }
 
 }
