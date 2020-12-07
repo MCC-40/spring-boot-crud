@@ -40,14 +40,14 @@ public class LocationService {
     //insert
     public String saveLocation(Location location) {
         String result = null;
-        Optional<Location> optionalLocation = locationRepository.findById(location.getLocationId());
+        Optional<Location> optionalLocation = locationRepository.findById(location.getId());
         try {
             if (optionalLocation.isPresent() == false) {
                 locationRepository.save(location);
                 result = "Inserted";
             } else if (optionalLocation.get().equals(true)) {
                 Location oldLocation = optionalLocation.get();
-                oldLocation.setLocationId(location.getLocationId());
+                oldLocation.setId(location.getId());
                 result = "Updated";
             }
         } catch (Exception e) {
@@ -65,11 +65,10 @@ public class LocationService {
     
     public void test(){
         Location location = locationRepository.findById(1700).get();
-        Collection<Department> departmentCollection = location.getDepartmentsCollection();
-        List<Department> departmentList = new ArrayList<>(departmentCollection);
+        List<Department> departmentList = location.getDepartmentList();
         for (Department department : departmentList) {
-            System.out.print(department.getDepartmentName() + " | ");
-            System.out.println(department.getLocationId().getLocationId());
+            System.out.print(department.getName()+ " | ");
+            System.out.println(department.getLocation().getId());
         }
     }
 }

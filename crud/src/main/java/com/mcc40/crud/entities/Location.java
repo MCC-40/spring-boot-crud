@@ -6,10 +6,11 @@
 package com.mcc40.crud.entities;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -37,8 +38,8 @@ public class Location implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "location_id")
-    private Integer locationId;
+    @Column(name = "id")
+    private Integer id;
     @Column(name = "street_address")
     private String streetAddress;
     @Column(name = "postal_code")
@@ -48,23 +49,24 @@ public class Location implements Serializable {
     private String city;
     @Column(name = "state_province")
     private String stateProvince;
-    @JoinColumn(name = "country_id", referencedColumnName = "country_id")
-    @ManyToOne(optional = false)
-    private Country countryId;
-    @OneToMany(mappedBy = "locationId")
-    private Collection<Department> departmentsCollection;
+    @JoinColumn(name = "country", referencedColumnName = "id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Country country;
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    private List<Department> departmentList;
 
     public Location() {
     }
 
-
     @XmlTransient
-    public Collection<Department> getDepartmentsCollection() {
-        return departmentsCollection;
+    public List<Department> getDepartmentList() {
+        return departmentList;
     }
 
-    public void setDepartmentsCollection(Collection<Department> departmentsCollection) {
-        this.departmentsCollection = departmentsCollection;
+    public void setDepartmentList(List<Department> departmentList) {
+        this.departmentList = departmentList;
     }
+
+
     
 }
