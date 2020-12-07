@@ -6,12 +6,15 @@
 package com.mcc40.crud.entities;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,7 +23,7 @@ import lombok.Data;
 
 /**
  *
- * @author aqira
+ * @author Yoshua
  */
 @Entity
 @Table(name = "regions")
@@ -28,26 +31,26 @@ import lombok.Data;
 @Data
 public class Region implements Serializable {
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "regionId")
-    private Collection<Country> countriesCollection;
-
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @Column(name = "region_id")
-    private Integer regionId;
-    @Column(name = "region_name")
-    private String regionName;
+    @Column(name = "id")
+    private Integer id;
+    @Column(name = "name")
+    private String name;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "region", fetch = FetchType.LAZY)
+    private List<Country> countryList;
 
     public Region() {
     }
 
     @XmlTransient
-    public Collection<Country> getCountriesCollection() {
-        return countriesCollection;
+    public List<Country> getCountryList() {
+        return countryList;
     }
 
-    public void setCountriesCollection(Collection<Country> countriesCollection) {
-        this.countriesCollection = countriesCollection;
+    public void setCountryList(List<Country> countryList) {
+        this.countryList = countryList;
     }
+
 }

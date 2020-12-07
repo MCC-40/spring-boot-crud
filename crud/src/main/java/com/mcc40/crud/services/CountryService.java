@@ -33,14 +33,14 @@ public class CountryService {
     
     public String saveCountry(Country country){
         String result = null;
-        Optional<Country> optionalCountry = countryRepository.findById(country.getCountryId());
+        Optional<Country> optionalCountry = countryRepository.findById(country.getId());
         try {
             if (optionalCountry.isPresent() == false) {
                 countryRepository.save(country);
                 result = "Inserted";
             } else if (optionalCountry.get().equals(true)) {
                 Country oldCountry = optionalCountry.get();
-                oldCountry.setCountryName(country.getCountryName());
+                oldCountry.setName(country.getName());
                 result = "Updated";
             }
         } catch (Exception e) {

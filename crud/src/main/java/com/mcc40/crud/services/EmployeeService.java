@@ -39,7 +39,7 @@ public class EmployeeService {
     //insert
     public String saveEmployee(Employee employee) {
         String result = null;
-        Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getEmployeeId());
+        Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
         try {
             if (optionalEmployee.isPresent() == false) {
                 employeeRepository.save(employee);
@@ -51,11 +51,11 @@ public class EmployeeService {
                 oldEmployee.setEmail(employee.getEmail());
                 oldEmployee.setPhoneNumber(employee.getPhoneNumber());
                 oldEmployee.setHireDate(employee.getHireDate());
-                oldEmployee.setJobId(employee.getJobId());
+                oldEmployee.setJob(employee.getJob());
                 oldEmployee.setSalary(employee.getSalary());
                 oldEmployee.setCommissionPct(employee.getCommissionPct());
-                oldEmployee.setManagerId(employee.getManagerId());
-                oldEmployee.setDepartmentId(employee.getDepartmentId());
+                oldEmployee.setManager(employee.getManager());
+                oldEmployee.setDepartment(employee.getDepartment());
                 employee = oldEmployee;
                 result = "Updated";
             }
@@ -76,7 +76,7 @@ public class EmployeeService {
         List<Employee> employees = employeeRepository.findAll();
         for (Employee employee : employees) {
             System.out.print(employee.getFirstName() + "  |   ");
-                System.out.println(employee.getDepartmentId().getLocationId().getLocationId());
+                System.out.println(employee.getDepartment().getLocation().getId());
         }
     }
 }

@@ -44,14 +44,14 @@ public class RegionService {
     //insert
     public String saveRegion(Region region) {
         String result = null;
-        Optional<Region> optionalRegion = regionRepository.findById(region.getRegionId());
+        Optional<Region> optionalRegion = regionRepository.findById(region.getId());
         try {
             if (optionalRegion.isPresent() == false) {
                 regionRepository.save(region);
                 result = "Inserted";
             } else if (optionalRegion.get().equals(true)) {
                 Region oldRegion = optionalRegion.get();
-                oldRegion.setRegionName(region.getRegionName());
+                oldRegion.setName(region.getName());
                 region = oldRegion;
                 result = "Updated";
             }

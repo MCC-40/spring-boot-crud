@@ -30,30 +30,30 @@ public class CountryController {
     @RequestMapping("") //localhost:8081/
     public String countryGetAll() {
         for (Country country : service.getAllCountries()) {
-            System.out.println(country.getCountryId() + " | " + country.getCountryName());
+            System.out.println(country.getId()+ " | " + country.getName());
         }
         return "index"; //index.html
     }
 
     @RequestMapping("find")
     public String getCountryById(String id) {
-        System.out.println(service.getByIdCountry(id).getCountryId() + " | "
-                + service.getByIdCountry(id).getCountryName());
+        System.out.println(service.getByIdCountry(id).getId()+ " | "
+                + service.getByIdCountry(id).getName());
         return "index"; //index.html
     }
 
     @RequestMapping("save")
     public String countrySave(String id, String name) {
         Country country = new Country();
-        country.setCountryId(id);
-        country.setCountryName(name);
+        country.setId(id);
+        country.setName(name);
         System.out.println(service.saveCountry(country));
         return "index"; //index.html
     }
     
     @RequestMapping("delete")
     public String deleteCountryById(String id) {
-        System.out.println("Mencoba menghapus: " + service.getByIdCountry(id).getCountryName());
+        System.out.println("Mencoba menghapus: " + service.getByIdCountry(id).getName());
         System.out.println(service.deleteById(id) ? "Delete berhasil" : "Delete gagal");
         return "index"; //index.html
     }

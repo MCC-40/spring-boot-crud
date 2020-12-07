@@ -7,6 +7,8 @@
     <class>com.mcc40.crud.entities.Employee</class>
     <class>com.mcc40.crud.entities.Job</class>
     <class>com.mcc40.crud.entities.Location</class>
+    <class>com.mcc40.crud.entities.Region</class>
+    <class>com.mcc40.crud.entities.Country</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/db_hr?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.user" value="root"/>

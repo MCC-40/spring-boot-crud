@@ -30,7 +30,7 @@ public class RegionController {
     @RequestMapping("") //localhost:8081/
     public String index() {
         for (Region region : service.getAllRegion()) {
-            System.out.println(region.getRegionId() + " | " + region.getRegionName());
+            System.out.println(region.getId()+ " | " + region.getName());
         }
         return "index"; //index.html
     }
