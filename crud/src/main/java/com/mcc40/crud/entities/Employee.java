@@ -7,11 +7,12 @@ package com.mcc40.crud.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -38,8 +39,8 @@ public class Employee implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @Column(name = "employee_id")
-    private Integer employeeId;
+    @Column(name = "id")
+    private Integer id;
     @Column(name = "first_name")
     private String firstName;
     @Basic(optional = false)
@@ -60,42 +61,39 @@ public class Employee implements Serializable {
     private BigDecimal salary;
     @Column(name = "commission_pct")
     private BigDecimal commissionPct;
-    @OneToMany(mappedBy = "managerId")
-    private Collection<Department> departmentsCollection;
-    @JoinColumn(name = "job_id", referencedColumnName = "job_id")
-    @ManyToOne(optional = false)
-    private Job jobId;
-    @JoinColumn(name = "department_id", referencedColumnName = "department_id")
-    @ManyToOne
-    private Department departmentId;
-    @OneToMany(mappedBy = "managerId")
-    private Collection<Employee> employeesCollection;
-    @JoinColumn(name = "manager_id", referencedColumnName = "employee_id")
-    @ManyToOne
-    private Employee managerId;
+    @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
+    private List<Department> departmentList;
+    @JoinColumn(name = "job", referencedColumnName = "id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Job job;
+    @JoinColumn(name = "department", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Department department;
+    @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
+    private List<Employee> employeeList;
+    @JoinColumn(name = "manager", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Employee manager;
 
     public Employee() {
     }
 
+    @XmlTransient
+    public List<Department> getDepartmentList() {
+        return departmentList;
+    }
 
+    public void setDepartmentList(List<Department> departmentList) {
+        this.departmentList = departmentList;
+    }
 
     @XmlTransient
-    public Collection<Department> getDepartmentsCollection() {
-        return departmentsCollection;
+    public List<Employee> getEmployeeList() {
+        return employeeList;
     }
 
-    public void setDepartmentsCollection(Collection<Department> departmentsCollection) {
-        this.departmentsCollection = departmentsCollection;
+    public void setEmployeeList(List<Employee> employeeList) {
+        this.employeeList = employeeList;
     }
 
-
-    @XmlTransient
-    public Collection<Employee> getEmployeesCollection() {
-        return employeesCollection;
-    }
-
-    public void setEmployeesCollection(Collection<Employee> employeesCollection) {
-        this.employeesCollection = employeesCollection;
-    }
-    
 }

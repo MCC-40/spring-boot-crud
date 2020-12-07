@@ -41,14 +41,14 @@ public class JobService {
     //insert
     public String saveJob(Job job) {
         String result = null;
-        Optional<Job> optionalJob = jobRepository.findById(job.getJobId());
+        Optional<Job> optionalJob = jobRepository.findById(job.getId());
         try {
             if (optionalJob.isPresent() == false) {
                 jobRepository.save(job);
                 result = "Inserted";
             } else if (optionalJob.get().equals(true)) {
                 Job oldJob = optionalJob.get();
-                oldJob.setJobTitle(job.getJobTitle());
+                oldJob.setTitle(job.getTitle());
                 oldJob.setMinSalary(job.getMinSalary());
                 oldJob.setMaxSalary(job.getMaxSalary());
                 job = oldJob;
@@ -70,10 +70,10 @@ public class JobService {
     public void getJobTitleAndDepartmentName() {
         List<Job> jobs = jobRepository.findAll();
         for (Job job : jobs) {
-            List<Employee> employeeList = new ArrayList<>(job.getEmployeesCollection());
+            List<Employee> employeeList = job.getEmployeeList();
             for (Employee employee : employeeList) {
-                System.out.print(job.getJobTitle()+ "  |   ");
-                System.out.println(employee.getDepartmentId().getDepartmentName());
+                System.out.print(job.getTitle()+ "  |   ");
+                System.out.println(employee.getDepartment().getName());
             }
         }
     }

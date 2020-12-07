@@ -6,11 +6,12 @@
 package com.mcc40.crud.entities;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -35,28 +36,26 @@ public class Country implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @Column(name = "country_id")
-    private String countryId;
-    @Column(name = "country_name")
-    private String countryName;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "countryId")
-    private Collection<Location> locationsCollection;
-    @JoinColumn(name = "region_id", referencedColumnName = "region_id")
-    @ManyToOne(optional = false)
-    private Region regionId;
+    @Column(name = "id")
+    private String id;
+    @Column(name = "name")
+    private String name;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "country", fetch = FetchType.LAZY)
+    private List<Location> locationList;
+    @JoinColumn(name = "region", referencedColumnName = "id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Region region;
 
     public Country() {
     }
 
-
-
     @XmlTransient
-    public Collection<Location> getLocationsCollection() {
-        return locationsCollection;
+    public List<Location> getLocationList() {
+        return locationList;
     }
 
-    public void setLocationsCollection(Collection<Location> locationsCollection) {
-        this.locationsCollection = locationsCollection;
+    public void setLocationList(List<Location> locationList) {
+        this.locationList = locationList;
     }
 
 }

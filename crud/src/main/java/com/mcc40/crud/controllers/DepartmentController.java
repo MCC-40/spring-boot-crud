@@ -30,30 +30,30 @@ public class DepartmentController {
     @RequestMapping("") //localhost:8081/
     public String departmentGetAll() {
         for (Department department : service.getAllDepartments()) {
-            System.out.println(department.getDepartmentId() + " | " + department.getDepartmentName());
+            System.out.println(department.getId()+ " | " + department.getName());
         }
         return "index"; //index.html
     }
 
     @RequestMapping("find")
     public String getDepartmentById(int id) {
-        System.out.println(service.getByIdDepartment(id).getDepartmentId() + " | "
-                + service.getByIdDepartment(id).getDepartmentName());
+        System.out.println(service.getByIdDepartment(id).getId()+ " | "
+                + service.getByIdDepartment(id).getName());
         return "index"; //index.html
     }
 
     @RequestMapping("save")
     public String departmentSave(int id, String name) {
         Department department = new Department();
-        department.setDepartmentId(id);
-        department.setDepartmentName(name);
+        department.setId(id);
+        department.setName(name);
         System.out.println(service.saveDepartment(department));
         return "index"; //index.html
     }
 
     @RequestMapping("delete")
     public String deleteDepartmentById(int id) {
-        System.out.println("Mencoba menghapus: " + service.getByIdDepartment(id).getDepartmentName());
+        System.out.println("Mencoba menghapus: " + service.getByIdDepartment(id).getName());
         System.out.println(service.deleteById(id) ? "Delete berhasil" : "Delete gagal");
         return "index"; //index.html
     }

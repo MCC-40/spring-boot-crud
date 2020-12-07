@@ -35,14 +35,14 @@ public class DepartmentService {
 
     public String saveDepartment(Department department) {
         String result = null;
-        Optional<Department> optionalDepartment = departmentRepository.findById(department.getDepartmentId());
+        Optional<Department> optionalDepartment = departmentRepository.findById(department.getId());
         try {
             if (optionalDepartment.isPresent() == false) {
                 departmentRepository.save(department);
                 result = "Inserted";
             } else if (optionalDepartment.get().equals(true)) {
                 Department oldDepartment = optionalDepartment.get();
-                oldDepartment.setDepartmentName(department.getDepartmentName());
+                oldDepartment.setName(department.getName());
                 result = "Updated";
             }
         } catch (Exception e) {
@@ -60,10 +60,10 @@ public class DepartmentService {
     public void getDepartmentNameAndJobTitle() {
         List<Department> departments = departmentRepository.findAll();
         for (Department department : departments) {
-            List<Employee> employeeList = new ArrayList<>(department.getEmployeesCollection());
+            List<Employee> employeeList = department.getEmployeeList();
             for (Employee employee : employeeList) {
-                System.out.print(department.getDepartmentName()+ "  |   ");
-                System.out.println(employee.getJobId().getJobTitle());
+                System.out.print(department.getName()+ "  |   ");
+                System.out.println(employee.getJob().getTitle());
             }
         }
     }

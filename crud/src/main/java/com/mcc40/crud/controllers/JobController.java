@@ -29,7 +29,7 @@ public class JobController {
     @RequestMapping("")
     public String getAllEmployee() {
         for (Job job : service.getAllJob()) {
-            System.out.println(job.getJobTitle() + " | " + job.getMinSalary() + " | " + job.getMaxSalary());
+            System.out.println(job.getTitle()+ " | " + job.getMinSalary() + " | " + job.getMaxSalary());
         }
         return "index"; //index.html
     }
@@ -37,7 +37,7 @@ public class JobController {
     @RequestMapping("search")
     public String getByIdEmployee(String id) {
         Job job = service.getByIdJob(id);
-        System.out.println(job.getJobTitle() + " | " + job.getMinSalary() + " | " + job.getMaxSalary());
+        System.out.println(job.getTitle()+ " | " + job.getMinSalary() + " | " + job.getMaxSalary());
         return "index";
     }
 

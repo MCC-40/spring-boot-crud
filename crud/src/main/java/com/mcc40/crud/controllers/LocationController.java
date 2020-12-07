@@ -29,7 +29,7 @@ public class LocationController {
     @RequestMapping("")
     public String index(){
         for (Location location : service.getAllLocation()) {
-            System.out.println(location.getLocationId() + " | " + location.getStreetAddress());
+            System.out.println(location.getId()+ " | " + location.getStreetAddress());
         }
         return "index";
     }
@@ -37,7 +37,7 @@ public class LocationController {
     @RequestMapping("search")
     public String location(int id){
         Location location = service.getByLocationId(id);
-            System.out.println(location.getLocationId() + " | " + location.getStreetAddress());
+            System.out.println(location.getId()+ " | " + location.getStreetAddress());
             return "index";
     }
     

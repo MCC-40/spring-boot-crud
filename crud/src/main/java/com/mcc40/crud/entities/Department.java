@@ -6,10 +6,11 @@
 package com.mcc40.crud.entities;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -34,29 +35,30 @@ public class Department implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @Column(name = "department_id")
-    private Integer departmentId;
+    @Column(name = "id")
+    private Integer id;
     @Basic(optional = false)
-    @Column(name = "department_name")
-    private String departmentName;
-    @JoinColumn(name = "location_id", referencedColumnName = "location_id")
-    @ManyToOne
-    private Location locationId;
-    @JoinColumn(name = "manager_id", referencedColumnName = "employee_id")
-    @ManyToOne
-    private Employee managerId;
-    @OneToMany(mappedBy = "departmentId")
-    private Collection<Employee> employeesCollection;
+    @Column(name = "name")
+    private String name;
+    @JoinColumn(name = "location", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Location location;
+    @JoinColumn(name = "manager", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Employee manager;
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
+    private List<Employee> employeeList;
 
     public Department() {
     }
 
     @XmlTransient
-    public Collection<Employee> getEmployeesCollection() {
-        return employeesCollection;
+    public List<Employee> getEmployeeList() {
+        return employeeList;
     }
 
-    public void setEmployeesCollection(Collection<Employee> employeesCollection) {
-        this.employeesCollection = employeesCollection;
+    public void setEmployeeList(List<Employee> employeeList) {
+        this.employeeList = employeeList;
     }
+
 }
