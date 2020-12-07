@@ -50,11 +50,18 @@ public class DepartmentController {
         System.out.println(service.saveDepartment(department));
         return "index"; //index.html
     }
-    
+
     @RequestMapping("delete")
     public String deleteDepartmentById(int id) {
         System.out.println("Mencoba menghapus: " + service.getByIdDepartment(id).getDepartmentName());
         System.out.println(service.deleteById(id) ? "Delete berhasil" : "Delete gagal");
         return "index"; //index.html
     }
+
+    @RequestMapping("test-yoshua")
+    public String getFirstNameLocation() {
+        service.getDepartmentNameAndJobTitle();
+        return "index";
+    }
+
 }

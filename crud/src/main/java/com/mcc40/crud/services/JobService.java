@@ -5,8 +5,10 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.JobRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobService {
+
     JobRepository jobRepository;
 
     @Autowired
@@ -62,5 +65,16 @@ public class JobService {
     public boolean deleteJob(String id) {
         jobRepository.deleteById(id);
         return !jobRepository.findById(id).isPresent();
+    }
+
+    public void getJobTitleAndDepartmentName() {
+        List<Job> jobs = jobRepository.findAll();
+        for (Job job : jobs) {
+            List<Employee> employeeList = new ArrayList<>(job.getEmployeesCollection());
+            for (Employee employee : employeeList) {
+                System.out.print(job.getJobTitle()+ "  |   ");
+                System.out.println(employee.getDepartmentId().getDepartmentName());
+            }
+        }
     }
 }

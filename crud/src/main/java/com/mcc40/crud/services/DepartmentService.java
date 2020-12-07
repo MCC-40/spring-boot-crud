@@ -6,7 +6,10 @@
 package com.mcc40.crud.services;
 
 import com.mcc40.crud.entities.Department;
+import com.mcc40.crud.entities.Employee;
+import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.DepartmentRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +24,16 @@ public class DepartmentService {
 
     @Autowired
     DepartmentRepository departmentRepository;
-    
-    public List<Department> getAllDepartments(){
+
+    public List<Department> getAllDepartments() {
         return departmentRepository.findAll();
     }
-    
-    
-    public Department getByIdDepartment(int id){
+
+    public Department getByIdDepartment(int id) {
         return departmentRepository.findById(id).get();
     }
-    
-    public String saveDepartment(Department department){
+
+    public String saveDepartment(Department department) {
         String result = null;
         Optional<Department> optionalDepartment = departmentRepository.findById(department.getDepartmentId());
         try {
@@ -49,9 +51,20 @@ public class DepartmentService {
         }
         return result;
     }
-    
-    public boolean deleteById(int id){
+
+    public boolean deleteById(int id) {
         departmentRepository.deleteById(id);
         return !departmentRepository.findById(id).isPresent();
+    }
+
+    public void getDepartmentNameAndJobTitle() {
+        List<Department> departments = departmentRepository.findAll();
+        for (Department department : departments) {
+            List<Employee> employeeList = new ArrayList<>(department.getEmployeesCollection());
+            for (Employee employee : employeeList) {
+                System.out.print(department.getDepartmentName()+ "  |   ");
+                System.out.println(employee.getJobId().getJobTitle());
+            }
+        }
     }
 }

@@ -57,4 +57,11 @@ public class JobController {
         }
         return "index";
     }
+
+    @RequestMapping("test-yoshua")
+    public String getFirstNameLocation() {
+        service.getJobTitleAndDepartmentName();
+        return "index";
+    }
+
 }
