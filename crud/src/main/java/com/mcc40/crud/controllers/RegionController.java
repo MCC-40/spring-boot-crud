@@ -34,4 +34,10 @@ public class RegionController {
         }
         return "index"; //index.html
     }
+    
+    @RequestMapping("getjobs") //localhost:8081/
+    public String getJobs(int id) {
+        service.getJobs(id);
+        return "index"; //index.html
+    }
 }
