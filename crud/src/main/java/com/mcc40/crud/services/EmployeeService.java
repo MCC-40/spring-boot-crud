@@ -5,7 +5,10 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.Country;
+import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
+import com.mcc40.crud.entities.Location;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import java.util.List;
 import java.util.Optional;
@@ -78,5 +81,16 @@ public class EmployeeService {
             System.out.print(employee.getFirstName() + "  |   ");
                 System.out.println(employee.getDepartmentId().getLocationId().getLocationId());
         }
+    }
+    
+    public void getEmployeeAndCountry(){
+        Employee employee = employeeRepository.findById(100).get();
+        Department department = employee.getDepartmentId();
+        
+        Location location = department.getLocationId();
+        
+        Country country = location.getCountryId();
+        
+        System.out.println(employee.getFirstName() + " | " + country.getCountryName());
     }
 }

@@ -63,5 +63,10 @@ public class EmployeeController {
         service.getFirstNameAndLocation();
         return "index";
     }
-
+    
+    @RequestMapping("testEC")
+    public String getEmployeeCountry(){
+        service.getEmployeeAndCountry();
+        return "index";
+    }
 }
