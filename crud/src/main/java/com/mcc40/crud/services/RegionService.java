@@ -47,12 +47,14 @@ public class RegionService {
             } else if (optionalRegion.get().equals(true)) {
                 Region oldRegion = optionalRegion.get();
                 oldRegion.setRegionName(region.getRegionName());
+                region = oldRegion;
                 result = "Updated";
             }
         } catch (Exception e) {
             result = "Unknown Error";
             System.out.println(e.toString());
         }
+        regionRepository.save(region);
         return result;
     }
 
