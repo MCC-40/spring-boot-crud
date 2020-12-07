@@ -85,12 +85,12 @@ public class EmployeeService {
     
     public void getEmployeeAndCountry(){
         Employee employee = employeeRepository.findById(100).get();
-        Department department = employee.getDepartmentId();
+        Department department = employee.getDepartment();
         
-        Location location = department.getLocationId();
+        Location location = department.getLocation();
         
-        Country country = location.getCountryId();
+        Country country = location.getCountry();
         
-        System.out.println(employee.getFirstName() + " | " + country.getCountryName());
+        System.out.println(employee.getFirstName() + " | " + country.getName());
     }
 }
