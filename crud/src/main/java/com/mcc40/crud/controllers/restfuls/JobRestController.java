@@ -40,13 +40,9 @@ public class JobRestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Job>> searchJob() {
-        return ResponseEntity.ok().body(service.getAllJob());
-    }
-
-    @GetMapping("test")
-    public ResponseEntity<Job> test() {
-        return ResponseEntity.ok().body(service.getByIdJob("asd"));
+    public ResponseEntity<Job> getById(String id) {
+        System.out.println(id);
+        return ResponseEntity.ok().body(service.getByIdJob(id));
     }
 
     @GetMapping("search")
