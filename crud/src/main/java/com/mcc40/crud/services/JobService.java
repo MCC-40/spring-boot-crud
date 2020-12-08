@@ -8,7 +8,6 @@ package com.mcc40.crud.services;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.JobRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,8 @@ public class JobService {
         Optional<Job> optionalJob = jobRepository.findById(job.getId());
         try {
             if (optionalJob.isPresent() == false) {
-                jobRepository.save(job);
                 result = "Inserted";
-            } else if (optionalJob.get().equals(true)) {
+            } else if (optionalJob.isPresent() == true) {
                 Job oldJob = optionalJob.get();
                 oldJob.setTitle(job.getTitle());
                 oldJob.setMinSalary(job.getMinSalary());
@@ -58,6 +56,7 @@ public class JobService {
             result = "Unknown Error";
             System.out.println(e.toString());
         }
+        jobRepository.save(job);
         return result;
     }
 
