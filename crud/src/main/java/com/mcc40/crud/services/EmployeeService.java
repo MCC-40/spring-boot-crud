@@ -29,6 +29,11 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
+    //find all by id
+    public List<Employee> searchEmployee() {
+        return employeeRepository.findAll();
+    }
+        
     //get all 
     public List<Employee> getAllEmployee() {
         return employeeRepository.findAll();
@@ -45,7 +50,6 @@ public class EmployeeService {
         Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
         try {
             if (optionalEmployee.isPresent() == false) {
-                employeeRepository.save(employee);
                 result = "Inserted";
             } else if (optionalEmployee.get().equals(true)) {
                 Employee oldEmployee = optionalEmployee.get();
@@ -66,6 +70,7 @@ public class EmployeeService {
             result = "Unknown Error";
             System.out.println(e.toString());
         }
+        employeeRepository.save(employee);
         return result;
     }
 
@@ -79,18 +84,18 @@ public class EmployeeService {
         List<Employee> employees = employeeRepository.findAll();
         for (Employee employee : employees) {
             System.out.print(employee.getFirstName() + "  |   ");
-                System.out.println(employee.getDepartment().getLocation().getId());
+            System.out.println(employee.getDepartment().getLocation().getId());
         }
     }
-    
-    public void getEmployeeAndCountry(){
+
+    public void getEmployeeAndCountry() {
         Employee employee = employeeRepository.findById(100).get();
         Department department = employee.getDepartment();
-        
+
         Location location = department.getLocation();
-        
+
         Country country = location.getCountry();
-        
+
         System.out.println(employee.getFirstName() + " | " + country.getName());
     }
 }

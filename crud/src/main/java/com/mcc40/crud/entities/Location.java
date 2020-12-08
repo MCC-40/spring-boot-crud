@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -50,6 +51,7 @@ public class Location implements Serializable {
     @Column(name = "state_province")
     private String stateProvince;
     @JoinColumn(name = "country", referencedColumnName = "id")
+    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Country country;
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)

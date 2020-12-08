@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -41,9 +42,11 @@ public class Department implements Serializable {
     @Column(name = "name")
     private String name;
     @JoinColumn(name = "location", referencedColumnName = "id")
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
     @JoinColumn(name = "manager", referencedColumnName = "id")
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)

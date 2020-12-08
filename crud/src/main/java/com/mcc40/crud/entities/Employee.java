@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -61,17 +62,22 @@ public class Employee implements Serializable {
     private BigDecimal salary;
     @Column(name = "commission_pct")
     private BigDecimal commissionPct;
+    @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Department> departmentList;
     @JoinColumn(name = "job", referencedColumnName = "id")
+    @JsonIgnore
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Job job;
     @JoinColumn(name = "department", referencedColumnName = "id")
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
+    @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
     @JoinColumn(name = "manager", referencedColumnName = "id")
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
 

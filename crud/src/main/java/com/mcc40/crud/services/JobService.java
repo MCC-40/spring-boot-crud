@@ -10,6 +10,7 @@ import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.JobRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +72,7 @@ public class JobService {
         for (Job job : jobs) {
             List<Employee> employeeList = job.getEmployeeList();
             for (Employee employee : employeeList) {
-                System.out.print(job.getTitle()+ "  |   ");
+                System.out.print(job.getTitle() + "  |   ");
                 System.out.println(employee.getDepartment().getName());
             }
         }
