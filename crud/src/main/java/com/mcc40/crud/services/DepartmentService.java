@@ -34,15 +34,16 @@ public class DepartmentService {
     }
 
     public String saveDepartment(Department department) {
-        String result = null;
+        String result = "Error";
         Optional<Department> optionalDepartment = departmentRepository.findById(department.getId());
         try {
-            if (optionalDepartment.isPresent() == false) {
+            if (!optionalDepartment.isPresent()) {
                 departmentRepository.save(department);
                 result = "Inserted";
-            } else if (optionalDepartment.get().equals(true)) {
+            } else {
                 Department oldDepartment = optionalDepartment.get();
                 oldDepartment.setName(department.getName());
+                departmentRepository.save(oldDepartment);
                 result = "Updated";
             }
         } catch (Exception e) {

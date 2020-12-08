@@ -46,14 +46,14 @@ public class JobService {
             if (optionalJob.isPresent() == false) {
                 jobRepository.save(job);
                 result = "Inserted";
-            } else if (optionalJob.get().equals(true)) {
+            } else if (optionalJob.isPresent()) {
                 Job oldJob = optionalJob.get();
                 oldJob.setTitle(job.getTitle());
                 oldJob.setMinSalary(job.getMinSalary());
                 oldJob.setMaxSalary(job.getMaxSalary());
                 job = oldJob;
                 result = "Updated";
-            }
+            } 
         } catch (Exception e) {
             result = "Unknown Error";
             System.out.println(e.toString());
