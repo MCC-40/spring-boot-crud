@@ -39,10 +39,13 @@ public class RegionRestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Region>> getRegionById(Integer id) {
+    public ResponseEntity<List<Region>> searchRegion(String keyword) {
         List<Region> regionList = service.getAllRegion();
-        if (id != null) {
-            regionList = regionList.stream().filter(d -> d.getId() == id).collect(Collectors.toList());
+        if (keyword != null) {
+            regionList = regionList.stream().filter(r
+                    -> r.getId().toString().contains(keyword)
+                    || r.getName().contains(keyword)
+            ).collect(Collectors.toList());
         }
         if (regionList.size() > 0) {
             return ResponseEntity.status(200).body(regionList);
@@ -67,6 +70,7 @@ public class RegionRestController {
 
     @PutMapping("")
     public ResponseEntity<Map<String, String>> regionSaveWithPut(@RequestBody Region region) {
+        System.out.println("Incoming put");
         System.out.println(region);
         Map status = new HashMap();
 

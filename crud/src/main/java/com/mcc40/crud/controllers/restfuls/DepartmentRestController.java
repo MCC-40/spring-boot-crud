@@ -7,11 +7,9 @@ package com.mcc40.crud.controllers.restfuls;
 
 import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.services.DepartmentService;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,10 +37,13 @@ public class DepartmentRestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Department>> getDepartmentById(Integer id) {
+    public ResponseEntity<List<Department>> searchDepartment(String keyword) {
         List<Department> departmentList = service.getAllDepartments();
-        if (id != null) {
-            departmentList = departmentList.stream().filter(d -> d.getId() == id).collect(Collectors.toList());
+        if (keyword != null) {
+            departmentList = departmentList.stream().filter(d
+                    -> d.getId().toString().contains(keyword)
+                    || d.getName().toString().contains(keyword)
+            ).collect(Collectors.toList());
         }
         if (departmentList.size() > 0) {
             return ResponseEntity.status(200).body(departmentList);
@@ -54,8 +55,9 @@ public class DepartmentRestController {
     @PostMapping("")
     public ResponseEntity<Map<String, String>> departmentSave(@RequestBody Department department) {
         System.out.println(department);
+        System.out.println(department.getManager());
         Map status = new HashMap();
-
+        
         String result = service.saveDepartment(department);
         status.put("Status", result);
         if (result.equals("Inserted") || result.equals("Updated")) {
@@ -70,7 +72,7 @@ public class DepartmentRestController {
         System.out.println(department);
         Map status = new HashMap();
 
-        String result = service.saveDepartment(department);
+        String result = service.putDepartment(department);
         status.put("Status", result);
         if (result.equals("Inserted") || result.equals("Updated")) {
             return ResponseEntity.accepted().body(status);

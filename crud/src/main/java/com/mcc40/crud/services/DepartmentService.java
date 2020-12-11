@@ -43,6 +43,36 @@ public class DepartmentService {
             } else {
                 Department oldDepartment = optionalDepartment.get();
                 oldDepartment.setName(department.getName());
+                oldDepartment.setManager(department.getManager());
+                oldDepartment.setLocation(department.getLocation());
+                departmentRepository.save(oldDepartment);
+                result = "Updated";
+            }
+        } catch (Exception e) {
+            result = "Unknown Error";
+            System.out.println(e.toString());
+        }
+        return result;
+    }
+
+    public String putDepartment(Department department) {
+        String result = "Error";
+        Optional<Department> optionalDepartment = departmentRepository.findById(department.getId());
+        try {
+            if (!optionalDepartment.isPresent()) {
+                departmentRepository.save(department);
+                result = "Inserted";
+            } else {
+                Department oldDepartment = optionalDepartment.get();
+                if (department.getName() != null) {
+                    oldDepartment.setName(department.getName());
+                }
+                if (department.getManager() != null) {
+                    oldDepartment.setManager(department.getManager());
+                }
+                if (department.getLocation() != null) {
+                    oldDepartment.setLocation(department.getLocation());
+                }
                 departmentRepository.save(oldDepartment);
                 result = "Updated";
             }
@@ -63,7 +93,7 @@ public class DepartmentService {
         for (Department department : departments) {
             List<Employee> employeeList = department.getEmployeeList();
             for (Employee employee : employeeList) {
-                System.out.print(department.getName()+ "  |   ");
+                System.out.print(department.getName() + "  |   ");
                 System.out.println(employee.getJob().getTitle());
             }
         }

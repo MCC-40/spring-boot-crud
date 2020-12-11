@@ -5,11 +5,13 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
+import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.services.JobService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,9 +35,25 @@ public class JobRestController {
         this.service = service;
     }
 
+//    @GetMapping("")
+//    public ResponseEntity<List<Job>> getAllJob() {
+//        return ResponseEntity.status(200).body(service.getAllJob());
+//    }
+    
     @GetMapping("")
-    public ResponseEntity<List<Job>> getAllJobs() {
-        return ResponseEntity.status(200).body(service.getAllJob());
+    public ResponseEntity<List<Job>> searchJob(String keyword) {
+        List<Job> jobList = service.getAllJob();
+        if (keyword != null) {
+            jobList = jobList.stream().filter(d
+                    -> d.getId().toString().contains(keyword)
+                    || d.getTitle().toString().contains(keyword)
+            ).collect(Collectors.toList());
+        }
+        if (jobList.size() > 0) {
+            return ResponseEntity.status(200).body(jobList);
+        } else {
+            return ResponseEntity.status(404).build();
+        }
     }
 
     @GetMapping("search")
