@@ -81,16 +81,17 @@ public class EmployeeRestController {
 
     @PostMapping
     public ResponseEntity<Map<String, String>> insertEmployee(@Validated @RequestBody Employee employee) {
-        System.out.println("Masuk sini");
-        System.out.println(employee);
         Map status = new HashMap();
         if (employee.getId() == null) {
             status.put("Status", "No Content");
             return ResponseEntity.status(200).body(status);
+        } else if (service.isJobPresent(employee.getId())) {
+            status.put("Status", "Use Method PUT to update");
+            return ResponseEntity.status(200).body(status);
         }
         String result = service.saveEmployee(employee);
-        status.put("Status", service.saveEmployee(employee));
-        if (result.equals("Inserted") || result.equals("Updated")) {
+        status.put("Status", result);
+        if (result.equals("Inserted")) {
             return ResponseEntity.accepted().body(status);
         }
         return ResponseEntity.status(500).body(status);
@@ -102,10 +103,13 @@ public class EmployeeRestController {
         if (employee.getId() == null) {
             status.put("Status", "No Content");
             return ResponseEntity.status(200).body(status);
+        } else if (!service.isJobPresent(employee.getId())) {
+            status.put("Status", "Use Method POST to insert new data");
+            return ResponseEntity.status(200).body(status);
         }
         String result = service.saveEmployee(employee);
-        status.put("Status", service.saveEmployee(employee));
-        if (result.equals("Inserted") || result.equals("Updated")) {
+        status.put("Status", result);
+        if (result.equals("Updated")) {
             return ResponseEntity.accepted().body(status);
         }
         return ResponseEntity.status(500).body(status);

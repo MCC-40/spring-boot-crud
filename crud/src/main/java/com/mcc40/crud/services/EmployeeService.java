@@ -28,6 +28,11 @@ public class EmployeeService {
     public EmployeeService(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
+    
+    public boolean isJobPresent(int id) {
+        Optional<Employee> optionalJob = employeeRepository.findById(id);
+        return optionalJob.isPresent();
+    }
 
     //find all by id
     public List<Employee> searchEmployee() {
@@ -48,6 +53,7 @@ public class EmployeeService {
     public String saveEmployee(Employee employee) {
         String result = "Inserted";
         Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
+        System.out.println(optionalEmployee.isPresent());
         try {
             if (optionalEmployee.isPresent() == true) {
                 Employee oldEmployee = optionalEmployee.get();

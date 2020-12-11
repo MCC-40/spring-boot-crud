@@ -62,7 +62,10 @@ public class JobRestController {
     public ResponseEntity<Map<String, String>> insertJob(@Validated @RequestBody Job job) {
         Map status = new HashMap();
         if (job.getId() == null) {
-            status.put("Status", "No Content");
+            status.put("Status", "Id not found");
+            return ResponseEntity.status(200).body(status);
+        } else if (service.isJobPresent(job.getId())) {
+            status.put("Status", "Use Method PUT to update");
             return ResponseEntity.status(200).body(status);
         }
         String result = service.saveJob(job);
@@ -79,7 +82,11 @@ public class JobRestController {
         if (job.getId() == null) {
             status.put("Status", "No Content");
             return ResponseEntity.status(200).body(status);
+        } else if (!service.isJobPresent(job.getId())) {
+            status.put("Status", "Use Method POST to insert new data");
+            return ResponseEntity.status(200).body(status);
         }
+        
         String result = service.saveJob(job);
         status.put("Status", result);
         if (result.equals("Updated")) {

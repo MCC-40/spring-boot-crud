@@ -10,7 +10,6 @@ import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.JobRepository;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +27,11 @@ public class JobService {
         this.jobRepository = jobRepository;
     }
 
+    public boolean isJobPresent(String id) {
+        Optional<Job> optionalJob = jobRepository.findById(id);
+        return optionalJob.isPresent();
+    }
+
     //get all 
     public List<Job> getAllJob() {
         return jobRepository.findAll();
@@ -40,12 +44,10 @@ public class JobService {
 
     //insert
     public String saveJob(Job job) {
-        String result = null;
+        String result = "Inserted";
         Optional<Job> optionalJob = jobRepository.findById(job.getId());
         try {
-            if (optionalJob.isPresent() == false) {
-                result = "Inserted";
-            } else if (optionalJob.isPresent() == true) {
+            if (optionalJob.isPresent() == true) {
                 Job oldJob = optionalJob.get();
                 oldJob.setTitle(job.getTitle());
                 oldJob.setMinSalary(job.getMinSalary());
