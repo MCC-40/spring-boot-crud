@@ -5,15 +5,20 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
+import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.services.EmployeeService;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -37,19 +43,46 @@ public class EmployeeRestController {
     public EmployeeRestController(EmployeeService service) {
         this.service = service;
     }
+    
+    public static Map<String, Object> MapTheEmployee(Employee employee){
+        Map<String, Object> e = new HashMap<>();
+        e.put("id", employee.getId());
+        e.put("firstName", employee.getFirstName());
+        e.put("lastName", employee.getLastName());
+        e.put("email", employee.getEmail());
+        e.put("phoneNumber", employee.getPhoneNumber());
+        e.put("hireDate", employee.getHireDate());
+        e.put("job", employee.getJob().getId());
+        e.put("salary", employee.getSalary());
+        e.put("commissionPct", employee.getCommissionPct());
+        e.put("manager", employee.getManager() == null ? null : employee.getManager().getId());
+        e.put("department", employee.getDepartment() == null ? null : employee.getDepartment().getId());
+        return e;
+    }
+
+    @GetMapping("")
+    public ResponseEntity<Map<String, Object>> getById(int id) {
+        Employee employee = service.getByIdEmployee(id);
+        return ResponseEntity.ok().body(MapTheEmployee(employee));
+    }
 
     @GetMapping("search")
-    public ResponseEntity<List<Employee>> searchJob(String keyword) {
+    public ResponseEntity<List<Map<String, Object>>> searchJob(String keyword) {
         System.out.println(keyword);
         List<Employee> employees = service.getAllEmployee();
         List<Employee> result = employees.stream()
-                .filter(employee -> 
-                        Integer.toString(employee.getId()).contains(keyword) || 
-                        employee.getLastName().toLowerCase().contains(keyword.toLowerCase()) ||
-                        employee.getFirstName().toLowerCase().contains(keyword.toLowerCase()) 
+                .filter(employee
+                        -> Integer.toString(employee.getId()).contains(keyword)
+                || employee.getLastName().toLowerCase().contains(keyword.toLowerCase())
+                || employee.getFirstName().toLowerCase().contains(keyword.toLowerCase())
                 )
                 .collect(Collectors.toList());
-        return ResponseEntity.ok().body(result);
+
+        List<Map<String, Object>> mapEmployeeList = new ArrayList<>();
+        for (Employee employee : result) {
+            mapEmployeeList.add(MapTheEmployee(employee));
+        }
+        return ResponseEntity.ok().body(mapEmployeeList);
     }
 
     @PostMapping

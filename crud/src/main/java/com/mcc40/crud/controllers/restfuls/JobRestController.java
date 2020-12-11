@@ -41,7 +41,6 @@ public class JobRestController {
 
     @GetMapping("")
     public ResponseEntity<Job> getById(String id) {
-        System.out.println(id);
         return ResponseEntity.ok().body(service.getByIdJob(id));
     }
 
@@ -87,7 +86,6 @@ public class JobRestController {
             return ResponseEntity.accepted().body(status);
         }
         return ResponseEntity.status(500).body(status);
-
     }
 
     @DeleteMapping

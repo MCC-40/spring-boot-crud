@@ -42,11 +42,9 @@ public class Department implements Serializable {
     @Column(name = "name")
     private String name;
     @JoinColumn(name = "location", referencedColumnName = "id")
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
     @JoinColumn(name = "manager", referencedColumnName = "id")
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
