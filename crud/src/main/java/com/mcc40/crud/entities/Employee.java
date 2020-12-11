@@ -67,18 +67,18 @@ public class Employee implements Serializable {
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Department> departmentList;
     @JoinColumn(name = "job", referencedColumnName = "id")
-    @JsonBackReference
+    @JsonBackReference("job")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Job job;
     @JoinColumn(name = "department", referencedColumnName = "id")
-    @JsonBackReference
+    @JsonBackReference("department")
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
     @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
     @JoinColumn(name = "manager", referencedColumnName = "id")
-    @JsonBackReference
+    @JsonBackReference("manager")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
 

@@ -5,20 +5,15 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
-import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
-import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.services.EmployeeService;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -43,8 +37,8 @@ public class EmployeeRestController {
     public EmployeeRestController(EmployeeService service) {
         this.service = service;
     }
-    
-    public static Map<String, Object> MapTheEmployee(Employee employee){
+
+    public static Map<String, Object> MapTheEmployee(Employee employee) {
         Map<String, Object> e = new HashMap<>();
         e.put("id", employee.getId());
         e.put("firstName", employee.getFirstName());
@@ -86,7 +80,9 @@ public class EmployeeRestController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> saveEmployee(@Validated @RequestBody Employee employee) {
+    public ResponseEntity<Map<String, String>> insertEmployee(@Validated @RequestBody Employee employee) {
+        System.out.println("Masuk sini");
+        System.out.println(employee);
         Map status = new HashMap();
         if (employee.getId() == null) {
             status.put("Status", "No Content");

@@ -46,12 +46,10 @@ public class EmployeeService {
 
     //insert
     public String saveEmployee(Employee employee) {
-        String result = null;
+        String result = "Inserted";
         Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
         try {
-            if (optionalEmployee.isPresent() == false) {
-                result = "Inserted";
-            } else if (optionalEmployee.get().equals(true)) {
+            if (optionalEmployee.isPresent() == true) {
                 Employee oldEmployee = optionalEmployee.get();
                 oldEmployee.setFirstName(employee.getFirstName());
                 oldEmployee.setLastName(employee.getLastName());
