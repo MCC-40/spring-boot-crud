@@ -63,5 +63,6 @@ public class JobController {
         service.getJobTitleAndDepartmentName();
         return "index";
     }
+   
 
 }

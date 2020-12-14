@@ -7,6 +7,7 @@ package com.mcc40.crud.controllers.restfuls;
 
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.services.JobService;
+import com.mcc40.crud.services.NotificationService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class JobRestController {
 
     JobService service;
+    NotificationService notificationService;
 
     @Autowired
-    public JobRestController(JobService service) {
+    public JobRestController(JobService service, NotificationService notificationService) {
         this.service = service;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("")
@@ -86,7 +89,7 @@ public class JobRestController {
             status.put("Status", "Use Method POST to insert new data");
             return ResponseEntity.status(200).body(status);
         }
-        
+
         String result = service.saveJob(job);
         status.put("Status", result);
         if (result.equals("Updated")) {
@@ -101,5 +104,14 @@ public class JobRestController {
             return ResponseEntity.status(200).body("Delete Success");
         }
         return ResponseEntity.status(500).body("Delete Fail");
+    }
+
+    @RequestMapping("mail")
+    public String sendEmail() {
+        if (notificationService.javaSimpleEmail("emailAnda")) {
+            return "email sended";
+        }
+        return "error";
+
     }
 }
