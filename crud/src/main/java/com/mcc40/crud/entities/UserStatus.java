@@ -41,7 +41,8 @@ public class UserStatus implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "status", fetch = FetchType.LAZY)
     private List<User> userList;
 
-    public UserStatus() {
+    public UserStatus(int id) {
+        this.id = id;
     }
 
     @Override
