@@ -5,16 +5,13 @@
  */
 package com.mcc40.crud.repositories;
 
-import com.mcc40.crud.entities.Employee;
-import java.util.Optional;
+import com.mcc40.crud.entities.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author Yoshua
  */
-@Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Integer>{
-        Optional<Employee> findByEmail(String email);
+public interface RoleRepository extends JpaRepository<Role, Integer>{
+    
 }
