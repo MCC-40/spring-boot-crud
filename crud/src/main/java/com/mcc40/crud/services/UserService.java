@@ -33,6 +33,11 @@ public class UserService {
 
     //get by id
     public User getUserById(int id) {
+        System.out.println("repo: " + userRepository.count());
+        if (userRepository.count() == 0) {
+            System.out.println("returned");
+            return null;
+        }
         Optional<User> user = userRepository.findById(id);
         System.out.println(user.isPresent());
         if (!user.isPresent()) {
@@ -43,12 +48,20 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
+        if (userRepository.count() == 0) {
+            return null;
+        }
         List<User> users = userRepository.findByUserName(username);
         if (users.isEmpty()) {
             return null;
         } else {
             return users.get(0);
         }
+    }
+
+    public String saveUser(User user) {
+        userRepository.save(user);
+        return "success";
     }
 
     //insert

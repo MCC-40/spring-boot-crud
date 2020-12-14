@@ -10,15 +10,15 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -28,7 +28,7 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author Mochamad Yusuf
  */
 @Entity
 @Table(name = "employees")
@@ -66,14 +66,17 @@ public class Employee implements Serializable {
     @JoinColumn(name = "job", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Job job;
-    @JoinColumn(name = "department", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Department department;
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
+    @JoinColumn(name = "department", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Department department;
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private User user;
 
     public Employee() {
     }
@@ -86,7 +89,7 @@ public class Employee implements Serializable {
     public void setDepartmentList(List<Department> departmentList) {
         this.departmentList = departmentList;
     }
-
+    
     @XmlTransient
     public List<Employee> getEmployeeList() {
         return employeeList;
@@ -94,6 +97,5 @@ public class Employee implements Serializable {
 
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
-    }
-
+    }    
 }

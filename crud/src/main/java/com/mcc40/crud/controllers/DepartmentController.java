@@ -7,10 +7,11 @@ package com.mcc40.crud.controllers;
 
 import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.services.DepartmentService;
+import com.mcc40.crud.services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  *
@@ -21,11 +22,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class DepartmentController {
 
     DepartmentService service;
+    NotificationService notificationService;
 
     @Autowired
-    public DepartmentController(DepartmentService service) {
+    public DepartmentController(DepartmentService service, NotificationService notificationService) {
         this.service = service;
+        this.notificationService = notificationService;
     }
+
+    
 
     @RequestMapping("") //localhost:8081/
     public String departmentGetAll() {
@@ -61,6 +66,12 @@ public class DepartmentController {
     @RequestMapping("test-yoshua")
     public String getFirstNameLocation() {
         service.getDepartmentNameAndJobTitle();
+        return "index";
+    }
+    
+    @RequestMapping("email")
+    public String sendEmailNotification(){
+        notificationService.javaSimpleEmail("yusufmochamad.sch.acc@gmail.com");
         return "index";
     }
 

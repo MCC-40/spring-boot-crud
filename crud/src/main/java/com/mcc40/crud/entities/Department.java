@@ -5,8 +5,6 @@
  */
 package com.mcc40.crud.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -24,7 +22,7 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author Mochamad Yusuf
  */
 @Entity
 @Table(name = "departments")
@@ -40,21 +38,18 @@ public class Department implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
-    @JsonBackReference("location")
     @JoinColumn(name = "location", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
-    @JsonBackReference("manager")
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
-    @JsonIgnore
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
 
     public Department() {
     }
-
+    
     @XmlTransient
     public List<Employee> getEmployeeList() {
         return employeeList;
@@ -63,5 +58,5 @@ public class Department implements Serializable {
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
     }
-
+    
 }

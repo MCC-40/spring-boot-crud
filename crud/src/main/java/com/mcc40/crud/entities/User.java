@@ -15,7 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,10 +34,10 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @Column(name = "user_id")
+    @Column(name = "id")
     private Integer id;
     @Basic(optional = false)
-    @Column(name = "user_name")
+    @Column(name = "username")
     private String userName;
     @Basic(optional = false)
     @Column(name = "password")
@@ -48,10 +47,7 @@ public class User implements Serializable {
         @JoinColumn(name = "role_id", referencedColumnName = "id")})
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Role> roleList;
-    
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "user_id")
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Employee employee;
 
     public User() {
@@ -65,5 +61,6 @@ public class User implements Serializable {
     public void setRoleList(List<Role> roleList) {
         this.roleList = roleList;
     }
-    
+
+
 }

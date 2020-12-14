@@ -15,8 +15,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,7 +23,7 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author Mochamad Yusuf
  */
 @Entity
 @Table(name = "countries")
@@ -57,5 +55,6 @@ public class Country implements Serializable {
     public void setLocationList(List<Location> locationList) {
         this.locationList = locationList;
     }
+
 
 }

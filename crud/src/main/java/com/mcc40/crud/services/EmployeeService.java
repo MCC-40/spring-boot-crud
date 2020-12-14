@@ -9,6 +9,7 @@ import com.mcc40.crud.entities.Country;
 import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Location;
+import com.mcc40.crud.entities.User;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,13 @@ public class EmployeeService {
 
     //get by id
     public Employee getByIdEmployee(int id) {
-        return employeeRepository.findById(id).get();
+        Optional<Employee> employee = employeeRepository.findById(id);
+        System.out.println(employee.isPresent());
+        if (!employee.isPresent()) {
+            return null;
+        } else {
+            return employee.get();
+        }
     }
 
     //insert
@@ -79,18 +86,18 @@ public class EmployeeService {
         List<Employee> employees = employeeRepository.findAll();
         for (Employee employee : employees) {
             System.out.print(employee.getFirstName() + "  |   ");
-                System.out.println(employee.getDepartment().getLocation().getId());
+            System.out.println(employee.getDepartment().getLocation().getId());
         }
     }
-    
-    public void getEmployeeAndCountry(){
+
+    public void getEmployeeAndCountry() {
         Employee employee = employeeRepository.findById(100).get();
         Department department = employee.getDepartment();
-        
+
         Location location = department.getLocation();
-        
+
         Country country = location.getCountry();
-        
+
         System.out.println(employee.getFirstName() + " | " + country.getName());
     }
 }

@@ -5,7 +5,6 @@
  */
 package com.mcc40.crud.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -22,7 +21,7 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author Mochamad Yusuf
  */
 @Entity
 @Table(name = "regions")
@@ -37,13 +36,12 @@ public class Region implements Serializable {
     private Integer id;
     @Column(name = "name")
     private String name;
-    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "region", fetch = FetchType.LAZY)
     private List<Country> countryList;
 
     public Region() {
     }
-
+    
     @XmlTransient
     public List<Country> getCountryList() {
         return countryList;
@@ -52,5 +50,5 @@ public class Region implements Serializable {
     public void setCountryList(List<Country> countryList) {
         this.countryList = countryList;
     }
-
+    
 }

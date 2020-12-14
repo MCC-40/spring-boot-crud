@@ -33,14 +33,14 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("users")
-public class UserController {
+public class UserRestController {
 
     UserService userService;
     EmployeeService employeeService;
     RoleService roleService;
 
     @Autowired
-    public UserController(UserService userService, EmployeeService employeeService, RoleService roleService) {
+    public UserRestController(UserService userService, EmployeeService employeeService, RoleService roleService) {
         this.userService = userService;
         this.employeeService = employeeService;
         this.roleService = roleService;
@@ -70,6 +70,7 @@ public class UserController {
             return ResponseEntity.status(404).build();
         }
     }
+
 
     @PostMapping("")
     public ResponseEntity<Map<String, String>> userSave(@RequestBody User user) {
@@ -112,22 +113,37 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String, String>> signIn(String username, String password) {
-        Map status = new HashMap();
+    public ResponseEntity<Map<String, Object>> signIn(@RequestBody Map<String, String> json) {
+        Map status = new LinkedHashMap();
+        String username = json.get("username");
+        String password = json.get("password");
 
         List<User> userList = userService.getAllUsers();
         if (username != null) {
             userList = userList.stream().filter(d
                     -> d.getUserName().toString().equals(username)
-                    || d.getEmployee().getEmail().toString().contains(username)
+                    || d.getEmployee().getEmail().toString().equals(username)
             ).collect(Collectors.toList());
+        } else {
+            status.put("status", "insert username!");
+            return ResponseEntity.status(500).body(status);
         }
+
         if (userList.isEmpty()) {
-            status.put("status", "logged in");
-            return ResponseEntity.accepted().body(status);
-        } else if (userList.size() == 1) {
             status.put("status", "no username or email match");
             return ResponseEntity.status(500).body(status);
+        } else if (userList.size() == 1) {
+            status.put("status", "logged in");
+            User user = userList.get(0);
+            status.put("id", user.getId());
+            status.put("email", user.getEmployee().getEmail());
+
+            List<String> roles = new ArrayList<>();
+            for (Role role : user.getRoleList()) {
+                roles.add(role.getName());
+            }
+            status.put("role", roles);
+            return ResponseEntity.accepted().body(status);
         } else {
             status.put("status", "posible duplicate email");
             return ResponseEntity.status(500).body(status);
@@ -135,13 +151,13 @@ public class UserController {
     }
 
     @PostMapping("reg")
-    public ResponseEntity<Map<String, String>> signUp(@RequestBody Map<String, String> json) {
+    public ResponseEntity<Map<String, String>> signUp(@RequestBody Map<String, String> json,
+            @RequestBody Employee employee) {
         String id = json.get("id");
         String username = json.get("username");
         String password = json.get("password");
-        String role = json.get("role");
 
-        System.out.println(id + " | " + username + " | " + password + " | " + role);
+        System.out.println(id + " | " + username + " | " + password);
         Map status = new HashMap();
 
         System.out.println((userService == null) + " 151");
@@ -159,37 +175,27 @@ public class UserController {
         }
 
         if (employeeService.getByIdEmployee(Integer.parseInt(id)) == null) {
-            status.put("status", "employee is not exist");
-            return ResponseEntity.status(500).body(status);
+//            status.put("status", "creating employee");
+            employeeService.saveEmployee(employee);
+//            return ResponseEntity.status(500).body(status);
         }
 
-        if (roleService.getByIdRole(Integer.parseInt(role)) == null) {
-            status.put("status", "invalid role");
-            return ResponseEntity.status(500).body(status);
-        }
-
+//        if (roleService.getByIdRole(Integer.parseInt(role)) == null) {
+//            status.put("status", "invalid role");
+//            return ResponseEntity.status(500).body(status);
+//        }
         User user = new User();
         user.setId(Integer.parseInt(id));
         user.setUserName(username);
         user.setPassword(password);
-//        user.setEmployee(employeeService.getByIdEmployee(Integer.parseInt(id)));
 
-//        List<Role> roleList = new ArrayList<>();
-//        roleList.add(roleService.getByIdRole(Integer.parseInt(role)));
-//        user.setRoleList(roleList);
-        
-        Employee employee = employeeService.getByIdEmployee(Integer.parseInt(id));
-        
-        
-        
-//        employee.setUser(user);
-        employeeService.saveEmployee(employee);
-        
-        System.out.print("Employee = ");
-        System.out.println(employee.getLastName());
-        System.out.println(user);
-        
-        userService.insertUser(user);
+        userService.saveUser(user);
+
+        List<Role> roleList = new ArrayList<>();
+        roleList.add(roleService.getByIdRole(3));
+        user.setRoleList(roleList);
+
+        userService.saveUser(user);
 
         status.put("status", "success");
 
