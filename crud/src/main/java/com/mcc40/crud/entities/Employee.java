@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -81,6 +82,9 @@ public class Employee implements Serializable {
     @JsonBackReference("manager")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private User user;
 
     public Employee() {
     }
