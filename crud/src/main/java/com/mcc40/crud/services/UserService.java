@@ -8,14 +8,15 @@ package com.mcc40.crud.services;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Role;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.entities.UserStatus;
 import com.mcc40.crud.repositories.EmployeeRepository;
-import com.mcc40.crud.repositories.RoleRepository;
 import com.mcc40.crud.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,10 @@ public class UserService {
     public UserService(UserRepository userRepository, EmployeeRepository employeeRepository) {
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
+    }
+    
+    public User getUserById(int id){
+       return userRepository.findById(id).get();
     }
 
     public Map<String, Object> login(String usernameOrEmail, String password) {
@@ -75,6 +80,12 @@ public class UserService {
         List<Role> roles = new ArrayList<>();
         roles.add(role);
         user.setRoles(roles);
+        
+        UserStatus status = new UserStatus();
+        status.setId(-1);
+        user.setStatus(status);
+        
+        user.setVerificationCode(UUID.randomUUID().toString());
         userRepository.save(user);
         return "Inserted";
     }

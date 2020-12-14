@@ -60,7 +60,7 @@ public class EmployeeRestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<Map<String, Object>> getById(int id) {
+    public static ResponseEntity<Map<String, Object>> getById(int id) {
         Employee employee = service.getByIdEmployee(id);
         return ResponseEntity.ok().body(MapTheEmployee(employee));
     }

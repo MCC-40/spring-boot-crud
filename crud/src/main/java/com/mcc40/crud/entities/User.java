@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -47,10 +48,12 @@ public class User implements Serializable {
     private String password;
     @Column(name = "verification_code")
     private String verificationCode;
+    
     @JoinColumn(name = "id", referencedColumnName = "id")
-    @JsonBackReference("employee")
-    @OneToOne(fetch = FetchType.LAZY)
+    //    @JsonBackReference("employee")
+    @OneToOne(cascade = CascadeType.ALL)
     private Employee employee;
+    
     @ManyToMany
     @JoinTable(
             name = "user_role",

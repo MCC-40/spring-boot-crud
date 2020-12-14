@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.UserService;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,16 +30,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserRestController {
 
     private UserService service;
+    private NotificationService notificationService;
 
     @Autowired
-    public UserRestController(UserService service) {
+    public UserRestController(UserService service, NotificationService notificationService) {
         this.service = service;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("login")
     public ResponseEntity<Object> insertUser(@RequestBody ObjectNode objectNode) {
         ObjectMapper objectMapper = new ObjectMapper();
-        String usernameOrEmail = objectMapper.convertValue(objectNode.get("usernameOrEmail"), String.class);       
+        String usernameOrEmail = objectMapper.convertValue(objectNode.get("usernameOrEmail"), String.class);
         String password = objectMapper.convertValue(objectNode.get("password"), String.class);
         return ResponseEntity.accepted().body(service.login(usernameOrEmail, password));
     }
@@ -47,8 +50,10 @@ public class UserRestController {
     public ResponseEntity<Map<String, String>> insertUser(@Validated @RequestBody User user) {
         Map status = new HashMap();
         String result = service.register(user);
-        status.put("Status", result);
         if (result.equals("Inserted")) {
+            notificationService.sendVerificationMail(user.getId());
+            status.put("Status", "Verfication Email Send");
+
             return ResponseEntity.accepted().body(status);
         }
         return ResponseEntity.status(500).body(status);
