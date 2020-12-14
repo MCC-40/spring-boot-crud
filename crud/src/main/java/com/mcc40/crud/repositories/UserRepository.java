@@ -6,9 +6,8 @@
 package com.mcc40.crud.repositories;
 
 import com.mcc40.crud.entities.User;
-import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -18,6 +17,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     
-    public List<User> findByUserName(String userName);
+    public Optional<User> findByUserName(String userName);
+    
+    public Optional<User> findByVerificationCode(String verificationCode);
     
 }

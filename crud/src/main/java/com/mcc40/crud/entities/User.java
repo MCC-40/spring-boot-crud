@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,6 +31,13 @@ import lombok.Data;
 @XmlRootElement
 @Data
 public class User implements Serializable {
+
+    @Basic(optional = false)
+    @Column(name = "verification_code")
+    private String verificationCode;
+    @JoinColumn(name = "status", referencedColumnName = "id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Status status;
 
     private static final long serialVersionUID = 1L;
     @Id

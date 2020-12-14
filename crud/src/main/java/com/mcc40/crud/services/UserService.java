@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.Status;
 import com.mcc40.crud.entities.User;
 import com.mcc40.crud.repositories.UserRepository;
 import java.util.List;
@@ -33,11 +34,6 @@ public class UserService {
 
     //get by id
     public User getUserById(int id) {
-        System.out.println("repo: " + userRepository.count());
-        if (userRepository.count() == 0) {
-            System.out.println("returned");
-            return null;
-        }
         Optional<User> user = userRepository.findById(id);
         System.out.println(user.isPresent());
         if (!user.isPresent()) {
@@ -46,16 +42,24 @@ public class UserService {
             return user.get();
         }
     }
+    
+    //get by id
+//    public User getUserByVerificationCode(String verificationCode) {
+//        Optional<User> user = userRepository.findByVerificationCode(verificationCode);
+//        System.out.println(user.isPresent());
+//        if (!user.isPresent()) {
+//            return null;
+//        } else {
+//            return user.get();
+//        }
+//    }
 
     public User getUserByUsername(String username) {
-        if (userRepository.count() == 0) {
-            return null;
-        }
-        List<User> users = userRepository.findByUserName(username);
-        if (users.isEmpty()) {
+        Optional<User> users = userRepository.findByUserName(username);
+        if (!users.isPresent()) {
             return null;
         } else {
-            return users.get(0);
+            return users.get();
         }
     }
 
@@ -63,56 +67,56 @@ public class UserService {
         userRepository.save(user);
         return "success";
     }
-
-    //insert
-    public String insertUser(User user) {
-        String result = "Unknown Error";
-        Optional<User> optionalUser = userRepository.findById(user.getId());
-        try {
-            if (optionalUser.isPresent() == false) {
-                userRepository.save(user);
-                result = "Inserted";
-            } else {
-//                User oldUser = optionalUser.get();
-//                oldUser.setName(user.getName());
-//                user = oldUser;
-//                result = "Updated";
-                result = "Id already exist";
-            }
-        } catch (Exception e) {
-            result = "Unknown Error";
-            System.out.println(e.toString());
-        }
-        userRepository.save(user);
-        return result;
-    }
-
-    public String putUser(User user) {
-        String result = "Unknown Error";
-        Optional<User> optionalUser = userRepository.findById(user.getId());
-        try {
-            if (optionalUser.isPresent() == false) {
+//
+//    //insert
+//    public String insertUser(User user) {
+//        String result = "Unknown Error";
+//        Optional<User> optionalUser = userRepository.findById(user.getId());
+//        try {
+//            if (optionalUser.isPresent() == false) {
 //                userRepository.save(user);
 //                result = "Inserted";
-                result = "Id is not exist";
-            } else {
-                User oldUser = optionalUser.get();
-                if (user.getUserName() != null) {
-                    oldUser.setUserName(user.getUserName());
-                }
-                if (user.getPassword() != null) {
-                    oldUser.setPassword(user.getPassword());
-                }
-                user = oldUser;
-                result = "Updated";
-            }
-        } catch (Exception e) {
-            result = "Unknown Error";
-            System.out.println(e.toString());
-        }
-        userRepository.save(user);
-        return result;
-    }
+//            } else {
+////                User oldUser = optionalUser.get();
+////                oldUser.setName(user.getName());
+////                user = oldUser;
+////                result = "Updated";
+//                result = "Id already exist";
+//            }
+//        } catch (Exception e) {
+//            result = "Unknown Error";
+//            System.out.println(e.toString());
+//        }
+//        userRepository.save(user);
+//        return result;
+//    }
+//
+//    public String putUser(User user) {
+//        String result = "Unknown Error";
+//        Optional<User> optionalUser = userRepository.findById(user.getId());
+//        try {
+//            if (optionalUser.isPresent() == false) {
+////                userRepository.save(user);
+////                result = "Inserted";
+//                result = "Id is not exist";
+//            } else {
+//                User oldUser = optionalUser.get();
+//                if (user.getUserName() != null) {
+//                    oldUser.setUserName(user.getUserName());
+//                }
+//                if (user.getPassword() != null) {
+//                    oldUser.setPassword(user.getPassword());
+//                }
+//                user = oldUser;
+//                result = "Updated";
+//            }
+//        } catch (Exception e) {
+//            result = "Unknown Error";
+//            System.out.println(e.toString());
+//        }
+//        userRepository.save(user);
+//        return result;
+//    }
 
     //delete
     public boolean deleteUser(int id) {
@@ -120,7 +124,14 @@ public class UserService {
         return !userRepository.findById(id).isPresent();
     }
 
-    public void test() {
-        System.out.println("Hello gaes");
+    public boolean verify(String verificationCode){
+        Optional<User> user = userRepository.findByVerificationCode(verificationCode);
+        if (user.isPresent()){
+            user.get().setStatus(new Status(0));
+            userRepository.save(user.get());
+            return true;
+        }else{
+            return false;
+        }
     }
 }

@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -27,13 +28,13 @@ public class NotificationService {
         this.javaMailSender = javaMailSender;
     }
     
-    public void javaSimpleEmail(String user){
+    public void javaSimpleEmail(User user, String subject, String body){
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         System.out.println("From: " + sender);
         mailMessage.setFrom(sender);
-        mailMessage.setTo(user);
-        mailMessage.setSubject("Mari belajar java mail");
-        mailMessage.setText("Ini adalah body");
+        mailMessage.setTo(user.getEmployee().getEmail());
+        mailMessage.setSubject(subject);
+        mailMessage.setText(body);
         javaMailSender.send(mailMessage);
     }
 }
