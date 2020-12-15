@@ -7,6 +7,7 @@ package com.mcc40.crud.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -46,7 +47,7 @@ public class Role implements Serializable {
             name = "user_role",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    Set<User> users;
+    List<User> users;
 
     public Role() {
     }

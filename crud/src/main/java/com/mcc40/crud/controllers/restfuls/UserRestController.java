@@ -52,7 +52,7 @@ public class UserRestController {
         Map status = new HashMap();
         String result = service.register(user);
         if (result.equals("Inserted")) {
-            notificationService.sendVerificationMail(user.getId());
+//            notificationService.sendVerificationMail(user.getId());
             status.put("Status", "Verfication Email Send");
 
             return ResponseEntity.accepted().body(status);

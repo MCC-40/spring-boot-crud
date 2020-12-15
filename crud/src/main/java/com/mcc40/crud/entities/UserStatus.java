@@ -6,12 +6,18 @@
 package com.mcc40.crud.entities;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import lombok.Data;
 
 /**
  *
@@ -20,6 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "user-status")
 @XmlRootElement
+@Data
 public class UserStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,6 +37,8 @@ public class UserStatus implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "status", fetch = FetchType.LAZY)
+    private List<User> userList;
 
     public UserStatus() {
     }
@@ -38,25 +47,13 @@ public class UserStatus implements Serializable {
         this.id = id;
     }
 
-    public UserStatus(Integer id, String name) {
-        this.id = id;
-        this.name = name;
+    @XmlTransient
+    public List<User> getUserList() {
+        return userList;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
     }
 
     @Override
@@ -77,11 +74,6 @@ public class UserStatus implements Serializable {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return "com.mcc40.crud.entities.UserStatus[ id=" + id + " ]";
     }
     
 }
