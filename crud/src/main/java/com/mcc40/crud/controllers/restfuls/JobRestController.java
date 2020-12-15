@@ -105,13 +105,4 @@ public class JobRestController {
         }
         return ResponseEntity.status(500).body("Delete Fail");
     }
-
-    @RequestMapping("mail")
-    public String sendEmail() {
-        if (notificationService.javaSimpleEmail("emailAnda")) {
-            return "email sended";
-        }
-        return "error";
-
-    }
 }

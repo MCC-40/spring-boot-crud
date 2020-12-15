@@ -36,20 +36,6 @@ public class NotificationService {
     @Value("${spring.mail.username}")
     private String email;
 
-    public boolean javaSimpleEmail(String emailTo) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setFrom(email);
-        mailMessage.setTo(emailTo);
-        mailMessage.setSubject("Mail Belajar java mail");
-        mailMessage.setText("Ini adalah isi body");
-        try {
-            javaMailSender.send(mailMessage);
-        } catch (MailException e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
-
     public boolean sendVerificationMail(int id, String verificattionCode) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(id);
         if (optionalEmployee.isPresent()) {
@@ -68,7 +54,20 @@ public class NotificationService {
             return true;
         }
         return false;
+    }
 
+    public boolean sendForgotPasswordMail(String email, String verificattionCode) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom(this.email);
+        mailMessage.setTo(email);
+        mailMessage.setSubject("Reset Password Mail");
+        mailMessage.setText("http://localhost:8082/user/reset-password/verify?token=" + verificattionCode);
+        try {
+            javaMailSender.send(mailMessage);
+        } catch (MailException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
 }

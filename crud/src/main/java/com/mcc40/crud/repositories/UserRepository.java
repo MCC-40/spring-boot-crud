@@ -22,6 +22,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByVerificationCode(String verificationCode);
 
-    @Query(value ="INSERT INTO `users`(`id`, `username`, `password`, `verification_code`, `status`) values(?, ?, ?, ?, ?)", nativeQuery = true)
-    public void storeData(int id, String username, String password, String verificationCode, int status);
+    @Query(value ="SELECT * FROM users NATURAL JOIN employees WHERE employees.email = ?", nativeQuery = true)
+    Optional<User> findByEmail(String email);
 }

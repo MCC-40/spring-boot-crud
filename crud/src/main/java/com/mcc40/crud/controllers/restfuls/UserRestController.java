@@ -79,4 +79,12 @@ public class UserRestController {
         status.put("Status", service.verifyUser(token));
         return ResponseEntity.ok(status);
     }
+
+    @PostMapping("user/forget-password")
+    public ResponseEntity<String> forgetPassword(@RequestBody Map<String, Object> data) {
+        String email = data.get("email").toString();
+        User user = service.findUserByEmail(email);
+        notificationService.sendForgotPasswordMail(email, user.getVerificationCode());
+        return ResponseEntity.accepted().body("Reset Password Mail has been send");
+    }
 }

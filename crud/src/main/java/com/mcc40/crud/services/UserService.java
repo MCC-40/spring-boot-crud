@@ -149,4 +149,11 @@ public class UserService {
         }
         return "Failed";
     }
+
+    public User findUserByEmail(String email) {
+        User user = userRepository.findByEmail(email).get();
+        user.setVerificationCode(UUID.randomUUID().toString());
+        userRepository.save(user);
+        return user;
+    }
 }
