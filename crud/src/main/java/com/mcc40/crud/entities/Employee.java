@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,6 +22,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -37,6 +39,8 @@ import lombok.Data;
 @XmlRootElement
 @Data
 public class Employee implements Serializable {
+
+
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -81,6 +85,8 @@ public class Employee implements Serializable {
     @JsonBackReference("manager")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "employee", fetch = FetchType.LAZY)
+    private User user;
 
     public Employee() {
     }

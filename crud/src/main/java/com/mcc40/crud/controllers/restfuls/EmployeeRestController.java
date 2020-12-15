@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/employee")
 public class EmployeeRestController {
 
-    EmployeeService service;
+    static EmployeeService service;
 
     @Autowired
     public EmployeeRestController(EmployeeService service) {
@@ -54,8 +54,13 @@ public class EmployeeRestController {
         return e;
     }
 
+//    public static String registerEmployee(Map<String, Object> data) {
+//        service.registerEmployee(data);
+//        return "Inserted";
+//    }
+
     @GetMapping("")
-    public ResponseEntity<Map<String, Object>> getById(int id) {
+    public static ResponseEntity<Map<String, Object>> getById(int id) {
         Employee employee = service.getByIdEmployee(id);
         return ResponseEntity.ok().body(MapTheEmployee(employee));
     }
