@@ -62,7 +62,6 @@ public class EmployeeService {
 
     //register
     public String registerEmployee(Map<String, Object> data) {
-        System.out.println("QWE");
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         String result = "Inserted";
@@ -76,14 +75,9 @@ public class EmployeeService {
         employee.setCommissionPct(BigDecimal.valueOf((Integer) data.get("commissionPct")));
         employee.setSalary(BigDecimal.valueOf((Integer) data.get("salary")));
 
-        Job oldJob = jobRepository.findById(data.get("job").toString()).get();
         Job job = new Job();
-//        job.setId(oldJob.getId());
-//        job.setTitle(oldJob.getTitle());
-//        job.setMinSalary(oldJob.getMinSalary());
-//        job.setMaxSalary(oldJob.getMaxSalary());
         job.setId(data.get("job").toString());
-        employee.setJob(jobRepository.findById(data.get("job").toString()).get());
+//        employee.setJob(jobRepository.findById(data.get("job").toString()).get());
         employee.setJob(job);
 
         Employee manager = new Employee();
@@ -93,7 +87,6 @@ public class EmployeeService {
         Department department = new Department();
         department.setId((Integer) data.get("department"));
         employee.setDepartment(department);
-        System.out.println(employee);
 
         employeeRepository.save(employee);
         return result;

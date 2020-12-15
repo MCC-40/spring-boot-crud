@@ -65,20 +65,11 @@ public class UserRestController {
     public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
         Map status = new HashMap();
         status.put("Status: ", "Inserted");
-        Map<String, String> user = (Map<String, String>) data.get("user");
+        Map<String, Object> user = (Map<String, Object>) data.get("user");
         Map<String, Object> employee = (Map<String, Object>) data.get("employee");
         employeeService.registerEmployee(employee);
-//        if (EmployeeRestController.registerEmployee(employee).equals("Inserted")) {
-//            User result = service.register(user);
-//            status.put("Status", result);
-//            if (result.equals("Inserted")) {
+        service.register(user);
         return ResponseEntity.accepted().body(status);
-//            }
-//            return ResponseEntity.status(500).body(status);
-//        }
-
-//        status.put("Status: ", "Failed");
-//        return ResponseEntity.status(500).body(status);
     }
 
     @GetMapping("user/verify")

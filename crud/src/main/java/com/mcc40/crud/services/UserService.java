@@ -113,11 +113,16 @@ public class UserService {
         return result;
     }
 
-    public User register(Map<String, String> data) {
+    public User register(Map<String, Object> data) {
         User user = new User();
-        user.setId(Integer.parseInt(data.get("id")));
-        user.setUsername(data.get("username"));
-        user.setPassword(data.get("password"));
+        System.out.println("QWE");
+        System.out.println(data);
+        System.out.println(data.get("id"));
+        System.out.println(data.get("username"));
+        System.out.println(data.get("password"));
+        user.setId(Integer.parseInt(data.get("id").toString()));
+        user.setUsername(data.get("username").toString());
+        user.setPassword(data.get("password").toString());
         user.setVerificationCode(UUID.randomUUID().toString());
 
         Role role = new Role();
