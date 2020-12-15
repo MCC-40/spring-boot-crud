@@ -35,9 +35,9 @@ public class UserService {
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
     }
-    
-    public User getUserById(int id){
-       return userRepository.findById(id).get();
+
+    public User getUserById(int id) {
+        return userRepository.findById(id).get();
     }
 
     public Map<String, Object> login(String usernameOrEmail, String password) {
@@ -80,17 +80,29 @@ public class UserService {
         List<Role> roles = new ArrayList<>();
         roles.add(role);
         user.setRoles(roles);
-        
+
         UserStatus status = new UserStatus();
         status.setId(-1);
         user.setStatus(status);
-        
+
         user.setVerificationCode(UUID.randomUUID().toString());
         userRepository.save(user);
         return "Inserted";
     }
 
-//    public void saveRole(Role role) {
-//        roleRepository.save(role);
-//    }
+    public String verifyUser(String token) {
+        Optional<User> optionUser = userRepository.findByVerificationCode(token);
+        if (optionUser.isPresent()) {
+            User user = optionUser.get();
+            
+            UserStatus status = new UserStatus();
+            status.setId(0);
+            user.setStatus(status);
+            
+            user.setVerificationCode(null);
+            userRepository.save(user);
+            return "Success";
+        }
+        return "Failed";
+    }
 }

@@ -16,6 +16,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -77,5 +78,12 @@ public class UserRestController {
 
         status.put("Status: ", "Failed");
         return ResponseEntity.status(500).body(status);
+    }
+
+    @GetMapping("user/verify")
+    public ResponseEntity<Map<String, String>> verifyUser(String token) {
+        Map status = new HashMap();
+        status.put("Status", service.verifyUser(token));
+        return ResponseEntity.ok(status);
     }
 }
