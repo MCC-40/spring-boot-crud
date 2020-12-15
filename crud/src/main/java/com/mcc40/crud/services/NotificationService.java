@@ -55,10 +55,6 @@ public class NotificationService {
         if (optionalEmployee.isPresent()) {
             Employee employee = optionalEmployee.get();
 
-//            System.out.println("QWE");
-//            System.out.println(employee.getEmail());
-//            System.out.println(user.getEmployee().getEmail());
-
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setFrom(email);
             mailMessage.setTo(employee.getEmail());

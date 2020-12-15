@@ -52,7 +52,7 @@ public class UserRestController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, String> data) {
+    public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, Object> data) {
         Map status = new HashMap();
         User user = service.register(data);
         notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
@@ -65,10 +65,11 @@ public class UserRestController {
     public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
         Map status = new HashMap();
         status.put("Status: ", "Inserted");
-        Map<String, Object> user = (Map<String, Object>) data.get("user");
-        Map<String, Object> employee = (Map<String, Object>) data.get("employee");
-        employeeService.registerEmployee(employee);
-        service.register(user);
+        Map<String, Object> mapUser = (Map<String, Object>) data.get("user");
+        Map<String, Object> mapEmployee = (Map<String, Object>) data.get("employee");
+        employeeService.registerEmployee(mapEmployee);
+        User user = service.register(mapUser);
+        notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
         return ResponseEntity.accepted().body(status);
     }
 

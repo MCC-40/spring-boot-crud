@@ -77,13 +77,12 @@ public class EmployeeService {
 
         Job job = new Job();
         job.setId(data.get("job").toString());
-//        employee.setJob(jobRepository.findById(data.get("job").toString()).get());
         employee.setJob(job);
 
         Employee manager = new Employee();
         manager.setId((Integer) data.get("manager"));
         employee.setManager(manager);
-//
+        
         Department department = new Department();
         department.setId((Integer) data.get("department"));
         employee.setDepartment(department);
