@@ -163,4 +163,14 @@ public class UserService {
         user.setVerificationCode(null);
         userRepository.save(user);
     }
+
+    public String resetPassword(int id, String oldPassword, String newPassword) {
+        User user = userRepository.findById(id).get();
+        if (user.getPassword().equals(oldPassword)) {
+            user.setPassword(newPassword);
+            userRepository.save(user);
+            return "Success";
+        }
+        return "Failed";
+    }
 }
