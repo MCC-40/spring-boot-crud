@@ -86,7 +86,7 @@ public class UserService {
         user.setStatus(status);
 
         user.setVerificationCode(UUID.randomUUID().toString());
-//        System.out.println(user);
+        System.out.println(user);
         userRepository.save(user);
         return "Inserted";
     }
@@ -94,17 +94,20 @@ public class UserService {
     public String verifyUser(String token) {
         Optional<User> optionUser = userRepository.findByVerificationCode(token);
         if (optionUser.isPresent()) {
-            User user = optionUser.get();
-
+            System.out.println("QWEQWE");
+            User oldUser = optionUser.get();
+            System.out.println(oldUser.getVerificationCode());
+            
+            User user = new User();
+            user.setId(oldUser.getId());
+            user.setUsername(oldUser.getUsername());
+            user.setPassword(oldUser.getPassword());
+            user.setVerificationCode(null);
             UserStatus status = new UserStatus();
             status.setId(0);
             user.setStatus(status);
 
-            user.setVerificationCode(null);
-            System.out.println("ADA APA DENGANMU");
-            System.out.println(user.getStatus());
-            userRepository.flush();
-//            userRepository.save(user);
+            userRepository.save(user);
             return "Success";
         }
         return "Failed";
