@@ -41,7 +41,7 @@ public class UserRestController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Object> insertUser(@RequestBody Map<String, String> data) {
+    public ResponseEntity<Object> login(@RequestBody Map<String, String> data) {
         String usernameOrEmail = data.get("usernameOrEmail");
         String password = data.get("password");
         Map<String, Object> result = service.login(usernameOrEmail, password);
@@ -49,36 +49,36 @@ public class UserRestController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<Map<String, String>> insertUser(@Validated @RequestBody User user) {
+    public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, String> data) {
         Map status = new HashMap();
-        String result = service.register(user);
-        if (result.equals("Inserted")) {
-//            notificationService.sendVerificationMail(user.getId());
+        User user = service.register(data);
+//        if (result.equals("Inserted")) {
+            notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
             status.put("Status", "Verfication Email Send");
 
             return ResponseEntity.accepted().body(status);
-        }
-        return ResponseEntity.status(500).body(status);
+//        }
+//        return ResponseEntity.status(500).body(status);
     }
-
-    @PostMapping("register/employee")
-    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
-        Map status = new HashMap();
-        status.put("Status: ", "Inserted");
-        User user = (User) data.get("user");
-        Employee employee = (Employee) data.get("employee");
-        if (EmployeeRestController.registerEmployee(employee).equals("Inserted")) {
-            String result = service.register(user);
-            status.put("Status", result);
-            if (result.equals("Inserted")) {
-                return ResponseEntity.accepted().body(status);
-            }
-            return ResponseEntity.status(500).body(status);
-        }
-
-        status.put("Status: ", "Failed");
-        return ResponseEntity.status(500).body(status);
-    }
+//
+//    @PostMapping("register/employee")
+//    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
+//        Map status = new HashMap();
+//        status.put("Status: ", "Inserted");
+//        User user = (User) data.get("user");
+//        Employee employee = (Employee) data.get("employee");
+//        if (EmployeeRestController.registerEmployee(employee).equals("Inserted")) {
+//            String result = service.register(user);
+//            status.put("Status", result);
+//            if (result.equals("Inserted")) {
+//                return ResponseEntity.accepted().body(status);
+//            }
+//            return ResponseEntity.status(500).body(status);
+//        }
+//
+//        status.put("Status: ", "Failed");
+//        return ResponseEntity.status(500).body(status);
+//    }
 
     @GetMapping("user/verify")
     public ResponseEntity<Map<String, String>> verifyUser(String token) {

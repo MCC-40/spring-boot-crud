@@ -113,7 +113,13 @@ public class UserService {
         return result;
     }
 
-    public String register(User user) {
+    public User register(Map<String, String> data) {
+        User user = new User();
+        user.setId(Integer.parseInt(data.get("id")));
+        user.setUsername(data.get("username"));
+        user.setPassword(data.get("password"));
+        user.setVerificationCode(UUID.randomUUID().toString());
+
         Role role = new Role();
         role.setId(3);
         Set<Role> roles = new HashSet<>();
@@ -124,10 +130,8 @@ public class UserService {
         status.setId(-1);
         user.setStatus(status);
 
-        user.setVerificationCode(UUID.randomUUID().toString());
-        System.out.println(user);
         userRepository.save(user);
-        return "Inserted";
+        return user;
     }
 
     public String verifyUser(String token) {

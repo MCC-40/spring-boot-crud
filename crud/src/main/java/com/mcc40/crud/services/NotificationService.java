@@ -5,7 +5,9 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.UserRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +25,12 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
 
     JavaMailSender javaMailSender;
-    UserRepository userRepository;
+    EmployeeRepository employeeRepository;
 
     @Autowired
-    public NotificationService(JavaMailSender javaMailSender, UserRepository userRepository) {
+    public NotificationService(JavaMailSender javaMailSender, EmployeeRepository employeeRepository) {
         this.javaMailSender = javaMailSender;
-        this.userRepository = userRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Value("${spring.mail.username}")
@@ -48,15 +50,25 @@ public class NotificationService {
         return true;
     }
 
-    public boolean sendVerificationMail(int id) {
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+    public boolean sendVerificationMail(int id, String verificattionCode) {
+        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
+        if (optionalEmployee.isPresent()) {
+            Employee employee = optionalEmployee.get();
+
+//            System.out.println("QWE");
+//            System.out.println(employee.getEmail());
+//            System.out.println(user.getEmployee().getEmail());
+
             SimpleMailMessage mailMessage = new SimpleMailMessage();
             mailMessage.setFrom(email);
-            mailMessage.setTo(user.getEmployee().getEmail());
+            mailMessage.setTo(employee.getEmail());
             mailMessage.setSubject("Verification Mail");
-            mailMessage.setText("http://localhost:8081/api/user/verify?token=" + user.getVerificationCode());
+            mailMessage.setText("http://localhost:8081/api/user/verify?token=" + verificattionCode);
+            try {
+                javaMailSender.send(mailMessage);
+            } catch (MailException e) {
+                e.printStackTrace();
+            }
             return true;
         }
         return false;
