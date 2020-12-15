@@ -156,4 +156,11 @@ public class UserService {
         userRepository.save(user);
         return user;
     }
+
+    public void resetPassword(String verificationCode, String password) {
+        User user = userRepository.findByVerificationCode(verificationCode).get();
+        user.setPassword(password);
+        user.setVerificationCode(null);
+        userRepository.save(user);
+    }
 }

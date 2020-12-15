@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -86,5 +87,11 @@ public class UserRestController {
         User user = service.findUserByEmail(email);
         notificationService.sendForgotPasswordMail(email, user.getVerificationCode());
         return ResponseEntity.accepted().body("Reset Password Mail has been send");
+    }
+
+    @PostMapping("user/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody HashMap<String, String> data) {
+        service.resetPassword(data.get("token"), data.get("password"));
+        return ResponseEntity.accepted().body("Success");
     }
 }
