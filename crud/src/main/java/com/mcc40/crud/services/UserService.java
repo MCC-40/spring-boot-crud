@@ -5,8 +5,10 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Status;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +23,12 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     UserRepository userRepository;
+    EmployeeRepository employeeRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository) {
         this.userRepository = userRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     //get all 
@@ -42,7 +46,7 @@ public class UserService {
             return user.get();
         }
     }
-    
+
     //get by id
 //    public User getUserByVerificationCode(String verificationCode) {
 //        Optional<User> user = userRepository.findByVerificationCode(verificationCode);
@@ -53,7 +57,6 @@ public class UserService {
 //            return user.get();
 //        }
 //    }
-
     public User getUserByUsername(String username) {
         Optional<User> users = userRepository.findByUserName(username);
         if (!users.isPresent()) {
@@ -64,6 +67,10 @@ public class UserService {
     }
 
     public String saveUser(User user) {
+        Optional<Employee> emp = employeeRepository.findById(user.getId());
+        if (emp.isPresent()) {
+            user.setEmployee(emp.get());
+        }
         userRepository.save(user);
         return "success";
     }
@@ -124,13 +131,13 @@ public class UserService {
         return !userRepository.findById(id).isPresent();
     }
 
-    public boolean verify(String verificationCode){
+    public boolean verify(String verificationCode) {
         Optional<User> user = userRepository.findByVerificationCode(verificationCode);
-        if (user.isPresent()){
+        if (user.isPresent()) {
             user.get().setStatus(new Status(0));
             userRepository.save(user.get());
             return true;
-        }else{
+        } else {
             return false;
         }
     }

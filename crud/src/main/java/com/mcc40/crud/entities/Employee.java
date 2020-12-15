@@ -81,6 +81,10 @@ public class Employee implements Serializable {
     public Employee() {
     }
 
+    public Employee(Integer id) {
+        this.id = id;
+    }
+
     @XmlTransient
     public List<Department> getDepartmentList() {
         return departmentList;

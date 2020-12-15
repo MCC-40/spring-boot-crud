@@ -10,7 +10,9 @@ import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Location;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.repositories.DepartmentRepository;
 import com.mcc40.crud.repositories.EmployeeRepository;
+import com.mcc40.crud.repositories.JobRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +26,14 @@ import org.springframework.stereotype.Service;
 public class EmployeeService {
 
     EmployeeRepository employeeRepository;
+    JobRepository jobRepository;
+    DepartmentRepository departmentRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, JobRepository jobRepository, DepartmentRepository departmentRepository) {
         this.employeeRepository = employeeRepository;
+        this.jobRepository = jobRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     //get all 
@@ -50,29 +56,32 @@ public class EmployeeService {
     public String saveEmployee(Employee employee) {
         String result = null;
         Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
-        try {
-            if (optionalEmployee.isPresent() == false) {
-                employeeRepository.save(employee);
-                result = "Inserted";
-            } else if (optionalEmployee.get().equals(true)) {
-                Employee oldEmployee = optionalEmployee.get();
-                oldEmployee.setFirstName(employee.getFirstName());
-                oldEmployee.setLastName(employee.getLastName());
-                oldEmployee.setEmail(employee.getEmail());
-                oldEmployee.setPhoneNumber(employee.getPhoneNumber());
-                oldEmployee.setHireDate(employee.getHireDate());
-                oldEmployee.setJob(employee.getJob());
-                oldEmployee.setSalary(employee.getSalary());
-                oldEmployee.setCommissionPct(employee.getCommissionPct());
-                oldEmployee.setManager(employee.getManager());
-                oldEmployee.setDepartment(employee.getDepartment());
-                employee = oldEmployee;
-                result = "Updated";
-            }
-        } catch (Exception e) {
-            result = "Unknown Error";
-            System.out.println(e.toString());
+//        try {
+        if (optionalEmployee.isPresent() == false) {
+            employee.setJob(jobRepository.findById(employee.getJob().getId()).get());
+            employee.setManager(employeeRepository.findById(employee.getManager().getId()).get());
+            employee.setDepartment(departmentRepository.findById(employee.getDepartment().getId()).get());
+            employeeRepository.save(employee);
+            result = "Inserted";
+        } else {
+            Employee oldEmployee = optionalEmployee.get();
+            oldEmployee.setFirstName(employee.getFirstName());
+            oldEmployee.setLastName(employee.getLastName());
+            oldEmployee.setEmail(employee.getEmail());
+            oldEmployee.setPhoneNumber(employee.getPhoneNumber());
+            oldEmployee.setHireDate(employee.getHireDate());
+            employee.setJob(jobRepository.findById(employee.getJob().getId()).get());
+            oldEmployee.setSalary(employee.getSalary());
+            oldEmployee.setCommissionPct(employee.getCommissionPct());
+            oldEmployee.setManager(employeeRepository.findById(employee.getManager().getId()).get());
+            employee.setDepartment(departmentRepository.findById(employee.getManager().getId()).get());
+            employeeRepository.save(oldEmployee);
+            result = "Updated";
         }
+//        } catch (Exception e) {
+//            result = "Unknown Error";
+//            System.err.println(e.getStackTrace());
+//        }
         return result;
     }
 

@@ -69,10 +69,10 @@ public class DepartmentController {
         return "index";
     }
     
-    @RequestMapping("email")
-    public String sendEmailNotification(){
-        notificationService.javaSimpleEmail("yusufmochamad.sch.acc@gmail.com");
-        return "index";
-    }
+//    @RequestMapping("email")
+//    public String sendEmailNotification(){
+//        notificationService.javaSimpleEmail("yusufmochamad.sch.acc@gmail.com", "This is email", "This is body");
+//        return "index";
+//    }
 
 }

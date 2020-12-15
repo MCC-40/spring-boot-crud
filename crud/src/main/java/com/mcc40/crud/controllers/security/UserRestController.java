@@ -5,6 +5,9 @@
  */
 package com.mcc40.crud.controllers.security;
 
+import com.mcc40.crud.entities.Department;
+import com.mcc40.crud.entities.Employee;
+import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.entities.Role;
 import com.mcc40.crud.entities.Status;
 import com.mcc40.crud.entities.User;
@@ -12,6 +15,8 @@ import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.RoleService;
 import com.mcc40.crud.services.UserService;
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,13 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +46,7 @@ public class UserRestController {
     EmployeeService employeeService;
     RoleService roleService;
     NotificationService notificationService;
+
     static User loggedUser;
 
     @Autowired
@@ -146,21 +151,27 @@ public class UserRestController {
     }
 
     @GetMapping("active")
-    public ResponseEntity<Map<String, String>> getActiveUser() {
-        Map status = new HashMap();
-        status.put("id", loggedUser.getId());
-        status.put("email", loggedUser.getEmployee().getEmail());
+    public ResponseEntity<Map<String, Object>> getActiveUser() {
+        Map status = new LinkedHashMap();
+        if (loggedUser != null) {
+            status.put("id", loggedUser.getId());
+            status.put("email", loggedUser.getEmployee().getEmail());
 
-        List<String> roles = new ArrayList<>();
-        for (Role role : loggedUser.getRoleList()) {
-            roles.add(role.getName());
+            List<String> roles = new ArrayList<>();
+            for (Role role : loggedUser.getRoleList()) {
+                roles.add(role.getName());
+            }
+            status.put("role", roles);
+            return ResponseEntity.ok(status);
+        } else {
+            status.put("status", "no active user");
+            return ResponseEntity.status(401).body(status);
         }
-        status.put("role", roles);
-        return ResponseEntity.ok(status);
+
     }
 
     @PostMapping("reg")
-    public ResponseEntity<Map<String, String>> signUp(@RequestBody Map<String, String> json) {
+    public ResponseEntity<Map<String, String>> signUp(@RequestBody Map<String, String> json) throws InterruptedException {
         String id = json.get("id");
         String username = json.get("username");
         String password = json.get("password");
@@ -180,9 +191,36 @@ public class UserRestController {
 
         if (employeeService.getByIdEmployee(Integer.parseInt(id)) == null) {
 //            status.put("status", "creating employee");
-//            Employee employee;
-//            employeeService.saveEmployee(employee);
-//            return ResponseEntity.status(500).body(status);
+            System.out.println("create new employee");
+            Employee employee = new Employee();
+            employee.setId(Integer.parseInt(json.get("id")));
+            employee.setFirstName(json.get("firstName"));
+            employee.setLastName(json.get("lastName"));
+            employee.setEmail(json.get("email"));
+            employee.setPhoneNumber(json.get("phoneNumber"));
+            employee.setHireDate(Date.valueOf(json.get("hireDate")));
+            employee.setSalary(BigDecimal.valueOf(Long.parseLong(json.get("salary"))));
+            if (json.get("commissionPct") != null) {
+                employee.setCommissionPct(BigDecimal.valueOf(Long.getLong(json.get("commissionPct").toString())));
+            } else {
+                employee.setCommissionPct(null);
+            }
+
+            Job job = new Job();
+            job.setId(json.get("jobId"));
+            employee.setJob(job);
+
+            Employee manager = new Employee();
+            manager.setId(Integer.parseInt(json.get("managerId")));
+
+            employee.setManager(manager);
+
+            Department department = new Department();
+            department.setId(Integer.parseInt(json.get("departmentId")));
+            employee.setDepartment(department);
+            System.out.println(employee);
+
+            System.out.println(employeeService.saveEmployee(employee));
         }
 
         User user = new User();
@@ -192,16 +230,20 @@ public class UserRestController {
         user.setStatus(new Status(-1));
         user.setVerificationCode(UUID.randomUUID().toString());
 
-        userService.saveUser(user);
-
         List<Role> roleList = new ArrayList<>();
         roleList.add(roleService.getByIdRole(3));
         user.setRoleList(roleList);
 
         userService.saveUser(user);
-//        notificationService.javaSimpleEmail(user,
-//                "[Test] Verify your account",
-//                "Verify your account: " + "Localhost:8081/users/verify/" + user.getVerificationCode());
+
+        List<User> userList = userService.getAllUsers();
+        for (User user1 : userList) {
+            System.out.println(user1.getEmployee().getEmail());
+        }
+
+        notificationService.javaSimpleEmail(user,
+                "[Test] Verify your account",
+                "Verify your account: " + "Localhost:8081/users/verify/" + user.getVerificationCode());
 
         status.put("status", "success");
 

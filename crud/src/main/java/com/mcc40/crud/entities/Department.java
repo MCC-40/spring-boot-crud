@@ -49,6 +49,10 @@ public class Department implements Serializable {
 
     public Department() {
     }
+
+    public Department(Integer id) {
+        this.id = id;
+    }
     
     @XmlTransient
     public List<Employee> getEmployeeList() {

@@ -47,6 +47,10 @@ public class Job implements Serializable {
     public Job() {
     }
 
+    public Job(String id) {
+        this.id = id;
+    }
+
     @XmlTransient
     public List<Employee> getEmployeeList() {
         return employeeList;
