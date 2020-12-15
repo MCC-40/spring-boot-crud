@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.mcc40.crud.controllers.security;
+package com.mcc40.crud.controllers.restfuls;
 
 import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
@@ -11,6 +11,7 @@ import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.entities.Role;
 import com.mcc40.crud.entities.Status;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.entities.security.LoginData;
 import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.RoleService;
@@ -43,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Mochamad Yusuf
  */
 @RestController
-@RequestMapping("users")
+@RequestMapping("api/users")
 public class UserRestController {
 
     UserService userService;
@@ -51,7 +52,7 @@ public class UserRestController {
     RoleService roleService;
     NotificationService notificationService;
 
-    static User loggedUser;
+    User loggedUser;
 
     @Autowired
     public UserRestController(UserService userService,
@@ -90,67 +91,15 @@ public class UserRestController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String, Object>> signIn(@RequestBody Map<String, String> json) {
-        Map status = new LinkedHashMap();
-        String username = json.get("username");
-        String password = json.get("password");
-
-        List<User> userList = userService.getAllUsers();
-        if (username != null) {
-            userList = userList.stream().filter(d
-                    -> d.getUserName().toString().equals(username)
-                    || d.getEmployee().getEmail().toString().equals(username)
-            ).collect(Collectors.toList());
+    public ResponseEntity<Map<String, Object>> signIn(@RequestBody LoginData loginData) {
+        System.out.println(loginData);
+        Map map = userService.login(loginData.getUsername(), loginData.getPassword());
+        loggedUser = (User) map.get("entity");
+        map.remove("entity");
+        if (map.get("status").equals(0)) {
+            return ResponseEntity.ok(map);
         } else {
-            status.put("status", "insert username!");
-            return ResponseEntity.status(500).body(status);
-        }
-
-        if (userList.size() == 1) {                                 // User exist
-            User user = userList.get(0);
-            if (userList.get(0).getPassword().equals(password)) {   // Comparing password
-                switch (user.getStatus().getId()) {
-                    case -1:
-                        status.put("status", "unverified email log in");
-                        break;
-                    case 0:
-                    case 1:
-                    case 2:
-                        loggedUser = user;
-                        status.put("id", user.getId());
-                        status.put("email", user.getEmployee().getEmail());
-
-                        List<String> roles = new ArrayList<>();
-                        for (Role role : user.getRoleList()) {
-                            roles.add(role.getName());
-                        }
-                        status.put("role", roles);
-                        break;
-                    case 3:
-                        status.put("status", "user banned");
-                    default:
-                        status.put("status", "invalid status");
-                }
-            } else {
-                switch (user.getStatus().getId()) {
-                    case 0:
-                    case 1:
-                    case 2:
-                        user.setStatus(new Status(user.getStatus().getId() + 1));
-                        userService.saveUser(user);
-                        status.put("status", "wrong password");
-                        break;
-                    default:
-                        status.put("status", "user banned");
-                        break;
-                }
-            }
-
-            return ResponseEntity.accepted().body(status);
-
-        } else {
-            status.put("status", "no username or email match");
-            return ResponseEntity.status(500).body(status);
+            return ResponseEntity.status(401).body(map);
         }
     }
 
@@ -176,12 +125,13 @@ public class UserRestController {
 
     @PostMapping("reg")
     public ResponseEntity<Map<String, String>> signUp(@RequestBody Map<String, String> json) throws InterruptedException {
+        Map status = new HashMap();
+
         String id = json.get("id");
         String username = json.get("username");
         String password = json.get("password");
 
         System.out.println(id + " | " + username + " | " + password);
-        Map status = new HashMap();
 
         if (userService.getUserById(Integer.parseInt(id)) != null) {
             status.put("status", "user is already registered");
@@ -246,7 +196,7 @@ public class UserRestController {
         }
 
         try {
-            notificationService.javaMimeEmail(user,
+            notificationService.sendEmail(user,
                     "Verify your account ",
                     "<html><body>"
                     + "Verify your account "
@@ -275,9 +225,10 @@ public class UserRestController {
 
     }
 
-    @PostMapping("reset/{verificationCode}")
+    @PostMapping("reset-password/{verificationCode}")
     public ResponseEntity<Map<String, String>> resetPassword(@PathVariable String verificationCode, @RequestBody Map<String, String> json) {
         Map status = new LinkedHashMap();
+
         String password = json.get("password");
         if (userService.resetPassword(verificationCode, password)) {
             status.put("status", "password changed");
@@ -288,32 +239,19 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("reset-password")
-    public ResponseEntity<Map<String, String>> sendResetPasswordMessage(@RequestBody Map<String, String> json) {
+    @PostMapping("forgot-password")
+    public ResponseEntity<Map<String, String>> requestPasswordReset(@RequestBody Map<String, String> json) {
         Map map = new LinkedHashMap();
         String email = json.get("email");
-        User user = userService.getUserByEmail(email);
-        if (user != null) {
-            try {
-                user.setVerificationCode(UUID.randomUUID().toString());     // Re generating verification code
-                userService.saveUser(user);
-
-                notificationService.javaMimeEmail(user,
-                        "Reset password",
-                        "<html><body>"
-                        + "Reset your password "
-                        + "<a href='http://Localhost:8081/users/reset/" + user.getVerificationCode()
-                        + "'>here</a>"
-                        + "</body></html>");
-            } catch (MessagingException ex) {
-                Logger.getLogger(UserRestController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        boolean result = userService.requestPasswordReset(email);
+        if (result) {
             map.put("Status", "Reset link sent");
-            return ResponseEntity.accepted().body(map);
+            return ResponseEntity.ok(map);
         } else {
             map.put("Status", "No email found");
-            return ResponseEntity.status(404).body(map);
+            return ResponseEntity.status(500).body(map);
         }
+
     }
 
 }

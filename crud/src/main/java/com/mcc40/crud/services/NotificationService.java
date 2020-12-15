@@ -42,7 +42,7 @@ public class NotificationService {
         javaMailSender.send(mailMessage);
     }
 
-    public void javaMimeEmail(User user, String subject, String body) throws MessagingException {
+    public void sendEmail(User user, String subject, String body) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         

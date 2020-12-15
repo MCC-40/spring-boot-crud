@@ -32,13 +32,6 @@ import lombok.Data;
 @Data
 public class User implements Serializable {
 
-    @Basic(optional = false)
-    @Column(name = "verification_code")
-    private String verificationCode;
-    @JoinColumn(name = "status", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private Status status;
-
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -57,6 +50,14 @@ public class User implements Serializable {
     private List<Role> roleList;
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Employee employee;
+    
+    @Basic(optional = true)
+    @Column(name = "verification_code")
+    private String verificationCode;
+    @JoinColumn(name = "status", referencedColumnName = "id")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Status status;
+
 
     public User() {
     }
