@@ -23,9 +23,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -241,9 +245,17 @@ public class UserRestController {
             System.out.println(user1.getEmployee().getEmail());
         }
 
-        notificationService.javaSimpleEmail(user,
-                "[Test] Verify your account",
-                "Verify your account: " + "Localhost:8081/users/verify/" + user.getVerificationCode());
+        try {
+            notificationService.javaMimeEmail(user,
+                    "Verify your account ",
+                    "<html><body>"
+                    + "Verify your account "
+                    + "<a href='http://Localhost:8081/users/verify/" + user.getVerificationCode()
+                    + "'>here</a>"
+                    + "</body></html>");
+        } catch (MessagingException ex) {
+            Logger.getLogger(UserRestController.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         status.put("status", "success");
 
@@ -255,10 +267,53 @@ public class UserRestController {
         Map status = new HashMap();
         if (userService.verify(verificationCode)) {
             status.put("status", "verification success");
+            return ResponseEntity.accepted().body(status);
         } else {
-            status.put("status", "verification failed");
+            status.put("status", "invalid verification request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(status);
         }
-        return ResponseEntity.accepted().body(status);
+
+    }
+
+    @PostMapping("reset/{verificationCode}")
+    public ResponseEntity<Map<String, String>> resetPassword(@PathVariable String verificationCode, @RequestBody Map<String, String> json) {
+        Map status = new LinkedHashMap();
+        String password = json.get("password");
+        if (userService.resetPassword(verificationCode, password)) {
+            status.put("status", "password changed");
+            return ResponseEntity.accepted().body(status);
+        } else {
+            status.put("status", "invalid password reset request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(status);
+        }
+    }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<Map<String, String>> sendResetPasswordMessage(@RequestBody Map<String, String> json) {
+        Map map = new LinkedHashMap();
+        String email = json.get("email");
+        User user = userService.getUserByEmail(email);
+        if (user != null) {
+            try {
+                user.setVerificationCode(UUID.randomUUID().toString());     // Re generating verification code
+                userService.saveUser(user);
+
+                notificationService.javaMimeEmail(user,
+                        "Reset password",
+                        "<html><body>"
+                        + "Reset your password "
+                        + "<a href='http://Localhost:8081/users/reset/" + user.getVerificationCode()
+                        + "'>here</a>"
+                        + "</body></html>");
+            } catch (MessagingException ex) {
+                Logger.getLogger(UserRestController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            map.put("Status", "Reset link sent");
+            return ResponseEntity.accepted().body(map);
+        } else {
+            map.put("Status", "No email found");
+            return ResponseEntity.status(404).body(map);
+        }
     }
 
 }

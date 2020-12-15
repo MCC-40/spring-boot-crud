@@ -12,6 +12,7 @@ import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.UserRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,22 +48,41 @@ public class UserService {
         }
     }
 
-    //get by id
-//    public User getUserByVerificationCode(String verificationCode) {
-//        Optional<User> user = userRepository.findByVerificationCode(verificationCode);
-//        System.out.println(user.isPresent());
-//        if (!user.isPresent()) {
-//            return null;
-//        } else {
-//            return user.get();
-//        }
-//    }
     public User getUserByUsername(String username) {
         Optional<User> users = userRepository.findByUserName(username);
         if (!users.isPresent()) {
             return null;
         } else {
             return users.get();
+        }
+    }
+    
+    public User getUserByEmail(String username) {
+        List<User> userList = userRepository.findAll();
+        if (username != null) {
+            userList = userList.stream().filter(d
+                    -> d.getEmployee().getEmail().toString().equals(username)
+            ).collect(Collectors.toList());
+        }
+        if (userList.size() == 1) {
+            return userList.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public User getUserByUsernameOrEmail(String username) {
+        List<User> userList = userRepository.findAll();
+        if (username != null) {
+            userList = userList.stream().filter(d
+                    -> d.getUserName().toString().equals(username)
+                    || d.getEmployee().getEmail().toString().equals(username)
+            ).collect(Collectors.toList());
+        }
+        if (userList.size() == 1) {
+            return userList.get(0);
+        } else {
+            return null;
         }
     }
 
@@ -74,66 +94,22 @@ public class UserService {
         userRepository.save(user);
         return "success";
     }
-//
-//    //insert
-//    public String insertUser(User user) {
-//        String result = "Unknown Error";
-//        Optional<User> optionalUser = userRepository.findById(user.getId());
-//        try {
-//            if (optionalUser.isPresent() == false) {
-//                userRepository.save(user);
-//                result = "Inserted";
-//            } else {
-////                User oldUser = optionalUser.get();
-////                oldUser.setName(user.getName());
-////                user = oldUser;
-////                result = "Updated";
-//                result = "Id already exist";
-//            }
-//        } catch (Exception e) {
-//            result = "Unknown Error";
-//            System.out.println(e.toString());
-//        }
-//        userRepository.save(user);
-//        return result;
-//    }
-//
-//    public String putUser(User user) {
-//        String result = "Unknown Error";
-//        Optional<User> optionalUser = userRepository.findById(user.getId());
-//        try {
-//            if (optionalUser.isPresent() == false) {
-////                userRepository.save(user);
-////                result = "Inserted";
-//                result = "Id is not exist";
-//            } else {
-//                User oldUser = optionalUser.get();
-//                if (user.getUserName() != null) {
-//                    oldUser.setUserName(user.getUserName());
-//                }
-//                if (user.getPassword() != null) {
-//                    oldUser.setPassword(user.getPassword());
-//                }
-//                user = oldUser;
-//                result = "Updated";
-//            }
-//        } catch (Exception e) {
-//            result = "Unknown Error";
-//            System.out.println(e.toString());
-//        }
-//        userRepository.save(user);
-//        return result;
-//    }
-
-    //delete
-    public boolean deleteUser(int id) {
-        userRepository.deleteById(id);
-        return !userRepository.findById(id).isPresent();
-    }
 
     public boolean verify(String verificationCode) {
         Optional<User> user = userRepository.findByVerificationCode(verificationCode);
         if (user.isPresent()) {
+            user.get().setStatus(new Status(0));
+            userRepository.save(user.get());
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean resetPassword(String verificationCode, String password){
+         Optional<User> user = userRepository.findByVerificationCode(verificationCode);
+        if (user.isPresent() && user.get().getStatus().getId() != -1) {
+            user.get().setPassword(password);
             user.get().setStatus(new Status(0));
             userRepository.save(user.get());
             return true;
