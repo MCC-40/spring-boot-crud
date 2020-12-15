@@ -13,9 +13,11 @@ import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,17 +29,41 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private static UserRepository userRepository;
     private final EmployeeRepository employeeRepository;
 
     @Autowired
     public UserService(UserRepository userRepository, EmployeeRepository employeeRepository) {
-        this.userRepository = userRepository;
+        UserService.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
     }
 
     public User getUserById(int id) {
         return userRepository.findById(id).get();
+    }
+
+    private static String updateUser(User olduUser, int statusId) {
+        User user = new User();
+        user.setId(olduUser.getId());
+        user.setUsername(olduUser.getUsername());
+        user.setPassword(olduUser.getPassword());
+        user.setVerificationCode(null);
+
+        System.out.println("ROLES");
+        Set<Role> roles = new HashSet<>();
+        olduUser.getRoles().forEach((role) -> {
+            Role r = new Role();
+            r.setId(role.getId());
+            roles.add(r);
+        });
+        user.setRoles(roles);
+
+        UserStatus status = new UserStatus();
+        status.setId(statusId);
+        user.setStatus(status);
+
+        userRepository.save(user);
+        return "Success";
     }
 
     public Map<String, Object> login(String usernameOrEmail, String password) {
@@ -48,8 +74,12 @@ public class UserService {
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            if (user.getPassword().equals(password)) {
-                result.clear();
+            result.clear();
+            if (user.getStatus().getId() == -1) {
+                result.put("result", "User not Verified");
+            } else if (user.getStatus().getId() == 3) {
+                result.put("result", "User Banned");
+            } else if (user.getPassword().equals(password)) {
                 result.put("id", user.getId());
                 List<String> listRole = new ArrayList<>();
                 user.getRoles().forEach((role) -> {
@@ -57,18 +87,32 @@ public class UserService {
                 });
                 result.put("roles", listRole);
                 result.put("email", user.getEmployee().getEmail());
+                updateUser(user, 0);
+            } else {
+                result.put("result", "Wrong Password");
+                updateUser(user, user.getStatus().getId() + 1);
             }
         } else if (optionalEmployee.isPresent()) {
             Employee employee = optionalEmployee.get();
-            if (employee.getEmail().equals(usernameOrEmail) && employee.getUser().getPassword().equals(password)) {
+            User user = employee.getUser();
+            result.clear();
+            if (user.getStatus().getId() == -1) {
+                result.put("result", "User not Verified");
+            } else if (user.getStatus().getId() == 3) {
+                result.put("result", "User Banned");
+            } else if (user.getPassword().equals(password) && employee.getEmail().equals(usernameOrEmail)) {
                 result.clear();
                 result.put("id", employee.getUser().getId());
                 List<String> listRole = new ArrayList<>();
-                employee.getUser().getRoles().forEach((role) -> {
+                user.getRoles().forEach((role) -> {
                     listRole.add(role.getName());
                 });
                 result.put("roles", listRole);
                 result.put("email", employee.getEmail());
+                updateUser(user, 0);
+            } else {
+                result.put("result", "Wrong Password");
+                updateUser(user, user.getStatus().getId() + 1);
             }
         }
         return result;
@@ -77,7 +121,7 @@ public class UserService {
     public String register(User user) {
         Role role = new Role();
         role.setId(3);
-        List<Role> roles = new ArrayList<>();
+        Set<Role> roles = new HashSet<>();
         roles.add(role);
         user.setRoles(roles);
 
@@ -94,20 +138,9 @@ public class UserService {
     public String verifyUser(String token) {
         Optional<User> optionUser = userRepository.findByVerificationCode(token);
         if (optionUser.isPresent()) {
-            System.out.println("QWEQWE");
             User oldUser = optionUser.get();
-            System.out.println(oldUser.getVerificationCode());
-            
-            User user = new User();
-            user.setId(oldUser.getId());
-            user.setUsername(oldUser.getUsername());
-            user.setPassword(oldUser.getPassword());
-            user.setVerificationCode(null);
-            UserStatus status = new UserStatus();
-            status.setId(0);
-            user.setStatus(status);
+            updateUser(oldUser, 0);
 
-            userRepository.save(user);
             return "Success";
         }
         return "Failed";
