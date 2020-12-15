@@ -42,7 +42,7 @@ public class UserService {
         return userRepository.findById(id).get();
     }
 
-    private static String updateUser(User olduUser, int statusId) {
+    private static void updateUser(User olduUser, int statusId) {
         User user = new User();
         user.setId(olduUser.getId());
         user.setUsername(olduUser.getUsername());
@@ -63,7 +63,35 @@ public class UserService {
         user.setStatus(status);
 
         userRepository.save(user);
-        return "Success";
+    }
+
+    private static Map<String, Object> loginResultSetup(User user, String password) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (user.getStatus().getId() == -1) {
+            result.put("description", "User not Verified");
+            result.put("status", 401);
+        } else if (user.getStatus().getId() == 3) {
+            result.put("description", "User Banned");
+            result.put("status", 401);
+        } else if (user.getPassword().equals(password)) {
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", user.getId());
+            List<String> listRole = new ArrayList<>();
+            user.getRoles().forEach((role) -> {
+                listRole.add(role.getName());
+            });
+            userMap.put("roles", listRole);
+            userMap.put("email", user.getEmployee().getEmail());
+            result.put("description", userMap);
+            result.put("status", 200);
+            updateUser(user, 0);
+        } else {
+            result.put("description", "Wrong Password");
+            result.put("status", 401);
+            updateUser(user, user.getStatus().getId() + 1);
+        }
+        return result;
     }
 
     public Map<String, Object> login(String usernameOrEmail, String password) {
@@ -75,45 +103,12 @@ public class UserService {
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             result.clear();
-            if (user.getStatus().getId() == -1) {
-                result.put("result", "User not Verified");
-            } else if (user.getStatus().getId() == 3) {
-                result.put("result", "User Banned");
-            } else if (user.getPassword().equals(password)) {
-                result.put("id", user.getId());
-                List<String> listRole = new ArrayList<>();
-                user.getRoles().forEach((role) -> {
-                    listRole.add(role.getName());
-                });
-                result.put("roles", listRole);
-                result.put("email", user.getEmployee().getEmail());
-                updateUser(user, 0);
-            } else {
-                result.put("result", "Wrong Password");
-                updateUser(user, user.getStatus().getId() + 1);
-            }
+            result = loginResultSetup(user, password);
         } else if (optionalEmployee.isPresent()) {
             Employee employee = optionalEmployee.get();
             User user = employee.getUser();
             result.clear();
-            if (user.getStatus().getId() == -1) {
-                result.put("result", "User not Verified");
-            } else if (user.getStatus().getId() == 3) {
-                result.put("result", "User Banned");
-            } else if (user.getPassword().equals(password) && employee.getEmail().equals(usernameOrEmail)) {
-                result.clear();
-                result.put("id", employee.getUser().getId());
-                List<String> listRole = new ArrayList<>();
-                user.getRoles().forEach((role) -> {
-                    listRole.add(role.getName());
-                });
-                result.put("roles", listRole);
-                result.put("email", employee.getEmail());
-                updateUser(user, 0);
-            } else {
-                result.put("result", "Wrong Password");
-                updateUser(user, user.getStatus().getId() + 1);
-            }
+            result = loginResultSetup(user, password);
         }
         return result;
     }

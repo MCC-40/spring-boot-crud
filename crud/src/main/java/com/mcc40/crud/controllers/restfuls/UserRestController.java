@@ -14,6 +14,7 @@ import com.mcc40.crud.services.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,11 +41,11 @@ public class UserRestController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Object> insertUser(@RequestBody ObjectNode objectNode) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String usernameOrEmail = objectMapper.convertValue(objectNode.get("usernameOrEmail"), String.class);
-        String password = objectMapper.convertValue(objectNode.get("password"), String.class);
-        return ResponseEntity.accepted().body(service.login(usernameOrEmail, password));
+    public ResponseEntity<Object> insertUser(@RequestBody Map<String, String> data) {
+        String usernameOrEmail = data.get("usernameOrEmail");
+        String password = data.get("password");
+        Map<String, Object> result = service.login(usernameOrEmail, password);
+        return ResponseEntity.status(Integer.parseInt(result.get("status").toString())).body(result.get("description"));
     }
 
     @PostMapping("register")
@@ -61,12 +62,11 @@ public class UserRestController {
     }
 
     @PostMapping("register/employee")
-    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody ObjectNode objectNode) {
+    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
         Map status = new HashMap();
         status.put("Status: ", "Inserted");
-        ObjectMapper objectMapper = new ObjectMapper();
-        User user = objectMapper.convertValue(objectNode.get("user"), User.class);
-        Employee employee = objectMapper.convertValue(objectNode.get("employee"), Employee.class);
+        User user = (User) data.get("user");
+        Employee employee = (Employee) data.get("employee");
         if (EmployeeRestController.registerEmployee(employee).equals("Inserted")) {
             String result = service.register(user);
             status.put("Status", result);
