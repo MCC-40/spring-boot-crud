@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.UserService;
 import java.util.HashMap;
@@ -32,12 +33,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserRestController {
 
     private UserService service;
+    private EmployeeService employeeService;
     private NotificationService notificationService;
 
     @Autowired
-    public UserRestController(UserService service, NotificationService notificationService) {
+    public UserRestController(UserService service, NotificationService notificationService, EmployeeService employeeService) {
         this.service = service;
         this.notificationService = notificationService;
+        this.employeeService = employeeService;
     }
 
     @PostMapping("login")
@@ -52,33 +55,31 @@ public class UserRestController {
     public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, String> data) {
         Map status = new HashMap();
         User user = service.register(data);
-//        if (result.equals("Inserted")) {
-            notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
-            status.put("Status", "Verfication Email Send");
+        notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
+        status.put("Status", "Verfication Email Send");
+        return ResponseEntity.accepted().body(status);
 
-            return ResponseEntity.accepted().body(status);
-//        }
-//        return ResponseEntity.status(500).body(status);
     }
-//
-//    @PostMapping("register/employee")
-//    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
-//        Map status = new HashMap();
-//        status.put("Status: ", "Inserted");
-//        User user = (User) data.get("user");
-//        Employee employee = (Employee) data.get("employee");
+
+    @PostMapping("register/employee")
+    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
+        Map status = new HashMap();
+        status.put("Status: ", "Inserted");
+        Map<String, String> user = (Map<String, String>) data.get("user");
+        Map<String, Object> employee = (Map<String, Object>) data.get("employee");
+        employeeService.registerEmployee(employee);
 //        if (EmployeeRestController.registerEmployee(employee).equals("Inserted")) {
-//            String result = service.register(user);
+//            User result = service.register(user);
 //            status.put("Status", result);
 //            if (result.equals("Inserted")) {
-//                return ResponseEntity.accepted().body(status);
+        return ResponseEntity.accepted().body(status);
 //            }
 //            return ResponseEntity.status(500).body(status);
 //        }
-//
+
 //        status.put("Status: ", "Failed");
 //        return ResponseEntity.status(500).body(status);
-//    }
+    }
 
     @GetMapping("user/verify")
     public ResponseEntity<Map<String, String>> verifyUser(String token) {

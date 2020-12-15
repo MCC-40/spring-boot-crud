@@ -54,10 +54,10 @@ public class EmployeeRestController {
         return e;
     }
 
-    public static String registerEmployee(Employee employee) {
-        service.saveEmployee(employee);
-        return "Inserted";
-    }
+//    public static String registerEmployee(Map<String, Object> data) {
+//        service.registerEmployee(data);
+//        return "Inserted";
+//    }
 
     @GetMapping("")
     public static ResponseEntity<Map<String, Object>> getById(int id) {
