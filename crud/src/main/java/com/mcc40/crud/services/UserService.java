@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,11 +32,14 @@ public class UserService {
 
     private static UserRepository userRepository;
     private final EmployeeRepository employeeRepository;
-
+    private static PasswordEncoder encoder;
+    
     @Autowired
-    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository) {
+    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, PasswordEncoder encoder) {
         UserService.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
+        this.encoder = encoder;
+
     }
 
     public User getUserById(int id) {
@@ -74,7 +78,7 @@ public class UserService {
         } else if (user.getStatus().getId() == 3) {
             result.put("description", "User Banned");
             result.put("status", 401);
-        } else if (user.getPassword().equals(password)) {
+        } else if (encoder.matches(password, user.getPassword())) {
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("id", user.getId());
             List<String> listRole = new ArrayList<>();
@@ -115,14 +119,9 @@ public class UserService {
 
     public User register(Map<String, Object> data) {
         User user = new User();
-        System.out.println("QWE");
-        System.out.println(data);
-        System.out.println(data.get("id"));
-        System.out.println(data.get("username"));
-        System.out.println(data.get("password"));
         user.setId(Integer.parseInt(data.get("id").toString()));
         user.setUsername(data.get("username").toString());
-        user.setPassword(data.get("password").toString());
+        user.setPassword(encoder.encode(data.get("password").toString()));
         user.setVerificationCode(UUID.randomUUID().toString());
 
         Role role = new Role();
