@@ -124,92 +124,11 @@ public class UserRestController {
     }
 
     @PostMapping("reg")
-    public ResponseEntity<Map<String, String>> signUp(@RequestBody Map<String, String> json) throws InterruptedException {
-        Map status = new HashMap();
-
-        String id = json.get("id");
-        String username = json.get("username");
-        String password = json.get("password");
-
-        System.out.println(id + " | " + username + " | " + password);
-
-        if (userService.getUserById(Integer.parseInt(id)) != null) {
-            status.put("status", "user is already registered");
-            return ResponseEntity.status(500).body(status);
-        }
-
-        if (userService.getUserByUsername(username) != null) {
-            status.put("status", "username is not available");
-            return ResponseEntity.status(500).body(status);
-        }
-
-        if (employeeService.getByIdEmployee(Integer.parseInt(id)) == null) {
-//            status.put("status", "creating employee");
-            System.out.println("create new employee");
-            Employee employee = new Employee();
-            employee.setId(Integer.parseInt(json.get("id")));
-            employee.setFirstName(json.get("firstName"));
-            employee.setLastName(json.get("lastName"));
-            employee.setEmail(json.get("email"));
-            employee.setPhoneNumber(json.get("phoneNumber"));
-            employee.setHireDate(Date.valueOf(json.get("hireDate")));
-            employee.setSalary(BigDecimal.valueOf(Long.parseLong(json.get("salary"))));
-            if (json.get("commissionPct") != null) {
-                employee.setCommissionPct(BigDecimal.valueOf(Long.getLong(json.get("commissionPct").toString())));
-            } else {
-                employee.setCommissionPct(null);
-            }
-
-            Job job = new Job();
-            job.setId(json.get("jobId"));
-            employee.setJob(job);
-
-            Employee manager = new Employee();
-            manager.setId(Integer.parseInt(json.get("managerId")));
-
-            employee.setManager(manager);
-
-            Department department = new Department();
-            department.setId(Integer.parseInt(json.get("departmentId")));
-            employee.setDepartment(department);
-            System.out.println(employee);
-
-            System.out.println(employeeService.saveEmployee(employee));
-        }
-
-        User user = new User();
-        user.setId(Integer.parseInt(id));
-        user.setUserName(username);
-        user.setPassword(password);
-        user.setStatus(new Status(-1));
-        user.setVerificationCode(UUID.randomUUID().toString());
-
-        List<Role> roleList = new ArrayList<>();
-        roleList.add(roleService.getByIdRole(3));
-        user.setRoleList(roleList);
-
-        userService.saveUser(user);
-
-        List<User> userList = userService.getAllUsers();
-        for (User user1 : userList) {
-            System.out.println(user1.getEmployee().getEmail());
-        }
-
-        try {
-            notificationService.sendEmail(user,
-                    "Verify your account ",
-                    "<html><body>"
-                    + "Verify your account "
-                    + "<a href='http://Localhost:8081/users/verify/" + user.getVerificationCode()
-                    + "'>here</a>"
-                    + "</body></html>");
-        } catch (MessagingException ex) {
-            Logger.getLogger(UserRestController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        status.put("status", "success");
-
-        return ResponseEntity.accepted().body(status);
+    public ResponseEntity<Map<String, Object>> signUp(@RequestBody Map<String, String> json) throws InterruptedException {
+        Map response = new HashMap();
+        response = userService.register(json);
+        Integer status = (Integer) response.get("status");
+        return ResponseEntity.status(status).body(response);
     }
 
     @GetMapping("verify/{verificationCode}")
