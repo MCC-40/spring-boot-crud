@@ -31,7 +31,7 @@ public class UserService {
     private static UserRepository userRepository;
     private final EmployeeRepository employeeRepository;
     private static PasswordEncoder encoder;
-    
+
     @Autowired
     public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, PasswordEncoder encoder) {
         UserService.userRepository = userRepository;
@@ -160,10 +160,14 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public String resetPassword(int id, String oldPassword, String newPassword) {
-        User user = userRepository.findById(id).get();
-        if (user.getPassword().equals(oldPassword)) {
-            user.setPassword(newPassword);
+    public String resetPassword(String username, String oldPassword, String newPassword) {
+        System.out.println("QWE");
+        System.out.println(username);
+        System.out.println(oldPassword);
+        System.out.println(encoder.encode(newPassword));
+        User user = userRepository.findByUsername(username).get();
+        if (encoder.matches(oldPassword, user.getPassword())) {
+            user.setPassword(encoder.encode(newPassword));
             userRepository.save(user);
             return "Success";
         }

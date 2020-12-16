@@ -17,6 +17,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,58 +32,26 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Yoshua
  */
 @RestController
-@RequestMapping
+@RequestMapping("api/user")
 public class UserRestController {
 
     private UserService service;
-    private EmployeeService employeeService;
     private NotificationService notificationService;
 
     @Autowired
-    public UserRestController(UserService service, NotificationService notificationService, EmployeeService employeeService) {
+    public UserRestController(UserService service, NotificationService notificationService) {
         this.service = service;
         this.notificationService = notificationService;
-        this.employeeService = employeeService;
     }
 
-    @PostMapping("login")
-    public ResponseEntity<Object> login(@RequestBody Map<String, String> data) {
-        String usernameOrEmail = data.get("usernameOrEmail");
-        String password = data.get("password");
-        Map<String, Object> result = service.login(usernameOrEmail, password);
-        return ResponseEntity.status(Integer.parseInt(result.get("status").toString())).body(result.get("description"));
-    }
-
-    @PostMapping("api/register")
-    public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, Object> data) {
-        Map status = new HashMap();
-        User user = service.register(data);
-        notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
-        status.put("Status", "Verfication Email Send");
-        return ResponseEntity.accepted().body(status);
-
-    }
-
-    @PostMapping("api/register/employee")
-    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
-        Map status = new HashMap();
-        status.put("Status: ", "Inserted");
-        Map<String, Object> mapUser = (Map<String, Object>) data.get("user");
-        Map<String, Object> mapEmployee = (Map<String, Object>) data.get("employee");
-        employeeService.registerEmployee(mapEmployee);
-        User user = service.register(mapUser);
-        notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
-        return ResponseEntity.accepted().body(status);
-    }
-
-    @GetMapping("api/user/verify")
+    @GetMapping("verify")
     public ResponseEntity<Map<String, String>> verifyUser(String token) {
         Map status = new HashMap();
         status.put("Status", service.verifyUser(token));
         return ResponseEntity.ok(status);
     }
 
-    @PostMapping("api/user/forget-password")
+    @PostMapping("forget-password")
     public ResponseEntity<String> forgetPassword(@RequestBody Map<String, Object> data) {
         String email = data.get("email").toString();
         User user = service.findUserByEmail(email);
@@ -90,15 +59,18 @@ public class UserRestController {
         return ResponseEntity.accepted().body("Reset Password Mail has been send");
     }
 
-    @PostMapping("api/user/reset-password")
+    @PostMapping("reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody HashMap<String, String> data) {
         service.resetPassword(data.get("token"), data.get("password"));
         return ResponseEntity.accepted().body("Success");
     }
-    
-    @PutMapping("api/user/reset-password")
-    public ResponseEntity<String> resetPassword2(@RequestBody HashMap<String, String> data) {
-        String result = service.resetPassword(Integer.parseInt(data.get("id")), data.get("oldPassword"), data.get("newPassword"));
-        return ResponseEntity.accepted().body(result);
+
+    @PutMapping("reset-password")
+    public ResponseEntity<String> resetPassword2(Authentication authentication, @RequestBody HashMap<String, String> data) {
+        if (authentication.isAuthenticated()) {
+            String result = service.resetPassword(authentication.getName(), data.get("oldPassword"), data.get("newPassword"));
+            return ResponseEntity.accepted().body(result);
+        }
+        return ResponseEntity.accepted().body("Not Authenticated");
     }
 }
