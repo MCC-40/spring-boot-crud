@@ -94,9 +94,10 @@ public class UserRestController {
     public ResponseEntity<Map<String, Object>> signIn(@RequestBody LoginData loginData) {
         System.out.println(loginData);
         Map map = userService.login(loginData.getUsername(), loginData.getPassword());
-        loggedUser = (User) map.get("entity");
-        map.remove("entity");
+
         if (map.get("status").equals(0)) {
+            loggedUser = (User) map.get("entity");
+            map.remove("entity");
             return ResponseEntity.ok(map);
         } else {
             return ResponseEntity.status(401).body(map);
@@ -171,6 +172,13 @@ public class UserRestController {
             return ResponseEntity.status(500).body(map);
         }
 
+    }
+    
+    @PostMapping("change-password")
+    public ResponseEntity<Map<String, Object>> requestPasswordChange(@RequestBody Map<String, String> json) {
+        Map map = userService.changePassword(loggedUser, json);
+        Integer status = (Integer) map.get("status");
+        return ResponseEntity.status(status).body(map);
     }
 
 }

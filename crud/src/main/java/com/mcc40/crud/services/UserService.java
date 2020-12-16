@@ -85,6 +85,10 @@ public class UserService {
         }
     }
 
+    public boolean comparePassword(User user, String password) {
+        return user.getPassword().equals(password);
+    }
+
     public String saveUser(User user) {
         Optional<Employee> emp = employeeRepository.findById(user.getId());
         if (emp.isPresent()) {
@@ -102,7 +106,7 @@ public class UserService {
         if (optionalUser.isPresent()) {                                 // User exist
             User user = optionalUser.get();
             Integer userStatus = user.getStatus().getId();
-            if (user.getPassword().equals(password)) {   // Comparing password
+            if (comparePassword(user, password)) {   // Comparing password
                 switch (userStatus) {
                     case -1:
                         map.put("status", "unverified email log in");
@@ -256,6 +260,47 @@ public class UserService {
         } else {
             return false;
         }
+    }
+
+    public Map<String, Object> changePassword(User user, Map<String, String> json) {
+        Map response = new LinkedHashMap();
+        String oldPassword = json.get("oldPassword");
+        String newPassword = json.get("newPassword");
+        String retypePassword = json.get("retypePassword");
+
+        if (user == null) {
+            response.put("status", 403);
+            response.put("description", "no logged user");
+            return response;
+        }
+
+        if (!comparePassword(user, oldPassword)) {
+            response.put("status", 403);
+            response.put("description", "old password not match");
+            return response;
+        }
+
+        if (!validatePassword(newPassword)) {
+            response.put("status", 403);
+            response.put("description", "new password invalid");
+            return response;
+        }
+
+        if (!newPassword.equals(retypePassword)) {
+            response.put("status", 403);
+            response.put("description", "retyped password not match");
+            return response;
+        }
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        response.put("status", 202);
+        response.put("description", "password changed");
+        return response;
+    }
+
+    public boolean validatePassword(String password) {
+        return password.length() >= 8;
     }
 
     public boolean requestPasswordReset(String email) {
