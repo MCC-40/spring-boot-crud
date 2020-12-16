@@ -5,6 +5,8 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -16,8 +18,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -49,9 +49,11 @@ public class Location implements Serializable {
     private String city;
     @Column(name = "state_province")
     private String stateProvince;
+    @JsonBackReference
     @JoinColumn(name = "country", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Country country;
+    @JsonIgnore
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Department> departmentList;
 
@@ -67,6 +69,4 @@ public class Location implements Serializable {
         this.departmentList = departmentList;
     }
 
-
-    
 }

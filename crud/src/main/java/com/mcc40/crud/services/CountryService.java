@@ -38,9 +38,10 @@ public class CountryService {
             if (optionalCountry.isPresent() == false) {
                 countryRepository.save(country);
                 result = "Inserted";
-            } else if (optionalCountry.get().equals(true)) {
+            } else {
                 Country oldCountry = optionalCountry.get();
                 oldCountry.setName(country.getName());
+                countryRepository.save(oldCountry);
                 result = "Updated";
             }
         } catch (Exception e) {

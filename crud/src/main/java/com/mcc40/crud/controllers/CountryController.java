@@ -6,11 +6,14 @@
 package com.mcc40.crud.controllers;
 
 import com.mcc40.crud.entities.Country;
+import com.mcc40.crud.entities.Region;
 import com.mcc40.crud.services.CountryService;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  *
@@ -42,11 +45,17 @@ public class CountryController {
         return "index"; //index.html
     }
 
-    @RequestMapping("save")
-    public String countrySave(String id, String name) {
+    @PostMapping("save")
+    public String countrySave(@RequestBody Map<String, String> input) {
+        String id = input.get("id");
+        String name = input.get("name");
+        Integer regionId = Integer.parseInt(input.get("regionId"));
         Country country = new Country();
+        Region region = new Region();
+        region.setId(regionId);
         country.setId(id);
         country.setName(name);
+        country.setRegion(region);
         System.out.println(service.saveCountry(country));
         return "index"; //index.html
     }

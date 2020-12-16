@@ -8,7 +8,7 @@ public class CrudApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CrudApplication.class, args);
-                System.out.println("Sudah berjalan, ga usah nungguin lagi!!!");
+                System.out.println("Server sudah berjalan, ga usah nungguin lagi!!!");
 	}
 
 }

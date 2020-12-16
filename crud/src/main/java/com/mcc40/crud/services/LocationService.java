@@ -45,9 +45,14 @@ public class LocationService {
             if (optionalLocation.isPresent() == false) {
                 locationRepository.save(location);
                 result = "Inserted";
-            } else if (optionalLocation.get().equals(true)) {
+            } else {
                 Location oldLocation = optionalLocation.get();
-                oldLocation.setId(location.getId());
+                oldLocation.setStreetAddress(location.getStreetAddress());
+                oldLocation.setPostalCode(location.getPostalCode());
+                oldLocation.setCity(location.getCity());
+                oldLocation.setStateProvince(location.getStateProvince());
+                oldLocation.setCountry(location.getCountry());
+                locationRepository.save(oldLocation);
                 result = "Updated";
             }
         } catch (Exception e) {
