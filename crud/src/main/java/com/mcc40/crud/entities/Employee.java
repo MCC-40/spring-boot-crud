@@ -93,7 +93,7 @@ public class Employee implements Serializable {
     public void setDepartmentList(List<Department> departmentList) {
         this.departmentList = departmentList;
     }
-    
+
     @XmlTransient
     public List<Employee> getEmployeeList() {
         return employeeList;
@@ -101,5 +101,5 @@ public class Employee implements Serializable {
 
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
-    }    
+    }
 }

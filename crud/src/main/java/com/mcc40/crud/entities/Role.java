@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  *
@@ -26,7 +27,7 @@ import lombok.Data;
 @Table(name = "roles")
 @XmlRootElement
 @Data
-public class Role implements Serializable {
+public class Role implements GrantedAuthority, Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -36,7 +37,7 @@ public class Role implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
-    @ManyToMany(mappedBy = "roleList", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "roleList", fetch = FetchType.EAGER)
     private List<User> userList;
 
     public Role() {
@@ -49,6 +50,11 @@ public class Role implements Serializable {
 
     public void setUserList(List<User> userList) {
         this.userList = userList;
+    }
+
+    @Override
+    public String getAuthority() {
+        return name;
     }
     
 }

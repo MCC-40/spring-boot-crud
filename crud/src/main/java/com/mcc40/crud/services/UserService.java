@@ -28,6 +28,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +45,7 @@ import org.springframework.stereotype.Service;
  * @author Mochamad Yusuf
  */
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     UserRepository userRepository;
     EmployeeRepository employeeRepository;
@@ -52,6 +61,16 @@ public class UserService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
+    
+//    @Autowired
+//    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, NotificationService notificationService, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authManager) {
+//        this.userRepository = userRepository;
+//        this.employeeRepository = employeeRepository;
+//        this.notificationService = notificationService;
+//        this.roleRepository = roleRepository;
+//        this.passwordEncoder = passwordEncoder;
+//        this.authManager = authManager;
+//    }
 
     //get all 
     public List<User> getAllUsers() {
@@ -132,6 +151,18 @@ public class UserService {
                         map.put("status", userStatus);
                         map.put("user", obj);
                         map.put("entity", user);
+
+//                        UsernamePasswordAuthenticationToken authReq
+//                                = new UsernamePasswordAuthenticationToken(username, password);
+//                        Authentication auth = authManager.authenticate(authReq);
+//                        SecurityContext sc = SecurityContextHolder.getContext();
+//                        sc.setAuthentication(auth);
+//                        
+//                        List<String> roleList = new ArrayList<>();
+//                        for (GrantedAuthority authority : sc.getAuthentication().getAuthorities()) {
+//                            roleList.add(authority.getAuthority());
+//                        }
+//                        System.out.println("auth: " + roleList);
                         break;
                     case 3:
                         map.put("status", userStatus);
@@ -232,7 +263,7 @@ public class UserService {
         List<Role> roleList = new ArrayList<>();
         roleList.add(roleRepository.findById(3).get());
         user.setRoleList(roleList);
-        
+
         user.setEmployee(employeeRepository.findById(id).get());
 
         userRepository.save(user);
@@ -342,6 +373,21 @@ public class UserService {
             return true;
         } else {
             return false;
+        }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                    user.getUserName(),
+                    user.getPassword(),
+                    user.getRoleList());
+            return userDetails;
+        } else {
+            return null;
         }
     }
 

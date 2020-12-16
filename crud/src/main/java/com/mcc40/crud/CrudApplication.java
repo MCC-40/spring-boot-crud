@@ -14,8 +14,5 @@ public class CrudApplication {
         System.out.println("Sudah berjalan, ga usah nungguin lagi!!!");
     }
     
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
+    
 }
