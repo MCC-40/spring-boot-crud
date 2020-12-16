@@ -34,7 +34,7 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder encoder) {
         UserService.userRepository = userRepository;
-        this.encoder = encoder;
+        UserService.encoder = encoder;
 
     }
 
@@ -43,22 +43,22 @@ public class UserService {
     }
 
     private static void updateUser(User oldUser, int statusId) {
-        User user = new User();
-        user.setId(oldUser.getId());
-        user.setUsername(oldUser.getUsername());
-        user.setPassword(oldUser.getPassword());
-        user.setVerificationCode(null);
-
         List<Role> roles = new ArrayList<>();
         oldUser.getRoles().forEach((role) -> {
             Role r = new Role();
             r.setId(role.getId());
             roles.add(r);
         });
-        user.setRoles(roles);
-
+        
         UserStatus status = new UserStatus();
         status.setId(statusId);
+
+        User user = new User();
+        user.setId(oldUser.getId());
+        user.setUsername(oldUser.getUsername());
+        user.setPassword(oldUser.getPassword());
+        user.setVerificationCode(null);
+        user.setRoles(roles);
         user.setStatus(status);
 
         userRepository.save(user);
@@ -82,28 +82,29 @@ public class UserService {
     }
 
     public Map<String, Object> login(String usernameOrEmail) {
-        Map<String, Object> result = new HashMap<>();
         User user = userRepository.findByUsername(usernameOrEmail).get();
-        result = loginResultSetup(user);
+        Map<String, Object> result = loginResultSetup(user);
         updateUser(user, 0);
         return result;
     }
 
     public User register(Map<String, Object> data) {
+        //Initialize Role
+        Role role = new Role();
+        role.setId(3);
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
+
+        //Initialize status
+        UserStatus status = new UserStatus();
+        status.setId(-1);
+
         User user = new User();
         user.setId(Integer.parseInt(data.get("id").toString()));
         user.setUsername(data.get("username").toString());
         user.setPassword(encoder.encode(data.get("password").toString()));
         user.setVerificationCode(UUID.randomUUID().toString());
-
-        Role role = new Role();
-        role.setId(3);
-        List<Role> roles = new ArrayList<>();
-        roles.add(role);
         user.setRoles(roles);
-
-        UserStatus status = new UserStatus();
-        status.setId(-1);
         user.setStatus(status);
 
         userRepository.save(user);
@@ -121,7 +122,7 @@ public class UserService {
         return "Failed";
     }
 
-    public User findUserByEmail(String email) {
+    public User findUserByEmailFP(String email) {
         User user = userRepository.findByEmail(email).get();
         user.setVerificationCode(UUID.randomUUID().toString());
         userRepository.save(user);
@@ -142,11 +143,11 @@ public class UserService {
             userRepository.save(user);
             return "Success";
         }
-        return "Failed";
+        return "Wrong Last Password";
     }
-    
-    public void changeStatusWrongCredential(String username){
+
+    public void changeStatusWrongCredential(String username) {
         User user = userRepository.findByUsername(username).get();
-        updateUser(user, user.getStatus().getId()+1);
+        updateUser(user, user.getStatus().getId() + 1);
     }
 }

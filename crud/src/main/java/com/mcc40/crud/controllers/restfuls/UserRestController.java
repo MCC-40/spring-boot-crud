@@ -54,7 +54,7 @@ public class UserRestController {
     @PostMapping("forget-password")
     public ResponseEntity<String> forgetPassword(@RequestBody Map<String, Object> data) {
         String email = data.get("email").toString();
-        User user = service.findUserByEmail(email);
+        User user = service.findUserByEmailFP(email);
         notificationService.sendForgotPasswordMail(email, user.getVerificationCode());
         return ResponseEntity.accepted().body("Reset Password Mail has been send");
     }
