@@ -13,6 +13,7 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -30,7 +31,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     MyUserDetailsService myUserDetailsService;
     UserService userService;
     PasswordEncoder encoder;
-    
+
     @Autowired
     public CustomAuthenticationProvider(UserService userService, PasswordEncoder encoder) {
         this.userService = userService;
@@ -43,6 +44,15 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = auth.getName();
         String password = auth.getCredentials().toString();
         MyUserDetails user = (MyUserDetails) myUserDetailsService.loadUserByUsername(username);
+
+        if (user.getStatusCode() == -1) {
+            throw new LockedException("User Not Verified");
+        }
+
+        if (user.getStatusCode() == 3) {
+            throw new LockedException("User Banned");
+        }
+        
         if (encoder.matches(password, user.getPassword())) {
             return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), Collections.emptyList());
         } else {

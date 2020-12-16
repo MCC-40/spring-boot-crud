@@ -83,11 +83,9 @@ public class UserService {
 
     public Map<String, Object> login(String usernameOrEmail) {
         Map<String, Object> result = new HashMap<>();
-        result.put("result", "Not Found");
-        System.out.println(usernameOrEmail);
         User user = userRepository.findByUsername(usernameOrEmail).get();
-        result.clear();
         result = loginResultSetup(user);
+        updateUser(user, 0);
         return result;
     }
 

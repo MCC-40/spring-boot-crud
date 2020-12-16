@@ -24,10 +24,12 @@ public class MyUserDetails implements UserDetails {
     private String username;
     private String password;
     private List<GrantedAuthority> authorities;
+    private int statusCode;
 
     public MyUserDetails(User user) {
         this.username = user.getUsername();
         this.password = user.getPassword();
+        this.statusCode = user.getStatus().getId();
 
         List<GrantedAuthority> roles = new ArrayList<>();
 
@@ -40,6 +42,10 @@ public class MyUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
     }
 
     @Override
