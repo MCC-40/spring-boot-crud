@@ -59,8 +59,8 @@ public class User implements Serializable {
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    Set<Role> roles;
-//    List<Role> roles;
+//    Set<Role> roles;
+    List<Role> roles;
 
     public User() {
     }

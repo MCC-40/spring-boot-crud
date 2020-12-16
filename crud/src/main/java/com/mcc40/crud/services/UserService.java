@@ -54,7 +54,7 @@ public class UserService {
         user.setVerificationCode(null);
 
         System.out.println("ROLES");
-        Set<Role> roles = new HashSet<>();
+        List<Role> roles = new ArrayList<>();
         olduUser.getRoles().forEach((role) -> {
             Role r = new Role();
             r.setId(role.getId());
@@ -126,7 +126,7 @@ public class UserService {
 
         Role role = new Role();
         role.setId(3);
-        Set<Role> roles = new HashSet<>();
+        List<Role> roles = new ArrayList<>();
         roles.add(role);
         user.setRoles(roles);
 
