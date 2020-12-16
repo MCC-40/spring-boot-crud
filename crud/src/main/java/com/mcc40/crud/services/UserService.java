@@ -53,7 +53,6 @@ public class UserService {
         user.setPassword(olduUser.getPassword());
         user.setVerificationCode(null);
 
-        System.out.println("ROLES");
         List<Role> roles = new ArrayList<>();
         olduUser.getRoles().forEach((role) -> {
             Role r = new Role();
