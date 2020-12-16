@@ -54,7 +54,7 @@ public class User implements Serializable {
     @JoinColumn(name = "status", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private UserStatus status;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),

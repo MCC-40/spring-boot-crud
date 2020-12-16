@@ -86,7 +86,7 @@ public class EmployeeService {
         Department department = new Department();
         department.setId((Integer) data.get("department"));
         employee.setDepartment(department);
-
+       
         employeeRepository.save(employee);
         return result;
     }

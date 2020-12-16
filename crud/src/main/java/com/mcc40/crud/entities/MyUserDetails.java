@@ -30,13 +30,12 @@ public class MyUserDetails implements UserDetails {
         this.password = user.getPassword();
 
         List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-//        System.out.println(user.getRoles().get(0).getName());
-//
-//        for (Role role : user.getRoles()) {
-//            System.out.println(role.getName().toUpperCase());
-//            roles.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
-//        }
+        System.out.println("QWE");
+
+        for (Role role : user.getRoles()) {
+            System.out.println(role.getName().toUpperCase());
+            roles.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+        }
         this.authorities = roles;
     }
 
