@@ -21,22 +21,23 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public class MyUserDetails implements UserDetails {
 
-    private String userName;
+    private String username;
     private String password;
     private List<GrantedAuthority> authorities;
 
     public MyUserDetails(User user) {
-        this.userName = user.getUsername();
+        this.username = user.getUsername();
         this.password = user.getPassword();
 
         List<GrantedAuthority> roles = new ArrayList<>();
-        System.out.println("QWE");
-        System.out.println(user.getRoles().size());
-
-        for (Role role : user.getRoles()) {
-            System.out.println(role.getName().toUpperCase());
-            roles.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
-        }
+        roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        System.out.println("ASD");
+//        System.out.println(user.getRoles().get(0).getName());
+//
+//        for (Role role : user.getRoles()) {
+//            System.out.println(role.getName().toUpperCase());
+//            roles.add(new SimpleGrantedAuthority("ROLE_" + role.getName().toUpperCase()));
+//        }
         this.authorities = roles;
     }
 
@@ -52,7 +53,7 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 
     @Override
