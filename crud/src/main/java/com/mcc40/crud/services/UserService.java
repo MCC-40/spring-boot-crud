@@ -5,11 +5,9 @@
  */
 package com.mcc40.crud.services;
 
-import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Role;
 import com.mcc40.crud.entities.User;
 import com.mcc40.crud.entities.UserStatus;
-import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.HashMap;

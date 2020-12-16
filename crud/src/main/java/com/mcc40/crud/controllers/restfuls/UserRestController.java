@@ -54,23 +54,19 @@ public class UserRestController {
     @PostMapping("forget-password")
     public ResponseEntity<String> forgetPassword(@RequestBody Map<String, Object> data) {
         String email = data.get("email").toString();
-        User user = service.findUserByEmailFP(email);
-        notificationService.sendForgotPasswordMail(email, user.getVerificationCode());
-        return ResponseEntity.accepted().body("Reset Password Mail has been send");
+        notificationService.sendForgotPasswordMail(email, service.findUserByEmailFP(email).getVerificationCode());
+        return ResponseEntity.ok("Reset Password Mail has been send");
     }
 
     @PostMapping("reset-password")
-    public ResponseEntity<String> resetPassword(@RequestBody HashMap<String, String> data) {
+    public ResponseEntity<String> resetPasswordForgetPassword(@RequestBody HashMap<String, String> data) {
         service.resetPassword(data.get("token"), data.get("password"));
         return ResponseEntity.accepted().body("Success");
     }
 
     @PutMapping("reset-password")
-    public ResponseEntity<String> resetPassword2(Authentication authentication, @RequestBody HashMap<String, String> data) {
-        if (authentication.isAuthenticated()) {
-            String result = service.resetPassword(authentication.getName(), data.get("oldPassword"), data.get("newPassword"));
-            return ResponseEntity.accepted().body(result);
-        }
-        return ResponseEntity.accepted().body("Not Authenticated");
+    public ResponseEntity<String> resetPassword(Authentication authentication, @RequestBody HashMap<String, String> data) {
+        String result = service.resetPassword(authentication.getName(), data.get("oldPassword"), data.get("newPassword"));
+        return ResponseEntity.accepted().body(result);
     }
 }
