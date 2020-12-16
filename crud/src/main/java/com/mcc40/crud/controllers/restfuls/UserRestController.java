@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Yoshua
  */
 @RestController
-@RequestMapping("api")
+@RequestMapping
 public class UserRestController {
 
     private UserService service;
@@ -53,7 +53,7 @@ public class UserRestController {
         return ResponseEntity.status(Integer.parseInt(result.get("status").toString())).body(result.get("description"));
     }
 
-    @PostMapping("register")
+    @PostMapping("api/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, Object> data) {
         Map status = new HashMap();
         User user = service.register(data);
@@ -63,7 +63,7 @@ public class UserRestController {
 
     }
 
-    @PostMapping("register/employee")
+    @PostMapping("api/register/employee")
     public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
         Map status = new HashMap();
         status.put("Status: ", "Inserted");
@@ -75,14 +75,14 @@ public class UserRestController {
         return ResponseEntity.accepted().body(status);
     }
 
-    @GetMapping("user/verify")
+    @GetMapping("api/user/verify")
     public ResponseEntity<Map<String, String>> verifyUser(String token) {
         Map status = new HashMap();
         status.put("Status", service.verifyUser(token));
         return ResponseEntity.ok(status);
     }
 
-    @PostMapping("user/forget-password")
+    @PostMapping("api/user/forget-password")
     public ResponseEntity<String> forgetPassword(@RequestBody Map<String, Object> data) {
         String email = data.get("email").toString();
         User user = service.findUserByEmail(email);
@@ -90,13 +90,13 @@ public class UserRestController {
         return ResponseEntity.accepted().body("Reset Password Mail has been send");
     }
 
-    @PostMapping("user/reset-password")
+    @PostMapping("api/user/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody HashMap<String, String> data) {
         service.resetPassword(data.get("token"), data.get("password"));
         return ResponseEntity.accepted().body("Success");
     }
     
-    @PutMapping("user/reset-password")
+    @PutMapping("api/user/reset-password")
     public ResponseEntity<String> resetPassword2(@RequestBody HashMap<String, String> data) {
         String result = service.resetPassword(Integer.parseInt(data.get("id")), data.get("oldPassword"), data.get("newPassword"));
         return ResponseEntity.accepted().body(result);
