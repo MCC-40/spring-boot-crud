@@ -66,51 +66,29 @@ public class UserService {
         userRepository.save(user);
     }
 
-    private static Map<String, Object> loginResultSetup(User user, String password) {
+    private static Map<String, Object> loginResultSetup(User user) {
         Map<String, Object> result = new HashMap<>();
 
-        if (user.getStatus().getId() == -1) {
-            result.put("description", "User not Verified");
-            result.put("status", 401);
-        } else if (user.getStatus().getId() == 3) {
-            result.put("description", "User Banned");
-            result.put("status", 401);
-        } else if (encoder.matches(password, user.getPassword())) {
-            Map<String, Object> userMap = new HashMap<>();
-            userMap.put("id", user.getId());
-            List<String> listRole = new ArrayList<>();
-            user.getRoles().forEach((role) -> {
-                listRole.add(role.getName());
-            });
-            userMap.put("roles", listRole);
-            userMap.put("email", user.getEmployee().getEmail());
-            result.put("description", userMap);
-            result.put("status", 200);
-            updateUser(user, 0);
-        } else {
-            result.put("description", "Wrong Password");
-            result.put("status", 401);
-            updateUser(user, user.getStatus().getId() + 1);
-        }
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getId());
+        List<String> listRole = new ArrayList<>();
+        user.getRoles().forEach((role) -> {
+            listRole.add(role.getName());
+        });
+        userMap.put("roles", listRole);
+        userMap.put("email", user.getEmployee().getEmail());
+        result.put("description", userMap);
+        result.put("status", 200);
+        updateUser(user, 0);
         return result;
     }
 
-    public Map<String, Object> login(String usernameOrEmail, String password) {
+    public Map<String, Object> login(String usernameOrEmail) {
         Map<String, Object> result = new HashMap<>();
         result.put("result", "Not Found");
-        Optional<User> optionalUser = userRepository.findByUsername(usernameOrEmail);
-        Optional<Employee> optionalEmployee = employeeRepository.findByEmail(usernameOrEmail);
-
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            result.clear();
-            result = loginResultSetup(user, password);
-        } else if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
-            User user = employee.getUser();
-            result.clear();
-            result = loginResultSetup(user, password);
-        }
+        User user = userRepository.findByUsername(usernameOrEmail).get();
+        result.clear();
+        result = loginResultSetup(user);
         return result;
     }
 

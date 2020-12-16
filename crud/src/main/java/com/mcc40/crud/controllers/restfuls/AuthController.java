@@ -39,12 +39,8 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Object> login(Authentication authentication, @RequestBody Map<String, String> data) {
-        System.out.println("QWE");
-        System.out.println(authentication.getName());
-        String usernameOrEmail = data.get("usernameOrEmail");
-        String password = data.get("password");
-        Map<String, Object> result = service.login(usernameOrEmail, password);
+    public ResponseEntity<Object> login(Authentication authentication) {
+        Map<String, Object> result = service.login(authentication.getName());
         return ResponseEntity.status(Integer.parseInt(result.get("status").toString())).body(result.get("description"));
     }
 
