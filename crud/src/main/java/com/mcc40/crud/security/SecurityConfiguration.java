@@ -5,12 +5,15 @@
  */
 package com.mcc40.crud.security;
 
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 /**
  *
@@ -20,12 +23,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    UserDetailsService userDetailService;
+    UserDetailsService userDetailService;    
+    @Autowired
+    CustomAuthenticationProvider customAuthenticationProvider;
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailService);
+        auth.userDetailsService(userDetailService)
+                .and().authenticationProvider(customAuthenticationProvider);
     }
+   
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -34,11 +42,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/employee/**", "/api/job/**").hasAnyRole("HR", "ADMIN")
                 .antMatchers("/api/location/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/api/**").hasRole("ADMIN")
-                .antMatchers("/**").permitAll()
-                .and()
-                .httpBasic()
-                .and()
-                .logout()
+                .antMatchers("/**").permitAll();
+        http.httpBasic();
+        http.logout()
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/index");
     }

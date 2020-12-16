@@ -29,13 +29,11 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private static UserRepository userRepository;
-    private final EmployeeRepository employeeRepository;
     private static PasswordEncoder encoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, PasswordEncoder encoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder encoder) {
         UserService.userRepository = userRepository;
-        this.employeeRepository = employeeRepository;
         this.encoder = encoder;
 
     }
@@ -44,15 +42,15 @@ public class UserService {
         return userRepository.findById(id).get();
     }
 
-    private static void updateUser(User olduUser, int statusId) {
+    private static void updateUser(User oldUser, int statusId) {
         User user = new User();
-        user.setId(olduUser.getId());
-        user.setUsername(olduUser.getUsername());
-        user.setPassword(olduUser.getPassword());
+        user.setId(oldUser.getId());
+        user.setUsername(oldUser.getUsername());
+        user.setPassword(oldUser.getPassword());
         user.setVerificationCode(null);
 
         List<Role> roles = new ArrayList<>();
-        olduUser.getRoles().forEach((role) -> {
+        oldUser.getRoles().forEach((role) -> {
             Role r = new Role();
             r.setId(role.getId());
             roles.add(r);
@@ -86,6 +84,7 @@ public class UserService {
     public Map<String, Object> login(String usernameOrEmail) {
         Map<String, Object> result = new HashMap<>();
         result.put("result", "Not Found");
+        System.out.println(usernameOrEmail);
         User user = userRepository.findByUsername(usernameOrEmail).get();
         result.clear();
         result = loginResultSetup(user);
@@ -139,10 +138,6 @@ public class UserService {
     }
 
     public String resetPassword(String username, String oldPassword, String newPassword) {
-        System.out.println("QWE");
-        System.out.println(username);
-        System.out.println(oldPassword);
-        System.out.println(encoder.encode(newPassword));
         User user = userRepository.findByUsername(username).get();
         if (encoder.matches(oldPassword, user.getPassword())) {
             user.setPassword(encoder.encode(newPassword));
@@ -150,5 +145,10 @@ public class UserService {
             return "Success";
         }
         return "Failed";
+    }
+    
+    public void changeStatusWrongCredential(String username){
+        User user = userRepository.findByUsername(username).get();
+        updateUser(user, user.getStatus().getId()+1);
     }
 }
