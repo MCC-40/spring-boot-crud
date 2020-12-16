@@ -5,6 +5,8 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -38,12 +40,15 @@ public class Department implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
+    @JsonBackReference
     @JoinColumn(name = "location", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
+    @JsonBackReference
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
+    @JsonIgnore
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
 

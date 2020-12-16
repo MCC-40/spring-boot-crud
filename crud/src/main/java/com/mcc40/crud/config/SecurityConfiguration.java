@@ -41,10 +41,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/users/login").permitAll()
-                .antMatchers("/**").not().hasRole("USER")
-                .anyRequest().authenticated()
+                .antMatchers("/api/location/**").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/api/jobs/**").hasAnyRole("HR", "ADMIN")
+                .antMatchers("api/employee/**").hasAnyRole("HR", "ADMIN")
+                .antMatchers("/**").hasRole("ADMIN")
                 .and().formLogin();
+//        http.logout()
+//                .logoutUrl("/logout")
+//                .logoutSuccessUrl("/index");
     }
 
     @Bean
@@ -53,6 +57,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         authProvider.setUserDetailsService(userService);
         authProvider.setPasswordEncoder(encoder());
         return authProvider;
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
 }

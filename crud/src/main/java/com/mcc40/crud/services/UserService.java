@@ -29,11 +29,6 @@ import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -53,24 +48,24 @@ public class UserService implements UserDetailsService {
     RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
 
+    User loggedUser;
+    AuthenticationManager authManager;
+
     @Autowired
-    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, NotificationService notificationService, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+            EmployeeRepository employeeRepository,
+            NotificationService notificationService,
+            RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authManager) {
+        
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
         this.notificationService = notificationService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authManager = authManager;
     }
-    
-//    @Autowired
-//    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, NotificationService notificationService, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authManager) {
-//        this.userRepository = userRepository;
-//        this.employeeRepository = employeeRepository;
-//        this.notificationService = notificationService;
-//        this.roleRepository = roleRepository;
-//        this.passwordEncoder = passwordEncoder;
-//        this.authManager = authManager;
-//    }
 
     //get all 
     public List<User> getAllUsers() {
@@ -139,7 +134,7 @@ public class UserService implements UserDetailsService {
                         user.setStatus(new Status(0));
                         userRepository.save(user);
 
-//                        loggedUser = user;
+                        loggedUser = user;
                         obj.put("id", user.getId());
                         obj.put("email", user.getEmployee().getEmail());
 
@@ -157,7 +152,7 @@ public class UserService implements UserDetailsService {
 //                        Authentication auth = authManager.authenticate(authReq);
 //                        SecurityContext sc = SecurityContextHolder.getContext();
 //                        sc.setAuthentication(auth);
-//                        
+//
 //                        List<String> roleList = new ArrayList<>();
 //                        for (GrantedAuthority authority : sc.getAuthentication().getAuthorities()) {
 //                            roleList.add(authority.getAuthority());
@@ -286,6 +281,10 @@ public class UserService implements UserDetailsService {
         return status;
     }
 
+    public User getLoggedUser() {
+        return loggedUser;
+    }
+
     public boolean verify(String verificationCode) {
         Optional<User> user = userRepository.findByVerificationCode(verificationCode);
         if (user.isPresent()) {
@@ -298,12 +297,12 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public Map<String, Object> changePassword(User user, Map<String, String> json) {
+    public Map<String, Object> changePassword(Map<String, String> json) {
         Map response = new LinkedHashMap();
         String oldPassword = json.get("oldPassword");
         String newPassword = json.get("newPassword");
         String retypePassword = json.get("retypePassword");
-
+        User user = getLoggedUser();
         if (user == null) {
             response.put("status", 403);
             response.put("description", "no logged user");
@@ -387,7 +386,7 @@ public class UserService implements UserDetailsService {
                     user.getRoleList());
             return userDetails;
         } else {
-            return null;
+            throw new UsernameNotFoundException("username not available in database");
         }
     }
 

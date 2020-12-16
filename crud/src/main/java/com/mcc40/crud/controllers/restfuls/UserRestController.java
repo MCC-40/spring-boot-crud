@@ -52,8 +52,6 @@ public class UserRestController {
     RoleService roleService;
     NotificationService notificationService;
 
-    User loggedUser;
-
     @Autowired
     public UserRestController(UserService userService,
             EmployeeService employeeService,
@@ -96,32 +94,10 @@ public class UserRestController {
         Map map = userService.login(loginData.getUsername(), loginData.getPassword());
 
         if (map.get("status").equals(0)) {
-            loggedUser = (User) map.get("entity");
-            map.remove("entity");
             return ResponseEntity.ok(map);
         } else {
             return ResponseEntity.status(401).body(map);
         }
-    }
-
-    @GetMapping("active")
-    public ResponseEntity<Map<String, Object>> getActiveUser() {
-        Map status = new LinkedHashMap();
-        if (loggedUser != null) {
-            status.put("id", loggedUser.getId());
-            status.put("email", loggedUser.getEmployee().getEmail());
-
-            List<String> roles = new ArrayList<>();
-            for (Role role : loggedUser.getRoleList()) {
-                roles.add(role.getName());
-            }
-            status.put("role", roles);
-            return ResponseEntity.ok(status);
-        } else {
-            status.put("status", "no active user");
-            return ResponseEntity.status(401).body(status);
-        }
-
     }
 
     @PostMapping("reg")
@@ -173,10 +149,10 @@ public class UserRestController {
         }
 
     }
-    
+
     @PostMapping("change-password")
     public ResponseEntity<Map<String, Object>> requestPasswordChange(@RequestBody Map<String, String> json) {
-        Map map = userService.changePassword(loggedUser, json);
+        Map map = userService.changePassword(json);
         Integer status = (Integer) map.get("status");
         return ResponseEntity.status(status).body(map);
     }

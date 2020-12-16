@@ -54,7 +54,7 @@ public class Role implements GrantedAuthority, Serializable {
 
     @Override
     public String getAuthority() {
-        return name;
+        return "ROLE_" + name;
     }
     
 }
