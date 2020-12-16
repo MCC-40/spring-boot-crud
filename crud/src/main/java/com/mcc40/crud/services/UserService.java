@@ -28,7 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,13 +42,15 @@ public class UserService {
     EmployeeRepository employeeRepository;
     NotificationService notificationService;
     RoleRepository roleRepository;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, NotificationService notificationService, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, NotificationService notificationService, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
         this.notificationService = notificationService;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     //get all 
@@ -86,7 +88,7 @@ public class UserService {
     }
 
     public boolean comparePassword(User user, String password) {
-        return user.getPassword().equals(password);
+        return passwordEncoder.matches(password, user.getPassword());
     }
 
     public String saveUser(User user) {
@@ -167,26 +169,26 @@ public class UserService {
     public Map<String, Object> register(Map<String, String> json) {
         Map status = new HashMap();
 
-        String id = json.get("id");
+        Integer id = Integer.parseInt(json.get("id"));
         String username = json.get("username");
         String password = json.get("password");
 
         System.out.println(id + " | " + username + " | " + password);
 
-        if (!userRepository.findById(Integer.parseInt(id)).isPresent()) {
+        if (userRepository.findById(id).isPresent()) {
             status.put("status", 403);
             status.put("description", "user is already registered");
 //            return ResponseEntity.status(500).body(status);
             return status;
         }
 
-        if (!userRepository.findByUserName(username).isPresent()) {
+        if (userRepository.findByUserName(username).isPresent()) {
             status.put("status", 403);
             status.put("description", "username is not available");
             return status;
         }
 
-        if (!employeeRepository.findById(Integer.parseInt(id)).isPresent()) {
+        if (!employeeRepository.findById(id).isPresent()) {
 //            status.put("status", "creating employee");
             System.out.println("create new employee");
             Employee employee = new Employee();
@@ -221,15 +223,17 @@ public class UserService {
         }
 
         User user = new User();
-        user.setId(Integer.parseInt(id));
+        user.setId(id);
         user.setUserName(username);
-        user.setPassword(password);
+        user.setPassword(passwordEncoder.encode(password));
         user.setStatus(new Status(-1));
         user.setVerificationCode(UUID.randomUUID().toString());
 
         List<Role> roleList = new ArrayList<>();
         roleList.add(roleRepository.findById(3).get());
         user.setRoleList(roleList);
+        
+        user.setEmployee(employeeRepository.findById(id).get());
 
         userRepository.save(user);
 
@@ -238,7 +242,7 @@ public class UserService {
                     "Verify your account ",
                     "<html><body>"
                     + "Verify your account "
-                    + "<a href='http://Localhost:8081/users/verify/" + user.getVerificationCode()
+                    + "<a href='http://Localhost:8081/api/users/verify/" + user.getVerificationCode()
                     + "'>here</a>"
                     + "</body></html>");
         } catch (MessagingException ex) {
@@ -255,6 +259,7 @@ public class UserService {
         Optional<User> user = userRepository.findByVerificationCode(verificationCode);
         if (user.isPresent()) {
             user.get().setStatus(new Status(0));
+            user.get().setVerificationCode(null);
             userRepository.save(user.get());
             return true;
         } else {
@@ -292,7 +297,7 @@ public class UserService {
             return response;
         }
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         response.put("status", 202);
         response.put("description", "password changed");
@@ -330,7 +335,7 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findByVerificationCode(verificationCode);
         if (optionalUser.isPresent() && optionalUser.get().getStatus().getId() != -1) {
             User user = optionalUser.get();
-            user.setPassword(password);
+            user.setPassword(passwordEncoder.encode(password));
             user.setStatus(new Status(0));
             user.setVerificationCode(null);
             userRepository.save(user);
