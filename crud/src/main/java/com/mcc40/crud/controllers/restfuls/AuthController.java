@@ -9,7 +9,6 @@ import com.mcc40.crud.entities.User;
 import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.UserService;
-import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class AuthController {
 
-    private UserService service;
-    private EmployeeService employeeService;
-    private NotificationService notificationService;
+    private final UserService service;
+    private final EmployeeService employeeService;
+    private final NotificationService notificationService;
 
     @Autowired
     public AuthController(UserService service, NotificationService notificationService, EmployeeService employeeService) {
@@ -45,25 +44,19 @@ public class AuthController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, Object> data) {
-        Map status = new HashMap();
+    public ResponseEntity<String> register(@RequestBody Map<String, Object> data) {
         User user = service.register(data);
         notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
-        status.put("Status", "Verfication Email Send");
-        return ResponseEntity.accepted().body(status);
+        return ResponseEntity.accepted().body("Verfication Email Send");
 
     }
 
     @PostMapping("register/employee")
-    public ResponseEntity<Map<String, String>> registerNewEmployee(@RequestBody Map<String, Object> data) {
-        Map status = new HashMap();
-        status.put("Status: ", "Inserted");
-        Map<String, Object> mapUser = (Map<String, Object>) data.get("user");
-        Map<String, Object> mapEmployee = (Map<String, Object>) data.get("employee");
-        employeeService.registerEmployee(mapEmployee);
-        User user = service.register(mapUser);
+    public ResponseEntity<String> registerNewEmployee(@RequestBody Map<String, Object> data) {
+        employeeService.registerEmployee((Map<String, Object>) data.get("user"));
+        User user = service.register((Map<String, Object>) data.get("employee"));
         notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
-        return ResponseEntity.accepted().body(status);
+        return ResponseEntity.accepted().body("Inserted");
     }
 
 }

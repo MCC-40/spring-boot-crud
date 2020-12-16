@@ -8,7 +8,6 @@ package com.mcc40.crud.security;
 import com.mcc40.crud.entities.MyUserDetails;
 import com.mcc40.crud.services.MyUserDetailsService;
 import com.mcc40.crud.services.UserService;
-import java.util.ArrayList;
 import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
