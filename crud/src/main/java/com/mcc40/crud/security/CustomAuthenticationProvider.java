@@ -7,6 +7,7 @@ package com.mcc40.crud.security;
 
 import com.mcc40.crud.entities.MyUserDetails;
 import com.mcc40.crud.services.MyUserDetailsService;
+import com.mcc40.crud.services.UserService;
 import java.util.ArrayList;
 import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     MyUserDetailsService myUserDetailsService;
+    UserService userService;
     PasswordEncoder encoder;
     
     @Autowired
-    public CustomAuthenticationProvider(PasswordEncoder encoder) {
+    public CustomAuthenticationProvider(UserService userService, PasswordEncoder encoder) {
+        this.userService = userService;
         this.encoder = encoder;
     }
 
@@ -40,12 +43,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = auth.getName();
         String password = auth.getCredentials().toString();
         MyUserDetails user = (MyUserDetails) myUserDetailsService.loadUserByUsername(username);
-        System.out.println("QWE");
-        
         if (encoder.matches(password, user.getPassword())) {
             return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), Collections.emptyList());
         } else {
-            System.out.println("GAGAL");
+            userService.changeStatusWrongCredential(user.getUsername());
             throw new BadCredentialsException("External system authentication failed");
         }
     }
