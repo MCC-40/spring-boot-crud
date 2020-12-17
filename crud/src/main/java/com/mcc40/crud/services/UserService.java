@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcc40.crud.controllers.restfuls.UserRestController;
 import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
@@ -15,9 +16,11 @@ import com.mcc40.crud.entities.User;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.RoleRepository;
 import com.mcc40.crud.repositories.UserRepository;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,10 +30,19 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +50,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,7 +58,7 @@ import org.springframework.stereotype.Service;
  * @author Mochamad Yusuf
  */
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     UserRepository userRepository;
     EmployeeRepository employeeRepository;
@@ -118,6 +131,63 @@ public class UserService implements UserDetailsService {
         return "success";
     }
 
+    public UsernamePasswordAuthenticationToken authenticate(String username, String password)
+            throws AuthenticationException {
+        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
+
+        if (optionalUser.isPresent()) {                                 // User exist
+            User user = optionalUser.get();
+            Integer userStatus = user.getStatus().getId();
+            if (comparePassword(user, password)) {   // Comparing password
+                switch (userStatus) {
+                    case -1:
+                        throw new DisabledException("Unverified email login");
+                    case 0:
+                    case 1:
+                    case 2:
+
+                        userStatus = 0;
+                        user.setStatus(new Status(0));
+                        userRepository.save(user);
+
+                        UsernamePasswordAuthenticationToken token = 
+                                new UsernamePasswordAuthenticationToken(
+                                        user.getUserName(), 
+                                        user.getPassword(), 
+                                        user.getRoleList()
+                                );
+                        
+                        return token;
+                    case 3:
+                        throw new LockedException("User banned");
+                    default:
+                        throw new AuthenticationException("Unknown exception") {
+                        }   ;
+                }
+            } else {
+                switch (userStatus) {
+                    case 0:
+                    case 1:
+                        userStatus++;
+                        user.setStatus(new Status(userStatus));
+                        userRepository.save(user);
+
+                        throw new BadCredentialsException("Wrong password");
+                        
+                    case 2:
+                        userStatus++;
+                        user.setStatus(new Status(userStatus));
+                        userRepository.save(user);
+                    default:
+                        throw new LockedException("User banned");
+                }
+            }
+
+        } else {
+            throw new UsernameNotFoundException("No username or email registered");
+        }
+    }
+
     public Map<String, Object> login(String username, String password) {
         Map map = new LinkedHashMap();
         Map obj = new LinkedHashMap();
@@ -166,7 +236,7 @@ public class UserService implements UserDetailsService {
                             map.put("description", "user logged");
 
                             map.put("user", obj);
-                        }else{
+                        } else {
                             map.put("status", userStatus);
                             map.put("description", "user logged but cant auth");
                         }
@@ -385,19 +455,6 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                    user.getUserName(),
-                    user.getPassword(),
-                    user.getRoleList());
-            return userDetails;
-        } else {
-            throw new UsernameNotFoundException("username not available in database");
-        }
-    }
+
 
 }
