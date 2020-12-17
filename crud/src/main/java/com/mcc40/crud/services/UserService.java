@@ -150,19 +150,19 @@ public class UserService {
                         user.setStatus(new Status(0));
                         userRepository.save(user);
 
-                        UsernamePasswordAuthenticationToken token = 
-                                new UsernamePasswordAuthenticationToken(
-                                        user.getUserName(), 
-                                        user.getPassword(), 
+                        UsernamePasswordAuthenticationToken token
+                                = new UsernamePasswordAuthenticationToken(
+                                        user.getUserName(),
+                                        user.getPassword(),
                                         user.getRoleList()
                                 );
-                        
+
                         return token;
                     case 3:
                         throw new LockedException("User banned");
                     default:
                         throw new AuthenticationException("Unknown exception") {
-                        }   ;
+                        };
                 }
             } else {
                 switch (userStatus) {
@@ -173,7 +173,7 @@ public class UserService {
                         userRepository.save(user);
 
                         throw new BadCredentialsException("Wrong password");
-                        
+
                     case 2:
                         userStatus++;
                         user.setStatus(new Status(userStatus));
@@ -190,88 +190,53 @@ public class UserService {
 
     public Map<String, Object> login(String username, String password) {
         Map map = new LinkedHashMap();
-        Map obj = new LinkedHashMap();
         Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
 
-        if (optionalUser.isPresent()) {                                 // User exist
+        try {
+            UsernamePasswordAuthenticationToken authReq
+                    = new UsernamePasswordAuthenticationToken(username, password);
+            Authentication auth = authManager.authenticate(authReq);
+            SecurityContext sc = SecurityContextHolder.getContext();
+            sc.setAuthentication(auth);
+
             User user = optionalUser.get();
-            Integer userStatus = user.getStatus().getId();
-            if (comparePassword(user, password)) {   // Comparing password
-                switch (userStatus) {
-                    case -1:
-                        map.put("status", "unverified email log in");
-                        break;
-                    case 0:
-                    case 1:
-                    case 2:
+            Map obj = new LinkedHashMap();
 
-                        UsernamePasswordAuthenticationToken authReq
-                                = new UsernamePasswordAuthenticationToken(username, password);
-                        Authentication auth = authManager.authenticate(authReq);
-                        SecurityContext sc = SecurityContextHolder.getContext();
-                        sc.setAuthentication(auth);
+            obj.put("id", user.getId());
+            obj.put("email", user.getEmployee().getEmail());
 
-                        if (sc.getAuthentication().getName().equals(user.getUserName())
-                                || sc.getAuthentication().getName().equals(user.getEmployee().getEmail())) {
-
-                            List<String> roleList = new ArrayList<>();
-                            for (GrantedAuthority authority : sc.getAuthentication().getAuthorities()) {
-                                roleList.add(authority.getAuthority());
-                            }
-                            System.out.println("auth: " + roleList);
-
-                            userStatus = 0;
-                            user.setStatus(new Status(0));
-                            userRepository.save(user);
-
-                            obj.put("id", user.getId());
-                            obj.put("email", user.getEmployee().getEmail());
-
-                            List<String> roles = new ArrayList<>();
-                            for (Role role : user.getRoleList()) {
-                                roles.add(role.getName());
-                            }
-                            obj.put("role", roles);
-                            map.put("status", userStatus);
-                            map.put("description", "user logged");
-
-                            map.put("user", obj);
-                        } else {
-                            map.put("status", userStatus);
-                            map.put("description", "user logged but cant auth");
-                        }
-                        break;
-                    case 3:
-                        map.put("status", userStatus);
-                        map.put("description", "used banned");
-                    default:
-                        map.put("description", "unknown error");
-                }
-            } else {
-                switch (userStatus) {
-                    case 0:
-                    case 1:
-                    case 2:
-                        userStatus++;
-                        user.setStatus(new Status(userStatus));
-                        userRepository.save(user);
-
-                        map.put("status", userStatus);
-                        map.put("description", "wrong password");
-                        break;
-                    default:
-                        map.put("status", userStatus);
-                        map.put("description", "used banned");
-                        break;
-                }
+            List<String> roles = new ArrayList<>();
+            for (Role role : user.getRoleList()) {
+                roles.add(role.getName());
             }
-            return map;
+            obj.put("role", roles);
+            map.put("status", user.getStatus().getId());
+            map.put("description", "user logged");
 
-        } else {
+            map.put("user", obj);
+        } catch (UsernameNotFoundException unfe) {
             map.put("status", -1);
             map.put("description", "no username or email registered");
             return map;
+        } catch (DisabledException de) {
+            map.put("status", optionalUser.get().getStatus().getId());
+            map.put("status", "unverified email log in");
+            return map;
+        } catch (BadCredentialsException bce) {
+            map.put("status", optionalUser.get().getStatus().getId());
+            map.put("description", "wrong password");
+            return map;
+        } catch (LockedException le) {
+            map.put("status", optionalUser.get().getStatus().getId());
+            map.put("description", "user banned");
+            return map;
         }
+        catch (AuthenticationException ae) {
+            map.put("status", optionalUser.get().getStatus().getId());
+            map.put("description", "unknown error");
+        }
+
+        return map;
     }
 
     public Map<String, Object> register(Map<String, String> json) {
@@ -454,7 +419,5 @@ public class UserService {
             return false;
         }
     }
-
-
 
 }
