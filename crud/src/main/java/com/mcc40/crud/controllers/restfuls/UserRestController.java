@@ -5,22 +5,14 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mcc40.crud.entities.Employee;
-import com.mcc40.crud.entities.User;
-import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
