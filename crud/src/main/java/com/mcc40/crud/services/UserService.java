@@ -29,6 +29,11 @@ import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,7 +53,6 @@ public class UserService implements UserDetailsService {
     RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
 
-    User loggedUser;
     AuthenticationManager authManager;
 
     @Autowired
@@ -58,7 +62,7 @@ public class UserService implements UserDetailsService {
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authManager) {
-        
+
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
         this.notificationService = notificationService;
@@ -130,34 +134,42 @@ public class UserService implements UserDetailsService {
                     case 0:
                     case 1:
                     case 2:
-                        userStatus = 0;
-                        user.setStatus(new Status(0));
-                        userRepository.save(user);
 
-                        loggedUser = user;
-                        obj.put("id", user.getId());
-                        obj.put("email", user.getEmployee().getEmail());
+                        UsernamePasswordAuthenticationToken authReq
+                                = new UsernamePasswordAuthenticationToken(username, password);
+                        Authentication auth = authManager.authenticate(authReq);
+                        SecurityContext sc = SecurityContextHolder.getContext();
+                        sc.setAuthentication(auth);
 
-                        List<String> roles = new ArrayList<>();
-                        for (Role role : user.getRoleList()) {
-                            roles.add(role.getName());
+                        if (sc.getAuthentication().getName().equals(user.getUserName())
+                                || sc.getAuthentication().getName().equals(user.getEmployee().getEmail())) {
+
+                            List<String> roleList = new ArrayList<>();
+                            for (GrantedAuthority authority : sc.getAuthentication().getAuthorities()) {
+                                roleList.add(authority.getAuthority());
+                            }
+                            System.out.println("auth: " + roleList);
+
+                            userStatus = 0;
+                            user.setStatus(new Status(0));
+                            userRepository.save(user);
+
+                            obj.put("id", user.getId());
+                            obj.put("email", user.getEmployee().getEmail());
+
+                            List<String> roles = new ArrayList<>();
+                            for (Role role : user.getRoleList()) {
+                                roles.add(role.getName());
+                            }
+                            obj.put("role", roles);
+                            map.put("status", userStatus);
+                            map.put("description", "user logged");
+
+                            map.put("user", obj);
+                        }else{
+                            map.put("status", userStatus);
+                            map.put("description", "user logged but cant auth");
                         }
-                        obj.put("role", roles);
-                        map.put("status", userStatus);
-                        map.put("user", obj);
-                        map.put("entity", user);
-
-//                        UsernamePasswordAuthenticationToken authReq
-//                                = new UsernamePasswordAuthenticationToken(username, password);
-//                        Authentication auth = authManager.authenticate(authReq);
-//                        SecurityContext sc = SecurityContextHolder.getContext();
-//                        sc.setAuthentication(auth);
-//
-//                        List<String> roleList = new ArrayList<>();
-//                        for (GrantedAuthority authority : sc.getAuthentication().getAuthorities()) {
-//                            roleList.add(authority.getAuthority());
-//                        }
-//                        System.out.println("auth: " + roleList);
                         break;
                     case 3:
                         map.put("status", userStatus);
@@ -281,10 +293,6 @@ public class UserService implements UserDetailsService {
         return status;
     }
 
-    public User getLoggedUser() {
-        return loggedUser;
-    }
-
     public boolean verify(String verificationCode) {
         Optional<User> user = userRepository.findByVerificationCode(verificationCode);
         if (user.isPresent()) {
@@ -297,17 +305,19 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public Map<String, Object> changePassword(Map<String, String> json) {
+    public Map<String, Object> changePassword(Authentication authentication, Map<String, String> json) {
         Map response = new LinkedHashMap();
         String oldPassword = json.get("oldPassword");
         String newPassword = json.get("newPassword");
         String retypePassword = json.get("retypePassword");
-        User user = getLoggedUser();
-        if (user == null) {
+        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(authentication.getName());
+        if (!optionalUser.isPresent()) {
             response.put("status", 403);
             response.put("description", "no logged user");
             return response;
         }
+
+        User user = optionalUser.get();
 
         if (!comparePassword(user, oldPassword)) {
             response.put("status", 403);

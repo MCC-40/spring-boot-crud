@@ -5,33 +5,22 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
-import com.mcc40.crud.entities.Department;
-import com.mcc40.crud.entities.Employee;
-import com.mcc40.crud.entities.Job;
-import com.mcc40.crud.entities.Role;
-import com.mcc40.crud.entities.Status;
 import com.mcc40.crud.entities.User;
 import com.mcc40.crud.entities.security.LoginData;
 import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.RoleService;
 import com.mcc40.crud.services.UserService;
-import java.math.BigDecimal;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.mail.MessagingException;
-import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -100,7 +89,7 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("reg")
+    @PostMapping("register")
     public ResponseEntity<Map<String, Object>> signUp(@RequestBody Map<String, String> json) throws InterruptedException {
         Map response = new HashMap();
         response = userService.register(json);
@@ -122,7 +111,8 @@ public class UserRestController {
     }
 
     @PostMapping("reset-password/{verificationCode}")
-    public ResponseEntity<Map<String, String>> resetPassword(@PathVariable String verificationCode, @RequestBody Map<String, String> json) {
+    public ResponseEntity<Map<String, String>> resetPassword(@PathVariable String verificationCode,
+            @RequestBody Map<String, String> json) {
         Map status = new LinkedHashMap();
 
         String password = json.get("password");
@@ -151,8 +141,9 @@ public class UserRestController {
     }
 
     @PostMapping("change-password")
-    public ResponseEntity<Map<String, Object>> requestPasswordChange(@RequestBody Map<String, String> json) {
-        Map map = userService.changePassword(json);
+    public ResponseEntity<Map<String, Object>> changePassword(@RequestBody Map<String, String> json,
+            Authentication authentication) {
+        Map map = userService.changePassword(authentication, json);
         Integer status = (Integer) map.get("status");
         return ResponseEntity.status(status).body(map);
     }
