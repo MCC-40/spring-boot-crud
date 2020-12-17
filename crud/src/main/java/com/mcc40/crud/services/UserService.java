@@ -5,7 +5,6 @@
  */
 package com.mcc40.crud.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcc40.crud.controllers.restfuls.UserRestController;
 import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
@@ -16,11 +15,9 @@ import com.mcc40.crud.entities.User;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.RoleRepository;
 import com.mcc40.crud.repositories.UserRepository;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,12 +27,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -43,14 +35,10 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -161,7 +149,7 @@ public class UserService {
                     case 3:
                         throw new LockedException("User banned");
                     default:
-                        throw new AuthenticationException("Unknown exception") {
+                        throw new AuthenticationException("Unknown error") {
                         };
                 }
             } else {
@@ -211,32 +199,32 @@ public class UserService {
             }
             obj.put("role", roles);
             map.put("status", user.getStatus().getId());
-            map.put("description", "user logged");
+            map.put("description", "User logged");
 
             map.put("user", obj);
+
+            return map;
         } catch (UsernameNotFoundException unfe) {
             map.put("status", -1);
-            map.put("description", "no username or email registered");
+            map.put("description", unfe.getMessage());
             return map;
         } catch (DisabledException de) {
             map.put("status", optionalUser.get().getStatus().getId());
-            map.put("status", "unverified email log in");
+            map.put("status", de.getMessage());
             return map;
         } catch (BadCredentialsException bce) {
             map.put("status", optionalUser.get().getStatus().getId());
-            map.put("description", "wrong password");
+            map.put("description", bce.getMessage());
             return map;
         } catch (LockedException le) {
             map.put("status", optionalUser.get().getStatus().getId());
-            map.put("description", "user banned");
+            map.put("description", le.getMessage());
+            return map;
+        } catch (AuthenticationException ae) {
+            map.put("status", optionalUser.get().getStatus().getId());
+            map.put("description", ae.getMessage());
             return map;
         }
-        catch (AuthenticationException ae) {
-            map.put("status", optionalUser.get().getStatus().getId());
-            map.put("description", "unknown error");
-        }
-
-        return map;
     }
 
     public Map<String, Object> register(Map<String, String> json) {
@@ -248,7 +236,7 @@ public class UserService {
 
         System.out.println(id + " | " + username + " | " + password);
 
-        if (userRepository.findById(id).isPresent()) {
+        if (userRepository.findByEmail(username).isPresent()) {
             status.put("status", 403);
             status.put("description", "user is already registered");
 //            return ResponseEntity.status(500).body(status);

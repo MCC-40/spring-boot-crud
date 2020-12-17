@@ -27,8 +27,6 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private UserService userService;
-    @Autowired
     private CustomAuthenticationProvider authProvider;
 
     @Override

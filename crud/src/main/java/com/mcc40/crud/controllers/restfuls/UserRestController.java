@@ -6,7 +6,6 @@
 package com.mcc40.crud.controllers.restfuls;
 
 import com.mcc40.crud.entities.User;
-import com.mcc40.crud.entities.security.LoginData;
 import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.RoleService;
@@ -78,9 +77,8 @@ public class UserRestController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String, Object>> signIn(@RequestBody LoginData loginData) {
-        System.out.println(loginData);
-        Map map = userService.login(loginData.getUsername(), loginData.getPassword());
+    public ResponseEntity<Map<String, Object>> signIn(@RequestBody Map<String, String> data) {
+        Map map = userService.login(data.get("username"), data.get("password"));
 
         if (map.get("status").equals(0)) {
             return ResponseEntity.ok(map);
