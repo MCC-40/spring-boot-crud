@@ -230,28 +230,14 @@ public class UserService {
     public Map<String, Object> register(Map<String, String> json) {
         Map status = new HashMap();
 
-        Integer id = Integer.parseInt(json.get("id"));
-        String username = json.get("username");
-        String password = json.get("password");
-
-        System.out.println(id + " | " + username + " | " + password);
-
-        if (userRepository.findByEmail(username).isPresent()) {
-            status.put("status", 403);
-            status.put("description", "user is already registered");
-            return status;
-        }
-
-        if (userRepository.findByUserName(username).isPresent()) {
-            status.put("status", 403);
-            status.put("description", "username is not available");
-            return status;
-        }
-
-        if (!employeeRepository.findById(id).isPresent()) {
+        String email = json.get("email");
+        
+        Optional<Employee> optionalEmployee = employeeRepository.findByEmail(email);
+        
+        if (!optionalEmployee.isPresent()) {
             System.out.println("create new employee");
             Employee employee = new Employee();
-            employee.setId(Integer.parseInt(json.get("id")));
+            employee.setId(employeeRepository.getAvailableId());
             employee.setFirstName(json.get("firstName"));
             employee.setLastName(json.get("lastName"));
             employee.setEmail(json.get("email"));
@@ -278,8 +264,30 @@ public class UserService {
             employee.setDepartment(department);
             System.out.println(employee);
 
-            employeeRepository.save(employee);
+            employee = employeeRepository.saveAndFlush(employee);
+            
+            optionalEmployee = Optional.of(employee);
         }
+        
+        Integer id = optionalEmployee.get().getId();
+        String username = json.get("username");
+        String password = json.get("password");
+
+        System.out.println(id + " | " + username + " | " + password);
+
+        if (userRepository.findByEmail(username).isPresent()) {
+            status.put("status", 403);
+            status.put("description", "user is already registered");
+            return status;
+        }
+
+        if (userRepository.findByUserName(username).isPresent()) {
+            status.put("status", 403);
+            status.put("description", "username is not available");
+            return status;
+        }
+
+        
 
         User user = new User();
         user.setId(id);
