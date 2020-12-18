@@ -77,7 +77,7 @@ public class UserRestController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String, Object>> signIn(@RequestBody Map<String, String> data) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> data) {
         Map map = userService.login(data.get("username"), data.get("password"));
 
         if (map.get("status").equals(0)) {
@@ -88,7 +88,7 @@ public class UserRestController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<Map<String, Object>> signUp(@RequestBody Map<String, String> json) throws InterruptedException {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> json) throws InterruptedException {
         Map response = new HashMap();
         response = userService.register(json);
         Integer status = (Integer) response.get("status");

@@ -239,7 +239,6 @@ public class UserService {
         if (userRepository.findByEmail(username).isPresent()) {
             status.put("status", 403);
             status.put("description", "user is already registered");
-//            return ResponseEntity.status(500).body(status);
             return status;
         }
 
@@ -250,7 +249,6 @@ public class UserService {
         }
 
         if (!employeeRepository.findById(id).isPresent()) {
-//            status.put("status", "creating employee");
             System.out.println("create new employee");
             Employee employee = new Employee();
             employee.setId(Integer.parseInt(json.get("id")));
