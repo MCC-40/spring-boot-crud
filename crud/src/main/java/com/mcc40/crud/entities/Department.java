@@ -5,8 +5,6 @@
  */
 package com.mcc40.crud.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -24,7 +22,7 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author asus
  */
 @Entity
 @Table(name = "departments")
@@ -40,20 +38,28 @@ public class Department implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
-    @JsonBackReference("location")
     @JoinColumn(name = "location", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
-    @JsonBackReference("manager")
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
-    @JsonIgnore
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
 
     public Department() {
     }
+
+    public Department(Integer id) {
+        this.id = id;
+    }
+
+    public Department(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    
 
     @XmlTransient
     public List<Employee> getEmployeeList() {
@@ -64,4 +70,25 @@ public class Department implements Serializable {
         this.employeeList = employeeList;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Department)) {
+            return false;
+        }
+        Department other = (Department) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
+    }
+
+    
 }

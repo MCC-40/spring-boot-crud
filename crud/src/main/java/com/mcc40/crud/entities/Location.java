@@ -5,8 +5,6 @@
  */
 package com.mcc40.crud.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -26,13 +24,14 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author asus
  */
 @Entity
 @Table(name = "locations")
 @XmlRootElement
 @Data
-public class Location implements Serializable {
+
+    public class Location implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -49,16 +48,25 @@ public class Location implements Serializable {
     private String city;
     @Column(name = "state_province")
     private String stateProvince;
-    @JsonBackReference
     @JoinColumn(name = "country", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Country country;
-    @JsonIgnore
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Department> departmentList;
 
     public Location() {
     }
+
+    public Location(Integer id) {
+        this.id = id;
+    }
+
+    public Location(Integer id, String city) {
+        this.id = id;
+        this.city = city;
+    }
+
+    
 
     @XmlTransient
     public List<Department> getDepartmentList() {
@@ -67,6 +75,26 @@ public class Location implements Serializable {
 
     public void setDepartmentList(List<Department> departmentList) {
         this.departmentList = departmentList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Location)) {
+            return false;
+        }
+        Location other = (Location) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -36,6 +36,7 @@ public class JobRestController {
         this.service = service;
     }
 
+    //get all
     @GetMapping("")
     public ResponseEntity<List<Job>> getAllJob() {
         return ResponseEntity.status(404).body(service.getAllJob());
@@ -62,7 +63,6 @@ public class JobRestController {
             return ResponseEntity.accepted().body(status);
         }
         return ResponseEntity.status(500).body(status);
-
     }
 
     @PostMapping("test")
@@ -85,5 +85,9 @@ public class JobRestController {
         service.getJobTitleAndDepartmentName();
         return "index";
     }
-
 }
+
+//put utk update
+//post utk insert
+//delete utk deletById
+//get utk getAll dan getById

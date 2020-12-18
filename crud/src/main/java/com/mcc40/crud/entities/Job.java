@@ -5,7 +5,6 @@
  */
 package com.mcc40.crud.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -22,13 +21,14 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author asus
  */
 @Entity
 @Table(name = "jobs")
 @XmlRootElement
 @Data
-public class Job implements Serializable {
+
+    public class Job implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -42,13 +42,22 @@ public class Job implements Serializable {
     private Integer minSalary;
     @Column(name = "max_salary")
     private Integer maxSalary;
-    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "job", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
 
     public Job() {
     }
 
+    public Job(String id) {
+        this.id = id;
+    }
+
+    public Job(String id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
+    
     @XmlTransient
     public List<Employee> getEmployeeList() {
         return employeeList;
@@ -56,6 +65,26 @@ public class Job implements Serializable {
 
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Job)) {
+            return false;
+        }
+        Job other = (Job) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
 }

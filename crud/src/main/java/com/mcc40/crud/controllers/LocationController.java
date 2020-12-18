@@ -37,8 +37,8 @@ public class LocationController {
     @RequestMapping("search")
     public String location(int id){
         Location location = service.getByLocationId(id);
-        System.out.println(location.getId()+ " | " + location.getStreetAddress());
-        return "index";
+            System.out.println(location.getId()+ " | " + location.getStreetAddress());
+            return "index";
     }
     
     @RequestMapping("save")

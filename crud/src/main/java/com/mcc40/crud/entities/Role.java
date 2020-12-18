@@ -8,59 +8,61 @@ package com.mcc40.crud.entities;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  *
  * @author asus
  */
 @Entity
-@Table(name = "countries")
+@Table(name = "roles")
 @XmlRootElement
 @Data
-public class Country implements Serializable {
+public class Role implements GrantedAuthority, Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
     @Column(name = "id")
-    private String id;
+    private Integer id;
+    @Basic(optional = false)
     @Column(name = "name")
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "country", fetch = FetchType.LAZY)
-    private List<Location> locationList;
-    @JoinColumn(name = "region", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private Region region;
+    
+    @ManyToMany(mappedBy = "roleList", fetch = FetchType.EAGER)
+    private List<User> userList;
 
-    public Country() {
+    @XmlTransient
+    public List<User> getUserList() {
+        return userList;
     }
 
-    public Country(String id) {
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
+    }
+
+    public Role() {
+    }
+
+    public Role(Integer id) {
         this.id = id;
     }
 
+    public Role(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     
-
-    @XmlTransient
-    public List<Location> getLocationList() {
-        return locationList;
-    }
-
-    public void setLocationList(List<Location> locationList) {
-        this.locationList = locationList;
-    }
 
     @Override
     public int hashCode() {
@@ -72,15 +74,19 @@ public class Country implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Country)) {
+        if (!(object instanceof Role)) {
             return false;
         }
-        Country other = (Country) object;
+        Role other = (Role) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
         return true;
     }
 
+    @Override
+    public String getAuthority() {
+        return "ROLE_" + name;
+    }
     
 }

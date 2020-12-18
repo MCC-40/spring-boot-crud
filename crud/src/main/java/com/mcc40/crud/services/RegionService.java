@@ -43,13 +43,13 @@ public class RegionService {
 
     //insert
     public String saveRegion(Region region) {
-        String result = "Unknown Error";
+        String result = null;
         Optional<Region> optionalRegion = regionRepository.findById(region.getId());
         try {
             if (optionalRegion.isPresent() == false) {
                 regionRepository.save(region);
                 result = "Inserted";
-            } else {
+            } else if (optionalRegion.get().equals(true)) {
                 Region oldRegion = optionalRegion.get();
                 oldRegion.setName(region.getName());
                 region = oldRegion;

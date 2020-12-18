@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,22 +57,6 @@ public class CountryRestController {
     
     @PostMapping("")
     public ResponseEntity<Map<String, String>> saveCountry(@RequestBody Country country){
-        Map status = new HashMap();
-        System.out.println(country);
-        if (country.getId() == null) {
-            status.put("Status", "No Content");
-            return ResponseEntity.status(200).body(status);
-        }
-        String result = service.saveCountry(country);
-        status.put("Status", result);
-        if (result.equals("Inserted") || result.equals("Updated")) {
-            return ResponseEntity.accepted().body(status);
-        }
-        return ResponseEntity.status(500).body(status);
-    }
-    
-    @PutMapping("")
-    public ResponseEntity<Map<String, String>> saveCountryPut(@RequestBody Country country){
         Map status = new HashMap();
         System.out.println(country);
         if (country.getId() == null) {

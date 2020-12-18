@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,21 +71,6 @@ public class LocationRestController {
             return ResponseEntity.accepted().body(status);
         }
         return ResponseEntity.status(500).body(status);
-    }
-    
-    @PutMapping("")
-    public ResponseEntity<Map<String, String>> saveLocationPut(@RequestBody Location location) {
-        System.out.println("Incoming put");
-        System.out.println(location);
-        Map status = new HashMap();
-
-        String result = service.saveLocation(location);
-        status.put("Status", result);
-        if (result.equals("Inserted") || result.equals("Updated")) {
-            return ResponseEntity.accepted().body(status);
-        } else {
-            return ResponseEntity.status(500).body(status);
-        }
     }
     
     //delete by id

@@ -10,15 +10,15 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -28,13 +28,14 @@ import lombok.Data;
 
 /**
  *
- * @author Yoshua
+ * @author asus
  */
 @Entity
 @Table(name = "employees")
 @XmlRootElement
 @Data
-public class Employee implements Serializable {
+    
+    public class Employee implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -66,17 +67,34 @@ public class Employee implements Serializable {
     @JoinColumn(name = "job", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Job job;
-    @JoinColumn(name = "department", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Department department;
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
+    @JoinColumn(name = "department", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Department department;
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    private User user;
 
     public Employee() {
     }
+
+    public Employee(Integer id) {
+        this.id = id;
+    }
+
+    public Employee(Integer id, String lastName, String email, Date hireDate, BigDecimal salary) {
+        this.id = id;
+        this.lastName = lastName;
+        this.email = email;
+        this.hireDate = hireDate;
+        this.salary = salary;
+    }
+
+    
 
     @XmlTransient
     public List<Department> getDepartmentList() {
@@ -87,6 +105,7 @@ public class Employee implements Serializable {
         this.departmentList = departmentList;
     }
 
+    
     @XmlTransient
     public List<Employee> getEmployeeList() {
         return employeeList;
@@ -94,6 +113,27 @@ public class Employee implements Serializable {
 
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
+    }
+
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Employee)) {
+            return false;
+        }
+        Employee other = (Employee) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+            return false;
+        }
+        return true;
     }
 
 }
