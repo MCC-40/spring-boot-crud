@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author aqira
  */
 @Controller
+@RequestMapping("region")
 public class RegionController {
 
     RegionService service;

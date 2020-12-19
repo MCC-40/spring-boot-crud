@@ -44,7 +44,7 @@ public class EmployeeRestController {
     }
 
     @GetMapping("search")
-    public ResponseEntity<List<Map<String, Object>>> searchJob(String keyword) {
+    public ResponseEntity<List<Map<String, Object>>> searchEmployee(String keyword) {
         List<Map<String, Object>> employees = service.getAllEmployee(keyword);
         return ResponseEntity.ok().body(employees);
     }
