@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +56,27 @@ public class UserService {
         return userRepository.findById(id).get();
     }
 
+    public static void changeStatusWrongCredential(String username) {
+        User user = userRepository.findByUsername(username).get();
+        updateUser(user, user.getStatus().getId() + 1);
+    }
+
+    public static void changeStatusLoginSuccess(String username) {
+        User user = userRepository.findByUsername(username).get();
+        updateUser(user, 0);
+    }
+
+    public boolean isUserLocked(int userStatus) {
+        if (userStatus == -1) {
+            throw new LockedException("User not verified");
+        }
+        if (userStatus == 3) {
+            throw new LockedException("User Banned");
+        }
+
+        return false;
+    }
+
     private static void updateUser(User oldUser, int statusId) {
         List<Role> roles = new ArrayList<>();
         oldUser.getRoles().forEach((role) -> {
@@ -75,30 +97,6 @@ public class UserService {
         user.setStatus(status);
 
         userRepository.save(user);
-    }
-
-    private static Map<String, Object> loginResultSetup(User user) {
-        Map<String, Object> result = new HashMap<>();
-
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("id", user.getId());
-        List<String> listRole = new ArrayList<>();
-        user.getRoles().forEach((role) -> {
-            listRole.add(role.getName());
-        });
-        userMap.put("roles", listRole);
-        userMap.put("email", user.getEmployee().getEmail());
-        result.put("description", userMap);
-        result.put("status", 200);
-        updateUser(user, 0);
-        return result;
-    }
-
-    public Map<String, Object> login(String usernameOrEmail) {
-        User user = userRepository.findByUsername(usernameOrEmail).get();
-        Map<String, Object> result = loginResultSetup(user);
-        updateUser(user, 0);
-        return result;
     }
 
     public User register(Map<String, Object> data) {
@@ -160,35 +158,49 @@ public class UserService {
     }
 
     public String createAuthenticationToken(AuthenticationRequest authenticationRequest) throws Exception {
-        final MyUserDetails userDetails = (MyUserDetails) userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        MyUserDetails userDetails = (MyUserDetails) userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         String username = authenticationRequest.getUsername();
-        if (userDetails.getStatusCode() == -1) {
-            throw new LockedException("User not verified");
-        }
-        if (userDetails.getStatusCode() == 3) {
-            throw new LockedException("User Banned");
-        }
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, authenticationRequest.getPassword(), new ArrayList<>())
-            );
-            changeStatusLoginSuccess(username);
-        } catch (BadCredentialsException e) {
-            changeStatusWrongCredential(username);
-            throw new Exception("Incorrect username or password", e);
+        if (!isUserLocked(userDetails.getStatusCode())) {
+            try {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(username, authenticationRequest.getPassword(), new ArrayList<>())
+                );
+                changeStatusLoginSuccess(username);
+            } catch (BadCredentialsException e) {
+                changeStatusWrongCredential(username);
+                throw new Exception("Incorrect username or password", e);
+            }
         }
 
         return jwtUtil.generateToken(userDetails);
     }
 
-    public static void changeStatusWrongCredential(String username) {
-        User user = userRepository.findByUsername(username).get();
-        updateUser(user, user.getStatus().getId() + 1);
+    public String refreshToken(Authentication authentication) {
+        return jwtUtil.generateToken((MyUserDetails) userDetailsService.loadUserByUsername(authentication.getName()));
     }
 
-    public static void changeStatusLoginSuccess(String username) {
-        User user = userRepository.findByUsername(username).get();
+    private static Map<String, Object> loginResultSetup(User user) {
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getId());
+        List<String> listRole = new ArrayList<>();
+        user.getRoles().forEach((role) -> {
+            listRole.add(role.getName());
+        });
+        userMap.put("roles", listRole);
+        userMap.put("email", user.getEmployee().getEmail());
+        result.put("description", userMap);
+        result.put("status", 200);
         updateUser(user, 0);
+        return result;
+    }
+
+    public Map<String, Object> login(String usernameOrEmail) {
+        User user = userRepository.findByUsername(usernameOrEmail).get();
+        Map<String, Object> result = loginResultSetup(user);
+        updateUser(user, 0);
+        return result;
     }
 }

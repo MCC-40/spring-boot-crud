@@ -5,6 +5,10 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
+import com.mcc40.crud.entities.User;
+import com.mcc40.crud.entities.auth.AuthenticationRequest;
+import com.mcc40.crud.entities.auth.AuthenticationResponse;
+import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.UserService;
 import java.util.HashMap;
@@ -27,13 +31,43 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/user")
 public class UserRestController {
 
-    private UserService service;
-    private NotificationService notificationService;
+    private final UserService service;
+    private final EmployeeService employeeService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public UserRestController(UserService service, NotificationService notificationService) {
+    public UserRestController(UserService service, NotificationService notificationService, EmployeeService employeeService) {
         this.service = service;
         this.notificationService = notificationService;
+        this.employeeService = employeeService;
+    }
+
+    @PostMapping("login")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+        String jwt = service.createAuthenticationToken(authenticationRequest);
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+    }
+
+    @GetMapping("refresh-token")
+    public ResponseEntity<?> refreshToken(Authentication authentication) throws Exception {
+        String jwt = service.refreshToken(authentication);
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+    }
+
+    @PostMapping("register")
+    public ResponseEntity<String> register(@RequestBody Map<String, Object> data) {
+        User user = service.register(data);
+        notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
+        return ResponseEntity.accepted().body("Verfication Email Send");
+
+    }
+
+    @PostMapping("register/employee")
+    public ResponseEntity<String> registerNewEmployee(@RequestBody Map<String, Object> data) {
+        employeeService.registerEmployee((Map<String, Object>) data.get("user"));
+        User user = service.register((Map<String, Object>) data.get("employee"));
+        notificationService.sendVerificationMail(user.getId(), user.getVerificationCode());
+        return ResponseEntity.accepted().body("Inserted");
     }
 
     @GetMapping("verify")
