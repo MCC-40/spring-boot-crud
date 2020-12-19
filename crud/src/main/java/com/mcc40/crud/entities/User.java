@@ -5,6 +5,8 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -47,13 +49,17 @@ public class User implements Serializable {
     @Column(name = "verification_code")
     private String verificationCode;
 
+    @JsonBackReference("employees")
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "id", referencedColumnName = "id")
     private Employee employee;
 
+    @JsonBackReference("statuses")
     @JoinColumn(name = "status", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private UserStatus status;
+    
+    @JsonBackReference("roles")
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",

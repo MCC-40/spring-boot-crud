@@ -95,4 +95,9 @@ public class UserRestController {
         String result = service.resetPassword(authentication.getName(), data.get("oldPassword"), data.get("newPassword"));
         return ResponseEntity.accepted().body(result);
     }
+
+    @GetMapping("me")
+    public ResponseEntity<User> showLoginUserDetail(Authentication authentication) {
+        return ResponseEntity.ok(service.getLoginUserDetail(authentication));
+    }
 }

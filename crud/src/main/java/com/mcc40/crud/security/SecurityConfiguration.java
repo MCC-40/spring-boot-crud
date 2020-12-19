@@ -28,7 +28,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserDetailsService userDetailService;
-
+    
     @Autowired
     JwtRequestFilter jwtRequestFilter;
 
@@ -57,11 +57,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/swagger-ui").permitAll()
-                .antMatchers("/api/user/login",
-                        "/api/user/register",
-                        "/api/user/register/employee",
-                        "/api/user/forget-password").permitAll()
+                .antMatchers("/api/user/login").permitAll()
+                .antMatchers("/api/user/register").permitAll()
+                .antMatchers("/api/user/register/employee").permitAll()
+                .antMatchers("/api/user/forget-password").permitAll()
                 .antMatchers("/api/user/**").authenticated()
                 .antMatchers("/api/employee/**", "/api/job/**").hasAnyRole("HR", "ADMIN")
                 .antMatchers("/api/location/**").hasAnyRole("USER", "ADMIN")
