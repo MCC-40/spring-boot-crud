@@ -7,6 +7,7 @@ package com.mcc40.crud.controllers;
 
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.services.EmployeeService;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,28 +28,29 @@ public class EmployeeController {
         this.service = service;
     }
 
-    @RequestMapping("") 
+    @RequestMapping("")
     public String getAllEmployee() {
-        for (Employee employee : service.getAllEmployee()) {
-            System.out.println(employee.getFirstName() + " | " + employee.getLastName());
+        for (Map<String, Object> employee : service.getAllEmployee("")) {
+            System.out.println(employee.get("firstName") + " | " + employee.get("lastName"));
         }
         return "index"; //index.html
     }
 
-    @RequestMapping("search") 
+    @RequestMapping("search")
     public String getByIdEmployee(int id) {
-        Employee employee = service.getByIdEmployee(id);
-        System.out.println(employee.getFirstName() + " | " + employee.getLastName());
+        Map<String, Object> employee = service.getByIdEmployee(id);
+        System.out.println(employee.get("firstName") + " | " + employee.get("lastName"));
         return "index";
     }
 
-    @RequestMapping("save") 
+    @RequestMapping("save")
     public String saveEmployee(Employee employee) {
         System.out.println(service.saveEmployee(employee));
-        return "index"; 
+        return "index";
     }
 //
-    @RequestMapping("delete") 
+
+    @RequestMapping("delete")
     public String deleteEmployee(int id) {
         if (service.deleteEmployee(id)) {
             System.out.println("Delete Success");
@@ -57,15 +59,15 @@ public class EmployeeController {
         }
         return "index";
     }
-    
+
     @RequestMapping("test")
-    public String getFirstNameLocation(){
+    public String getFirstNameLocation() {
         service.getFirstNameAndLocation();
         return "index";
     }
-    
+
     @RequestMapping("testEC")
-    public String getEmployeeCountry(){
+    public String getEmployeeCountry() {
         service.getEmployeeAndCountry();
         return "index";
     }

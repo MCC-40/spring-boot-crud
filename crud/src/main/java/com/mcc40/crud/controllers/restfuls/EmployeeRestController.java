@@ -38,59 +38,21 @@ public class EmployeeRestController {
         this.service = service;
     }
 
-    public static Map<String, Object> MapTheEmployee(Employee employee) {
-        Map<String, Object> e = new HashMap<>();
-        e.put("id", employee.getId());
-        e.put("firstName", employee.getFirstName());
-        e.put("lastName", employee.getLastName());
-        e.put("email", employee.getEmail());
-        e.put("phoneNumber", employee.getPhoneNumber());
-        e.put("hireDate", employee.getHireDate());
-        e.put("job", employee.getJob().getId());
-        e.put("salary", employee.getSalary());
-        e.put("commissionPct", employee.getCommissionPct());
-        e.put("manager", employee.getManager() == null ? null : employee.getManager().getId());
-        e.put("department", employee.getDepartment() == null ? null : employee.getDepartment().getId());
-        return e;
-    }
-
-//    public static String registerEmployee(Map<String, Object> data) {
-//        service.registerEmployee(data);
-//        return "Inserted";
-//    }
-
     @GetMapping("")
     public static ResponseEntity<Map<String, Object>> getById(int id) {
-        Employee employee = service.getByIdEmployee(id);
-        return ResponseEntity.ok().body(MapTheEmployee(employee));
+        return ResponseEntity.ok().body(service.getByIdEmployee(id));
     }
 
     @GetMapping("search")
     public ResponseEntity<List<Map<String, Object>>> searchJob(String keyword) {
-        System.out.println(keyword);
-        List<Employee> employees = service.getAllEmployee();
-        List<Employee> result = employees.stream()
-                .filter(employee
-                        -> Integer.toString(employee.getId()).contains(keyword)
-                || employee.getLastName().toLowerCase().contains(keyword.toLowerCase())
-                || employee.getFirstName().toLowerCase().contains(keyword.toLowerCase())
-                )
-                .collect(Collectors.toList());
-
-        List<Map<String, Object>> mapEmployeeList = new ArrayList<>();
-        for (Employee employee : result) {
-            mapEmployeeList.add(MapTheEmployee(employee));
-        }
-        return ResponseEntity.ok().body(mapEmployeeList);
+        List<Map<String, Object>> employees = service.getAllEmployee(keyword);
+        return ResponseEntity.ok().body(employees);
     }
 
     @PostMapping
     public ResponseEntity<Map<String, String>> insertEmployee(@Validated @RequestBody Employee employee) {
         Map status = new HashMap();
-        if (employee.getId() == null) {
-            status.put("Status", "No Content");
-            return ResponseEntity.status(200).body(status);
-        } else if (service.isJobPresent(employee.getId())) {
+        if (service.isEmplyeePresent(employee.getId())) {
             status.put("Status", "Use Method PUT to update");
             return ResponseEntity.status(200).body(status);
         }
@@ -105,10 +67,7 @@ public class EmployeeRestController {
     @PutMapping
     public ResponseEntity<Map<String, String>> updateLastName(@Validated @RequestBody Employee employee) {
         Map status = new HashMap();
-        if (employee.getId() == null) {
-            status.put("Status", "No Content");
-            return ResponseEntity.status(200).body(status);
-        } else if (!service.isJobPresent(employee.getId())) {
+        if (!service.isEmplyeePresent(employee.getId())) {
             status.put("Status", "Use Method POST to insert new data");
             return ResponseEntity.status(200).body(status);
         }

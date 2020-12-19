@@ -13,9 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,25 +47,14 @@ public class JobRestController {
 
     @GetMapping("search")
     public ResponseEntity<List<Job>> searchJob(String keyword) {
-        List<Job> jobs = service.getAllJob();
-        List<Job> result = jobs.stream()
-                .filter(job
-                        -> job.getId().toLowerCase().contains(keyword.toLowerCase())
-                || job.getTitle().toLowerCase().contains(keyword.toLowerCase())
-                || Integer.toString(job.getMinSalary()).toLowerCase().contains(keyword)
-                || Integer.toString(job.getMaxSalary()).toLowerCase().contains(keyword)
-                )
-                .collect(Collectors.toList());
+        List<Job> result = service.getAllJob(keyword);
         return ResponseEntity.ok().body(result);
     }
 
     @PostMapping
     public ResponseEntity<Map<String, String>> insertJob(@Validated @RequestBody Job job) {
         Map status = new HashMap();
-        if (job.getId() == null) {
-            status.put("Status", "Id not found");
-            return ResponseEntity.status(200).body(status);
-        } else if (service.isJobPresent(job.getId())) {
+        if (service.isJobPresent(job.getId())) {
             status.put("Status", "Use Method PUT to update");
             return ResponseEntity.status(200).body(status);
         }
@@ -82,10 +69,7 @@ public class JobRestController {
     @PutMapping
     public ResponseEntity<Map<String, String>> updateJob(@Validated @RequestBody Job job) {
         Map status = new HashMap();
-        if (job.getId() == null) {
-            status.put("Status", "No Content");
-            return ResponseEntity.status(200).body(status);
-        } else if (!service.isJobPresent(job.getId())) {
+        if (!service.isJobPresent(job.getId())) {
             status.put("Status", "Use Method POST to insert new data");
             return ResponseEntity.status(200).body(status);
         }

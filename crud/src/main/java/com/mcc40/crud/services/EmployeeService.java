@@ -15,10 +15,13 @@ import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.JobRepository;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,9 +43,24 @@ public class EmployeeService {
         this.departmentRepository = departmentRepository;
     }
 
-    public boolean isJobPresent(int id) {
-        Optional<Employee> optionalJob = employeeRepository.findById(id);
-        return optionalJob.isPresent();
+    public boolean isEmplyeePresent(int id) {
+        return employeeRepository.findById(id).isPresent();
+    }
+
+    public static Map<String, Object> MapTheEmployee(Employee employee) {
+        Map<String, Object> e = new HashMap<>();
+        e.put("id", employee.getId());
+        e.put("firstName", employee.getFirstName());
+        e.put("lastName", employee.getLastName());
+        e.put("email", employee.getEmail());
+        e.put("phoneNumber", employee.getPhoneNumber());
+        e.put("hireDate", employee.getHireDate());
+        e.put("job", employee.getJob().getId());
+        e.put("salary", employee.getSalary());
+        e.put("commissionPct", employee.getCommissionPct());
+        e.put("manager", employee.getManager() == null ? null : employee.getManager().getId());
+        e.put("department", employee.getDepartment() == null ? null : employee.getDepartment().getId());
+        return e;
     }
 
     //find all by id
@@ -51,13 +69,25 @@ public class EmployeeService {
     }
 
     //get all 
-    public List<Employee> getAllEmployee() {
-        return employeeRepository.findAll();
+    public List<Map<String, Object>> getAllEmployee(String keyword) {
+        List<Employee> employees = employeeRepository.findAll();
+        List<Employee> result = employees.stream()
+                .filter(employee
+                        -> Integer.toString(employee.getId()).contains(keyword)
+                || employee.getLastName().toLowerCase().contains(keyword.toLowerCase())
+                || employee.getFirstName().toLowerCase().contains(keyword.toLowerCase())
+                )
+                .collect(Collectors.toList());
+        List<Map<String, Object>> mapEmployeeList = new ArrayList<>();
+        for (Employee employee : result) {
+            mapEmployeeList.add(MapTheEmployee(employee));
+        }
+        return mapEmployeeList;
     }
 
     //get by id
-    public Employee getByIdEmployee(int id) {
-        return employeeRepository.findById(id).get();
+    public Map<String, Object> getByIdEmployee(int id) {
+        return MapTheEmployee(employeeRepository.findById(id).get());
     }
 
     //register
@@ -82,11 +112,11 @@ public class EmployeeService {
         Employee manager = new Employee();
         manager.setId((Integer) data.get("manager"));
         employee.setManager(manager);
-        
+
         Department department = new Department();
         department.setId((Integer) data.get("department"));
         employee.setDepartment(department);
-       
+
         employeeRepository.save(employee);
         return result;
     }

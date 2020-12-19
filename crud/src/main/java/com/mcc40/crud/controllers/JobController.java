@@ -28,9 +28,9 @@ public class JobController {
 
     @RequestMapping("")
     public String getAllEmployee() {
-        for (Job job : service.getAllJob()) {
+        service.getAllJob("").forEach((job) -> {
             System.out.println(job.getTitle()+ " | " + job.getMinSalary() + " | " + job.getMaxSalary());
-        }
+        });
         return "index"; //index.html
     }
 

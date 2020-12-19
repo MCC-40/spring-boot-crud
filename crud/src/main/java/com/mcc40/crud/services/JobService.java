@@ -10,6 +10,7 @@ import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.JobRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +29,21 @@ public class JobService {
     }
 
     public boolean isJobPresent(String id) {
-        Optional<Job> optionalJob = jobRepository.findById(id);
-        return optionalJob.isPresent();
+        return jobRepository.findById(id).isPresent();
     }
 
     //get all 
-    public List<Job> getAllJob() {
-        return jobRepository.findAll();
+    public List<Job> getAllJob(String keyword) {
+        List<Job> jobs = jobRepository.findAll();
+        List<Job> result = jobs.stream()
+                .filter(job
+                        -> job.getId().toLowerCase().contains(keyword.toLowerCase())
+                || job.getTitle().toLowerCase().contains(keyword.toLowerCase())
+                || Integer.toString(job.getMinSalary()).toLowerCase().contains(keyword)
+                || Integer.toString(job.getMaxSalary()).toLowerCase().contains(keyword)
+                )
+                .collect(Collectors.toList());
+        return result;
     }
 
     //get by id
