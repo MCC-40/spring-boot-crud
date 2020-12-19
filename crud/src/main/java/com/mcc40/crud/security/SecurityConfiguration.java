@@ -32,11 +32,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                .and().authenticationProvider(customAuthenticationProvider);
     }
 
-//    @Override
-//    @Bean
-//    public AuthenticationManager authenticationManagerBean() throws Exception {
-//        return super.authenticationManagerBean();
-//    }
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -47,9 +47,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/location/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/api/**").hasRole("ADMIN")
                 .antMatchers("/**").permitAll();
-        http.httpBasic();
-        http.logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/index");
+//        http.httpBasic();
+//        http.logout()
+//                .logoutUrl("/logout")
+//                .logoutSuccessUrl("/index");
     }
 }

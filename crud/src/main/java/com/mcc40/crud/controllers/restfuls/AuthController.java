@@ -14,6 +14,7 @@ import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.MyUserDetailsService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.UserService;
+import java.util.ArrayList;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,9 +40,8 @@ public class AuthController {
     private final EmployeeService employeeService;
     private final NotificationService notificationService;
 
-    @Autowired
     private AuthenticationManager authenticationManager;
-    
+
     @Autowired
     private MyUserDetailsService userDetailsService;
 
@@ -48,20 +49,24 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @Autowired
-    public AuthController(UserService service, NotificationService notificationService, EmployeeService employeeService) {
+    public AuthController(UserService service, NotificationService notificationService, EmployeeService employeeService, AuthenticationManager authenticationManager) {
         this.service = service;
         this.notificationService = notificationService;
         this.employeeService = employeeService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("auth")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-
+        System.out.println("QWE");
         try {
+            System.out.println(authenticationRequest.getUsername());
+            System.out.println(authenticationRequest.getPassword());
+
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
+                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword(), new ArrayList<>())
             );
-        } catch (BadCredentialsException e) {
+        } catch (NullPointerException e) {
             throw new Exception("Incorrect username or password", e);
         }
 
