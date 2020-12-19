@@ -77,6 +77,18 @@ public class UserService {
         return false;
     }
 
+    private static Map<String, Object> getLoginUserResultSetup(User user) {
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("id", user.getId());
+        List<String> listRole = new ArrayList<>();
+        user.getRoles().forEach((role) -> {
+            listRole.add(role.getName());
+        });
+        userMap.put("roles", listRole);
+        userMap.put("email", user.getEmployee().getEmail());
+        return userMap;
+    }
+
     private static void updateUser(User oldUser, int statusId) {
         List<Role> roles = new ArrayList<>();
         oldUser.getRoles().forEach((role) -> {
@@ -179,8 +191,10 @@ public class UserService {
     public String refreshToken(Authentication authentication) {
         return jwtUtil.generateToken((MyUserDetails) userDetailsService.loadUserByUsername(authentication.getName()));
     }
-    
-    public User getLoginUserDetail(Authentication authentication){
-        return userRepository.findByUsername(authentication.getName()).get();
+
+    public Map<String, Object> getLoginUserDetail(Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName()).get();
+        Map<String, Object> result = getLoginUserResultSetup(user);
+        return result;
     }
 }

@@ -97,7 +97,7 @@ public class UserRestController {
     }
 
     @GetMapping("me")
-    public ResponseEntity<User> showLoginUserDetail(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> showLoginUserDetail(Authentication authentication) {
         return ResponseEntity.ok(service.getLoginUserDetail(authentication));
     }
 }
