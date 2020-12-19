@@ -5,10 +5,13 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.MyUserDetails;
 import com.mcc40.crud.entities.Role;
 import com.mcc40.crud.entities.User;
 import com.mcc40.crud.entities.UserStatus;
+import com.mcc40.crud.entities.auth.AuthenticationRequest;
 import com.mcc40.crud.repositories.UserRepository;
+import com.mcc40.crud.security.JwtUtil;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +19,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +35,19 @@ public class UserService {
 
     private static UserRepository userRepository;
     private static PasswordEncoder encoder;
+    private static AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder encoder) {
+    private MyUserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    public UserService(UserRepository userRepository, PasswordEncoder encoder, AuthenticationManager authenticationManager) {
         UserService.userRepository = userRepository;
         UserService.encoder = encoder;
+        UserService.authenticationManager = authenticationManager;
 
     }
 
@@ -47,7 +62,7 @@ public class UserService {
             r.setId(role.getId());
             roles.add(r);
         });
-        
+
         UserStatus status = new UserStatus();
         status.setId(statusId);
 
@@ -144,8 +159,36 @@ public class UserService {
         return "Wrong Last Password";
     }
 
-    public void changeStatusWrongCredential(String username) {
+    public String createAuthenticationToken(AuthenticationRequest authenticationRequest) throws Exception {
+        final MyUserDetails userDetails = (MyUserDetails) userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        String username = authenticationRequest.getUsername();
+        if (userDetails.getStatusCode() == -1) {
+            throw new LockedException("User not verified");
+        }
+        if (userDetails.getStatusCode() == 3) {
+            throw new LockedException("User Banned");
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, authenticationRequest.getPassword(), new ArrayList<>())
+            );
+            changeStatusLoginSuccess(username);
+        } catch (BadCredentialsException e) {
+            changeStatusWrongCredential(username);
+            throw new Exception("Incorrect username or password", e);
+        }
+
+        return jwtUtil.generateToken(userDetails);
+    }
+
+    public static void changeStatusWrongCredential(String username) {
         User user = userRepository.findByUsername(username).get();
         updateUser(user, user.getStatus().getId() + 1);
+    }
+
+    public static void changeStatusLoginSuccess(String username) {
+        User user = userRepository.findByUsername(username).get();
+        updateUser(user, 0);
     }
 }

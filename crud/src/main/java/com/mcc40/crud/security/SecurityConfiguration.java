@@ -5,6 +5,8 @@
  */
 package com.mcc40.crud.security;
 
+import com.mcc40.crud.security.JwtRequestFilter;
+import javax.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,7 +14,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  *
@@ -23,13 +27,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserDetailsService userDetailService;
-//    @Autowired
-//    CustomAuthenticationProvider customAuthenticationProvider;
+    
+    @Autowired
+    JwtRequestFilter jwtRequestFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailService);
-//                .and().authenticationProvider(customAuthenticationProvider);
     }
 
     @Override
@@ -47,9 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/location/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/api/**").hasRole("ADMIN")
                 .antMatchers("/**").permitAll();
-//        http.httpBasic();
-//        http.logout()
-//                .logoutUrl("/logout")
-//                .logoutSuccessUrl("/index");
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }
