@@ -5,13 +5,21 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
+import com.mcc40.crud.entities.MyUserDetails;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.entities.auth.AuthenticationRequest;
+import com.mcc40.crud.entities.auth.AuthenticationResponse;
+import com.mcc40.crud.security.JwtUtil;
 import com.mcc40.crud.services.EmployeeService;
+import com.mcc40.crud.services.MyUserDetailsService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.UserService;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,10 +39,37 @@ public class AuthController {
     private final NotificationService notificationService;
 
     @Autowired
+    private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private MyUserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     public AuthController(UserService service, NotificationService notificationService, EmployeeService employeeService) {
         this.service = service;
         this.notificationService = notificationService;
         this.employeeService = employeeService;
+    }
+
+    @PostMapping("auth")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
+            );
+        } catch (BadCredentialsException e) {
+            throw new Exception("Incorrect username or password", e);
+        }
+
+        final MyUserDetails userDetails = (MyUserDetails) userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
 
     @PostMapping("login")
