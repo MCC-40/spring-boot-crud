@@ -16,11 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.crypto.SecretKey;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.var;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -33,24 +34,32 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class JwtTokenVerifier extends OncePerRequestFilter {
 
+    private final SecretKey secretKey;
+    private final JwtConfig jwtConfig;
+
+    @Autowired
+    public JwtTokenVerifier(SecretKey secretKey, JwtConfig jwtConfig) {
+        this.secretKey = secretKey;
+        this.jwtConfig = jwtConfig;
+    }
+    
     @Override
     protected void doFilterInternal(HttpServletRequest hsr,
             HttpServletResponse hsr1,
             FilterChain fc) throws ServletException, IOException {
 
-        String authorizatonHeader = hsr.getHeader("Authorization");
+        String authorizatonHeader = hsr.getHeader(jwtConfig.getAuthorizationHeader());
 
-        if (Strings.isNullOrEmpty(authorizatonHeader) || !authorizatonHeader.startsWith("Bearer ")) {
+        if (Strings.isNullOrEmpty(authorizatonHeader) || !authorizatonHeader.startsWith(jwtConfig.getTokenPrefix())) {
             fc.doFilter(hsr, hsr1);
             return;
         }
 
-        String token = authorizatonHeader.replace("Bearer ", "");
+        String token = authorizatonHeader.replace(jwtConfig.getTokenPrefix(), "");
         try {
-            String secretKey = "securesecuresecuresecuresecuresecuresecuresecure";
 
             Jws<Claims> parseClaimsJws = Jwts.parser()
-                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .setSigningKey(secretKey)
                     .parseClaimsJws(token);
             Claims body = parseClaimsJws.getBody();
 

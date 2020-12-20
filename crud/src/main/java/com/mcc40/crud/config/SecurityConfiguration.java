@@ -5,15 +5,17 @@
  */
 package com.mcc40.crud.config;
 
+import com.mcc40.crud.jwt.JwtConfig;
+import com.mcc40.crud.jwt.JwtSecretKey;
 import com.mcc40.crud.jwt.JwtTokenVerifier;
 import com.mcc40.crud.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import com.mcc40.crud.security.CustomAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -22,12 +24,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@ComponentScan(basePackages = {"com.mcc40.crud"})
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CustomAuthenticationProvider authProvider;
+    private final JwtSecretKey secretKey;
+    private final JwtConfig jwtConfig;
+
+    @Autowired
+    public SecurityConfiguration(JwtSecretKey secretKey, JwtConfig jwtConfig) {
+        
+        this.secretKey = secretKey;
+        this.jwtConfig = jwtConfig;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -43,8 +54,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
-                .addFilterAfter(new JwtTokenVerifier(), JwtUsernameAndPasswordAuthenticationFilter.class)
+                .and().addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, secretKey.getSecretKey()))
+                .addFilterAfter(new JwtTokenVerifier(secretKey.getSecretKey(), jwtConfig), JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/api/users/forgot-password/**").permitAll()
                 .antMatchers("/api/users/reset-password/**").permitAll()

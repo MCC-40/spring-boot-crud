@@ -18,7 +18,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     UserService userService;
-    
+
     @Override
     public Authentication authenticate(Authentication authentication)
             throws AuthenticationException {

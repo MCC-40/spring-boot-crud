@@ -48,13 +48,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    UserRepository userRepository;
-    EmployeeRepository employeeRepository;
-    NotificationService notificationService;
-    RoleRepository roleRepository;
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final EmployeeRepository employeeRepository;
+    private final NotificationService notificationService;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    AuthenticationManager authManager;
+    private final AuthenticationManager authManager;
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -231,9 +231,9 @@ public class UserService {
         Map status = new HashMap();
 
         String email = json.get("email");
-        
+
         Optional<Employee> optionalEmployee = employeeRepository.findByEmail(email);
-        
+
         if (!optionalEmployee.isPresent()) {
             System.out.println("create new employee");
             Employee employee = new Employee();
@@ -265,10 +265,10 @@ public class UserService {
             System.out.println(employee);
 
             employee = employeeRepository.saveAndFlush(employee);
-            
+
             optionalEmployee = Optional.of(employee);
         }
-        
+
         Integer id = optionalEmployee.get().getId();
         String username = json.get("username");
         String password = json.get("password");
@@ -286,8 +286,6 @@ public class UserService {
             status.put("description", "username is not available");
             return status;
         }
-
-        
 
         User user = new User();
         user.setId(id);
