@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -37,6 +38,7 @@ public class Role implements GrantedAuthority, Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
+    @JsonIgnore
     @ManyToMany(mappedBy = "roleList", fetch = FetchType.EAGER)
     private List<User> userList;
 

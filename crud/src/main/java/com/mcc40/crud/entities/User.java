@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -48,6 +49,8 @@ public class User implements Serializable {
         @JoinColumn(name = "role_id", referencedColumnName = "id")})
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roleList;
+    
+    @JsonIgnore
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Employee employee;
     
