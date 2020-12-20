@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
@@ -41,6 +42,7 @@ public class Job implements Serializable {
     private Integer minSalary;
     @Column(name = "max_salary")
     private Integer maxSalary;
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "job", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
 

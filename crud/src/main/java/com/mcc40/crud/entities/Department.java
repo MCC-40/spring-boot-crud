@@ -40,11 +40,13 @@ public class Department implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
-    @JsonBackReference
+//    @JsonBackReference
+    @JsonIgnore
     @JoinColumn(name = "location", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
-    @JsonBackReference
+//    @JsonBackReference
+    @JsonIgnore
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;

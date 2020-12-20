@@ -23,5 +23,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>{
     
      @Query(value = "SELECT MAX(id) + 1 FROM",
             nativeQuery = true)
-    public int getAvailableId();
+    public Integer getAvailableId();
 }

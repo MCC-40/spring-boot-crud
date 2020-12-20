@@ -64,7 +64,7 @@ public class JobRestController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Map<String, String>> saveJob(@RequestBody Job job) {
+    public ResponseEntity<Map<String, String>> saveJob(@RequestBody Job job, @RequestBody Department department) {
         Map status = new HashMap();
         System.out.println(job);
 //        if (job.getId() == null) {
