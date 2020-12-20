@@ -5,6 +5,7 @@
  */
 package com.mcc40.crud.config;
 
+import com.mcc40.crud.jwt.JwtTokenVerifier;
 import com.mcc40.crud.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import com.mcc40.crud.security.CustomAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
+                .addFilterAfter(new JwtTokenVerifier(), JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/api/users/forgot-password/**").permitAll()
                 .antMatchers("/api/users/reset-password/**").permitAll()
