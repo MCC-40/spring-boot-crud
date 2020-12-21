@@ -119,62 +119,7 @@ public class UserService {
         return "success";
     }
 
-    public UsernamePasswordAuthenticationToken authenticate(String username, String password)
-            throws AuthenticationException {
-        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
-
-        if (optionalUser.isPresent()) {                                 // User exist
-            User user = optionalUser.get();
-            Integer userStatus = user.getStatus().getId();
-            if (comparePassword(user, password)) {   // Comparing password
-                switch (userStatus) {
-                    case -1:
-                        throw new DisabledException("Unverified email login");
-                    case 0:
-                    case 1:
-                    case 2:
-
-                        userStatus = 0;
-                        user.setStatus(new Status(0));
-                        userRepository.save(user);
-
-                        UsernamePasswordAuthenticationToken token
-                                = new UsernamePasswordAuthenticationToken(
-                                        user.getUserName(),
-                                        user.getPassword(),
-                                        user.getRoleList()
-                                );
-
-                        return token;
-                    case 3:
-                        throw new LockedException("User banned");
-                    default:
-                        throw new AuthenticationException("Unknown error") {
-                        };
-                }
-            } else {
-                switch (userStatus) {
-                    case 0:
-                    case 1:
-                        userStatus++;
-                        user.setStatus(new Status(userStatus));
-                        userRepository.save(user);
-
-                        throw new BadCredentialsException("Wrong password");
-
-                    case 2:
-                        userStatus++;
-                        user.setStatus(new Status(userStatus));
-                        userRepository.save(user);
-                    default:
-                        throw new LockedException("User banned");
-                }
-            }
-
-        } else {
-            throw new UsernameNotFoundException("No username or email registered");
-        }
-    }
+    
 
     public Map<String, Object> login(String username, String password) {
         Map map = new LinkedHashMap();

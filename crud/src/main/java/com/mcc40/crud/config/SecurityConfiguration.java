@@ -9,11 +9,14 @@ import com.mcc40.crud.jwt.JwtConfig;
 import com.mcc40.crud.jwt.JwtSecretKey;
 import com.mcc40.crud.jwt.JwtTokenVerifier;
 import com.mcc40.crud.jwt.JwtUsernameAndPasswordAuthenticationFilter;
-import com.mcc40.crud.security.CustomAuthenticationProvider;
+import com.mcc40.crud.repositories.UserRepository;
+import com.mcc40.crud.services.MyUserDetailsService;
+import com.mcc40.crud.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,21 +31,28 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private CustomAuthenticationProvider authProvider;
+
+    private final MyUserDetailsService userDetailsService;
     private final JwtSecretKey secretKey;
     private final JwtConfig jwtConfig;
+    
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfiguration(JwtSecretKey secretKey, JwtConfig jwtConfig) {
-        
+    public SecurityConfiguration(MyUserDetailsService userDetailsService, 
+            JwtSecretKey secretKey, 
+            JwtConfig jwtConfig) {
+        this.userDetailsService = userDetailsService;
         this.secretKey = secretKey;
         this.jwtConfig = jwtConfig;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authProvider);
+        auth.authenticationProvider(authProvider());
     }
 
     @Bean
@@ -54,7 +64,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, secretKey.getSecretKey()))
+                .and().addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), 
+                        jwtConfig, 
+                        secretKey.getSecretKey(),
+                        userRepository,
+                        passwordEncoder
+                ))
                 .addFilterAfter(new JwtTokenVerifier(secretKey.getSecretKey(), jwtConfig), JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/api/users/forgot-password/**").permitAll()
@@ -67,6 +82,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/jobs/**").hasAnyRole("HR", "ADMIN")
                 .antMatchers("api/employee/**").hasAnyRole("HR", "ADMIN")
                 .antMatchers("/**").hasRole("ADMIN")
+                .antMatchers("/login/**").permitAll()
                 .anyRequest().authenticated();
     }
 
@@ -74,6 +90,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(encoder());
+        return authProvider;
     }
 
 }
