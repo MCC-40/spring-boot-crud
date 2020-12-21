@@ -36,6 +36,11 @@ public class EmployeeService {
         this.departmentRepository = departmentRepository;
     }
 
+    public boolean isJobPresent(int id) {
+        Optional<Employee> optionalJob = employeeRepository.findById(id);
+        return optionalJob.isPresent();
+    }
+
     //get all 
     public List<Employee> getAllEmployee() {
         return employeeRepository.findAll();
