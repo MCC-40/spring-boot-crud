@@ -77,14 +77,24 @@ public class UserRestController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> data) {
-        Map map = userService.login(data.get("username"), data.get("password"));
-
-        if (map.get("status").equals(0)) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> data) {
+        String token = userService.createJwtToken(data.get("username"), data.get("password"));
+        Map<String, String> map = new HashMap<>();
+        if (token != "") {
+            map.put("jwt", token);
             return ResponseEntity.ok(map);
         } else {
+            map.put("error", "Invalid login");
             return ResponseEntity.status(401).body(map);
         }
+    }
+    
+    @GetMapping("refresh-token")
+       public ResponseEntity<Map<String,String>> refreshToken(Authentication authentication) throws Exception {
+        String token = userService.refreshToken(authentication);
+        Map<String, String> map = new HashMap<>();
+        map.put("jwt", token);
+        return ResponseEntity.ok(map);
     }
 
     @PostMapping("register")

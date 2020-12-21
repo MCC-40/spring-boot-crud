@@ -9,9 +9,11 @@ import com.mcc40.crud.controllers.restfuls.UserRestController;
 import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Job;
+import com.mcc40.crud.entities.MyUserDetails;
 import com.mcc40.crud.entities.Role;
 import com.mcc40.crud.entities.Status;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.jwt.JwtUtil;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.RoleRepository;
 import com.mcc40.crud.repositories.UserRepository;
@@ -53,22 +55,19 @@ public class UserService {
     private final NotificationService notificationService;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final JwtUtil jwtUtil;
+    private final MyUserDetailsService userDetailsService;
     private final AuthenticationManager authManager;
 
     @Autowired
-    public UserService(UserRepository userRepository,
-            EmployeeRepository employeeRepository,
-            NotificationService notificationService,
-            RoleRepository roleRepository,
-            PasswordEncoder passwordEncoder,
-            AuthenticationManager authManager) {
-
+    public UserService(UserRepository userRepository, EmployeeRepository employeeRepository, NotificationService notificationService, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, MyUserDetailsService userDetailsService, AuthenticationManager authManager) {
         this.userRepository = userRepository;
         this.employeeRepository = employeeRepository;
         this.notificationService = notificationService;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
         this.authManager = authManager;
     }
 
@@ -117,6 +116,63 @@ public class UserService {
         }
         userRepository.save(user);
         return "success";
+    }
+
+    public String createJwtToken(String username, String password)
+            throws AuthenticationException {
+        Optional<User> optionalUser = userRepository.findByUsernameOrEmail(username);
+
+        if (optionalUser.isPresent()) {                                 // User exist
+            User user = optionalUser.get();
+            Integer userStatus = user.getStatus().getId();
+            if (comparePassword(user, password)) {   // Comparing password
+                switch (userStatus) {
+                    case -1:
+                        throw new DisabledException("Unverified email login");
+                    case 0:
+                    case 1:
+                    case 2:
+
+                        userStatus = 0;
+                        user.setStatus(new Status(0));
+                        userRepository.save(user);
+
+                        MyUserDetails userDetails
+                                = new MyUserDetails(user);
+
+                        return jwtUtil.generateToken(userDetails);
+                    case 3:
+                        throw new LockedException("User banned");
+                    default:
+                        throw new AuthenticationException("Unknown error") {
+                        };
+                }
+            } else {
+                switch (userStatus) {
+                    case 0:
+                    case 1:
+                        userStatus++;
+                        user.setStatus(new Status(userStatus));
+                        userRepository.save(user);
+
+                        throw new BadCredentialsException("Wrong password");
+
+                    case 2:
+                        userStatus++;
+                        user.setStatus(new Status(userStatus));
+                        userRepository.save(user);
+                    default:
+                        throw new LockedException("User banned");
+                }
+            }
+
+        } else {
+            throw new UsernameNotFoundException("No username or email registered");
+        }
+    }
+
+    public String refreshToken(Authentication authentication) {
+        return jwtUtil.generateToken((MyUserDetails) userDetailsService.loadUserByUsername(authentication.getName()));
     }
 
     public UsernamePasswordAuthenticationToken authenticate(String username, String password)
