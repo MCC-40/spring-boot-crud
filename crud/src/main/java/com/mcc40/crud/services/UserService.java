@@ -13,6 +13,7 @@ import com.mcc40.crud.entities.MyUserDetails;
 import com.mcc40.crud.entities.Role;
 import com.mcc40.crud.entities.Status;
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.entities.data.RegisterData;
 import com.mcc40.crud.jwt.JwtUtil;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.RoleRepository;
@@ -30,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -283,40 +285,36 @@ public class UserService {
         }
     }
 
-    public Map<String, Object> register(Map<String, String> json) {
+    public Map<String, Object> register(RegisterData data) {
         Map status = new HashMap();
 
-        String email = json.get("email");
+        String email = data.getEmail();
 
         Optional<Employee> optionalEmployee = employeeRepository.findByEmail(email);
 
         if (!optionalEmployee.isPresent()) {
             System.out.println("create new employee");
             Employee employee = new Employee();
-            employee.setId(employeeRepository.getAvailableId());
-            employee.setFirstName(json.get("firstName"));
-            employee.setLastName(json.get("lastName"));
-            employee.setEmail(json.get("email"));
-            employee.setPhoneNumber(json.get("phoneNumber"));
-            employee.setHireDate(Date.valueOf(json.get("hireDate")));
-            employee.setSalary(BigDecimal.valueOf(Long.parseLong(json.get("salary"))));
-            if (json.get("commissionPct") != null) {
-                employee.setCommissionPct(BigDecimal.valueOf(Long.getLong(json.get("commissionPct").toString())));
-            } else {
-                employee.setCommissionPct(null);
-            }
+            employee.setId(employeeRepository.getAvailableId().get(0));
+            employee.setFirstName(data.getFirstName());
+            employee.setLastName(data.getLastName());
+            employee.setEmail(email);
+            employee.setPhoneNumber(data.getPhoneNumber());
+            employee.setHireDate(data.getHireDate());
+            employee.setSalary(data.getSalary());
+            employee.setCommissionPct(data.getCommissionPct());
 
             Job job = new Job();
-            job.setId(json.get("jobId"));
+            job.setId(data.getJob());
             employee.setJob(job);
 
             Employee manager = new Employee();
-            manager.setId(Integer.parseInt(json.get("managerId")));
+            manager.setId(data.getManager());
 
             employee.setManager(manager);
 
             Department department = new Department();
-            department.setId(Integer.parseInt(json.get("departmentId")));
+            department.setId(data.getDepartment());
             employee.setDepartment(department);
             System.out.println(employee);
 
@@ -326,8 +324,8 @@ public class UserService {
         }
 
         Integer id = optionalEmployee.get().getId();
-        String username = json.get("username");
-        String password = json.get("password");
+        String username = data.getUsername();
+        String password = data.getPassword();
 
         System.out.println(id + " | " + username + " | " + password);
 

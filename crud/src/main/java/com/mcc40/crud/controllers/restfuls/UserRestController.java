@@ -6,6 +6,8 @@
 package com.mcc40.crud.controllers.restfuls;
 
 import com.mcc40.crud.entities.User;
+import com.mcc40.crud.entities.data.LoginData;
+import com.mcc40.crud.entities.data.RegisterData;
 import com.mcc40.crud.services.EmployeeService;
 import com.mcc40.crud.services.NotificationService;
 import com.mcc40.crud.services.RoleService;
@@ -77,8 +79,8 @@ public class UserRestController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> data) {
-        String token = userService.createJwtToken(data.get("username"), data.get("password"));
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginData data) {
+        String token = userService.createJwtToken(data.getUsername(), data.getPassword());
         Map<String, String> map = new HashMap<>();
         if (token != "") {
             map.put("jwt", token);
@@ -98,9 +100,9 @@ public class UserRestController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> json) throws InterruptedException {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterData data) throws InterruptedException {
         Map response = new HashMap();
-        response = userService.register(json);
+        response = userService.register(data);
         Integer status = (Integer) response.get("status");
         return ResponseEntity.status(status).body(response);
     }

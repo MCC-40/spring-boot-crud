@@ -6,7 +6,7 @@
 package com.mcc40.crud.repositories;
 
 import com.mcc40.crud.entities.Employee;
-import com.mcc40.crud.entities.User;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +21,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer>{
     
     public Optional<Employee> findByEmail(String email);
     
-     @Query(value = "SELECT MAX(id) + 1 FROM",
+     @Query(value = "SELECT MAX(id) + 1 FROM employees",
             nativeQuery = true)
-    public Integer getAvailableId();
+    public List<Integer> getAvailableId();
 }

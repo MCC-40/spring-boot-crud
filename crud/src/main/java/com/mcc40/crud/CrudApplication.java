@@ -12,6 +12,6 @@ public class CrudApplication {
         SpringApplication.run(CrudApplication.class, args);
         System.out.println("Sudah berjalan, ga usah nungguin lagi!!!");
     }
-    
-    
+
+
 }
