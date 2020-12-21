@@ -10,6 +10,7 @@ import com.mcc40.crud.jwt.JwtSecretKey;
 import com.mcc40.crud.jwt.JwtTokenVerifier;
 import com.mcc40.crud.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import com.mcc40.crud.security.CustomAuthenticationProvider;
+import com.mcc40.crud.services.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +31,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CustomAuthenticationProvider authProvider;
+    @Autowired
+    private MyUserDetailsService userDetailsService;
     private final JwtSecretKey secretKey;
     private final JwtConfig jwtConfig;
+    @Autowired
+    private JwtTokenVerifier jwtTokenVerifier;
 
     @Autowired
     public SecurityConfiguration(JwtSecretKey secretKey, JwtConfig jwtConfig) {
@@ -43,6 +48,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authProvider);
+        auth.userDetailsService(userDetailsService);
+        
     }
 
     @Bean
@@ -55,19 +62,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager(), jwtConfig, secretKey.getSecretKey()))
-                .addFilterAfter(new JwtTokenVerifier(secretKey.getSecretKey(), jwtConfig), JwtUsernameAndPasswordAuthenticationFilter.class)
+                .addFilterAfter(jwtTokenVerifier, JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/api/users/forgot-password/**").permitAll()
                 .antMatchers("/api/users/reset-password/**").permitAll()
                 .antMatchers("/api/users/verify/**").permitAll()
                 .antMatchers("/api/users/register/**").permitAll()
                 .antMatchers("/api/users/login/**").permitAll()
+                .antMatchers("/api/users/refresh-token/**").permitAll()
                 .antMatchers("/api/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/api/location/**").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/api/jobs/**").hasAnyRole("HR", "ADMIN")
                 .antMatchers("api/employee/**").hasAnyRole("HR", "ADMIN")
                 .antMatchers("/**").hasRole("ADMIN")
                 .anyRequest().authenticated();
+        
+        
     }
 
     @Bean
