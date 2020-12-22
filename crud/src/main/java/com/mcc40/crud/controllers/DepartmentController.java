@@ -37,8 +37,8 @@ public class DepartmentController {
 
     @RequestMapping("find")
     public String getDepartmentById(int id) {
-        System.out.println(service.getByIdDepartment(id).getId()+ " | "
-                + service.getByIdDepartment(id).getName());
+        System.out.println(service.getById(id).getId()+ " | "
+                + service.getById(id).getName());
         return "index"; //index.html
     }
 
@@ -53,7 +53,7 @@ public class DepartmentController {
 
     @RequestMapping("delete")
     public String deleteDepartmentById(int id) {
-        System.out.println("Mencoba menghapus: " + service.getByIdDepartment(id).getName());
+        System.out.println("Mencoba menghapus: " + service.getById(id).getName());
         System.out.println(service.deleteById(id) ? "Delete berhasil" : "Delete gagal");
         return "index"; //index.html
     }

@@ -10,8 +10,11 @@ import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.DepartmentRepository;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +32,45 @@ public class DepartmentService {
         return departmentRepository.findAll();
     }
 
-    public Department getByIdDepartment(int id) {
+    public Department getById(int id) {
         return departmentRepository.findById(id).get();
+    }
+
+    public List<Map<String, Object>> searchByKeywordOrId(String keyword, Integer id) {
+        List<Department> departmentList = new ArrayList<>();
+        List<Map<String, Object>> mapList = new ArrayList<>();
+
+        if (id != null) {
+            Optional<Department> optionalDepartment = departmentRepository.findById(id);
+            if (optionalDepartment.isPresent()) {
+                departmentList.add(optionalDepartment.get());
+            }
+        } else if (keyword != null) {
+            departmentList = departmentRepository.findAll();
+            departmentList = departmentList.stream().filter(d
+                    -> d.getId().toString().contains(keyword)
+                    || d.getName().toString().contains(keyword)
+            ).collect(Collectors.toList());
+        } else {
+            departmentList = departmentRepository.findAll();
+        }
+
+        for (Department department : departmentList) {
+            Map map = new HashMap();
+            map.put("id", department.getId());
+            map.put("name", department.getName());
+            if (department.getManager() != null) {
+                map.put("managerId", department.getManager().getId());
+                map.put("manager", department.getManager().getFirstName() + " " + department.getManager().getLastName());
+            } else {
+                map.put("managerId", null);
+                map.put("manager", "No manager");
+            }
+            map.put("locationId", department.getLocation().getId());
+            map.put("location", department.getLocation().getStreetAddress());
+            mapList.add(map);
+        }
+        return mapList;
     }
 
     public String saveDepartment(Department department) {
