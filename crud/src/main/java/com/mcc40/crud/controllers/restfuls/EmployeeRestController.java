@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -44,7 +45,10 @@ public class EmployeeRestController {
     }
 
     @GetMapping("search")
-    public ResponseEntity<List<Map<String, Object>>> searchEmployee(String keyword) {
+    public ResponseEntity<List<Map<String, Object>>> searchEmployee(@RequestParam(value="keyword", required=false) String keyword) {
+        if (keyword == null) {
+            keyword = "";
+        }
         List<Map<String, Object>> employees = service.getAllEmployee(keyword);
         return ResponseEntity.ok().body(employees);
     }
