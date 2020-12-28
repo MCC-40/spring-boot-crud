@@ -82,7 +82,7 @@ public class UserService {
         userMap.put("id", user.getId());
         List<String> listRole = new ArrayList<>();
         user.getRoles().forEach((role) -> {
-            listRole.add(role.getName());
+            listRole.add(role.getName().toUpperCase());
         });
         userMap.put("roles", listRole);
         userMap.put("email", user.getEmployee().getEmail());
