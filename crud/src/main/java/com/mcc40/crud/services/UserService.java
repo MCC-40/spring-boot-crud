@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import static org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -105,6 +106,23 @@ public class UserService {
         } else {
             return users.get();
         }
+    }
+
+    public Map<String, Object> getMe(Authentication authentication) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        Optional<User> optionalUser = userRepository.findByUserName(authentication.getName());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            map.put("username", user.getUserName());
+            map.put("email", user.getEmployee().getEmail());
+            List<String> roles = new ArrayList<>();
+            for (Role role : user.getRoleList()) {
+                roles.add(role.getAuthority());
+            }
+            map.put("roles", roles);
+        }
+        System.out.println(ResponseEntity.ok(map));
+        return map;
     }
 
     public boolean comparePassword(User user, String password) {

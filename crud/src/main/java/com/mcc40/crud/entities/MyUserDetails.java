@@ -15,20 +15,12 @@ import org.springframework.security.core.userdetails.UserDetails;
  *
  * @author Mochamad Yusuf
  */
-@Data
 public class MyUserDetails implements UserDetails {
 
     private String username;
     private String password;
     private List<Role> roleList;
     private Integer status;
-
-    public MyUserDetails(String username, String password, List<Role> roleList, Integer status) {
-        this.username = username;
-        this.password = password;
-        this.roleList = roleList;
-        this.status = status;
-    }
 
     public MyUserDetails(User user) {
         this.username = user.getUserName();

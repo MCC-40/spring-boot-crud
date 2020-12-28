@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Mochamad Yusuf
  */
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("api/user")
 public class UserRestController {
 
     UserService userService;
@@ -90,9 +90,15 @@ public class UserRestController {
             return ResponseEntity.status(401).body(map);
         }
     }
-    
+
+    @GetMapping("me")
+    public ResponseEntity<Map<String, Object>> login(Authentication auth) {
+        Map<String, Object> map = userService.getMe(auth);
+        return ResponseEntity.ok(map);
+    }
+
     @GetMapping("refresh-token")
-       public ResponseEntity<Map<String,String>> refreshToken(Authentication authentication) throws Exception {
+    public ResponseEntity<Map<String, String>> refreshToken(Authentication authentication) throws Exception {
         String token = userService.refreshToken(authentication);
         Map<String, String> map = new HashMap<>();
         map.put("jwt", token);
