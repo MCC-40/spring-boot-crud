@@ -40,13 +40,11 @@ public class Department implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
-//    @JsonBackReference
-    @JsonIgnore
+    @JsonBackReference("location")
     @JoinColumn(name = "location", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
-//    @JsonBackReference
-    @JsonIgnore
+    @JsonBackReference("manager")
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
@@ -60,7 +58,7 @@ public class Department implements Serializable {
     public Department(Integer id) {
         this.id = id;
     }
-    
+
     @XmlTransient
     public List<Employee> getEmployeeList() {
         return employeeList;
@@ -69,5 +67,5 @@ public class Department implements Serializable {
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
     }
-    
+
 }

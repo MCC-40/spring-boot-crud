@@ -37,16 +37,11 @@ public class DepartmentRestController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Department>> searchDepartment(String keyword) {
-        List<Department> departmentList = service.getAllDepartments();
-        if (keyword != null) {
-            departmentList = departmentList.stream().filter(d
-                    -> d.getId().toString().contains(keyword)
-                    || d.getName().toString().contains(keyword)
-            ).collect(Collectors.toList());
-        }
-        if (departmentList.size() > 0) {
-            return ResponseEntity.status(200).body(departmentList);
+    public ResponseEntity<List<Map<String, Object>>> searchDepartment(String keyword, Integer id) {
+        System.out.println(keyword);
+        List<Map<String, Object>> mapList = service.searchByKeywordOrId(keyword, id);
+        if (mapList.size() > 0) {
+            return ResponseEntity.status(200).body(mapList);
         } else {
             return ResponseEntity.status(404).build();
         }
@@ -67,6 +62,7 @@ public class DepartmentRestController {
         }
     }
 
+    
     @PutMapping("")
     public ResponseEntity<Map<String, String>> departmentSaveWithPut(@RequestBody Department department) {
         System.out.println(department);
