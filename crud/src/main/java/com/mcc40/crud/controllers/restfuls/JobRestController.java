@@ -60,7 +60,7 @@ public class JobRestController {
         Map status = new HashMap();
         if (service.isJobPresent(job.getId())) {
             status.put("Status", "Use Method PUT to update");
-            return ResponseEntity.status(200).body(status);
+            return ResponseEntity.status(405).body(status);
         }
         String result = service.saveJob(job);
         status.put("Status", result);
@@ -75,7 +75,7 @@ public class JobRestController {
         Map status = new HashMap();
         if (!service.isJobPresent(job.getId())) {
             status.put("Status", "Use Method POST to insert new data");
-            return ResponseEntity.status(200).body(status);
+            return ResponseEntity.status(405).body(status);
         }
 
         String result = service.saveJob(job);

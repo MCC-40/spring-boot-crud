@@ -58,7 +58,7 @@ public class EmployeeRestController {
         Map status = new HashMap();
         if (service.isEmplyeePresent(employee.getId())) {
             status.put("Status", "Use Method PUT to update");
-            return ResponseEntity.status(200).body(status);
+            return ResponseEntity.status(405).body(status);
         }
         String result = service.saveEmployee(employee);
         status.put("Status", result);
@@ -73,7 +73,7 @@ public class EmployeeRestController {
         Map status = new HashMap();
         if (!service.isEmplyeePresent(employee.getId())) {
             status.put("Status", "Use Method POST to insert new data");
-            return ResponseEntity.status(200).body(status);
+            return ResponseEntity.status(405).body(status);
         }
         String result = service.saveEmployee(employee);
         status.put("Status", result);
