@@ -39,9 +39,14 @@ public class EmployeeRestController {
         this.service = service;
     }
 
-    @GetMapping("")
+    @GetMapping
     public static ResponseEntity<Map<String, Object>> getById(int id) {
         return ResponseEntity.ok().body(service.getByIdEmployee(id));
+    }
+    
+    @GetMapping("managers")
+    public static ResponseEntity<List<Map<String, Object>>> getManagers() {
+        return ResponseEntity.ok().body(service.getAllManager());
     }
 
     @GetMapping("search")

@@ -13,6 +13,7 @@ import com.mcc40.crud.entities.Location;
 import com.mcc40.crud.repositories.DepartmentRepository;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.JobRepository;
+import com.mcc40.crud.repositories.RegionRepository;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,12 +36,14 @@ public class EmployeeService {
     EmployeeRepository employeeRepository;
     JobRepository jobRepository;
     DepartmentRepository departmentRepository;
+    RegionRepository regionRepository;
 
     @Autowired
-    public EmployeeService(EmployeeRepository employeeRepository, JobRepository jobRepository, DepartmentRepository departmentRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, JobRepository jobRepository, DepartmentRepository departmentRepository, RegionRepository regionRepository) {
         this.employeeRepository = employeeRepository;
         this.jobRepository = jobRepository;
         this.departmentRepository = departmentRepository;
+        this.regionRepository = regionRepository;
     }
 
     public boolean isEmplyeePresent(int id) {
@@ -55,11 +58,11 @@ public class EmployeeService {
         e.put("email", employee.getEmail());
         e.put("phoneNumber", employee.getPhoneNumber());
         e.put("hireDate", employee.getHireDate());
-        e.put("job", employee.getJob().getId());
+        e.put("job", employee.getJob().getTitle());
         e.put("salary", employee.getSalary());
         e.put("commissionPct", employee.getCommissionPct());
-        e.put("manager", employee.getManager() == null ? null : employee.getManager().getId());
-        e.put("department", employee.getDepartment() == null ? null : employee.getDepartment().getId());
+        e.put("manager", employee.getManager() == null ? null : employee.getManager().getLastName());
+        e.put("department", employee.getDepartment() == null ? null : employee.getDepartment().getName());
         return e;
     }
 
@@ -78,6 +81,16 @@ public class EmployeeService {
                 || employee.getFirstName().toLowerCase().contains(keyword.toLowerCase())
                 )
                 .collect(Collectors.toList());
+        List<Map<String, Object>> mapEmployeeList = new ArrayList<>();
+        for (Employee employee : result) {
+            mapEmployeeList.add(MapTheEmployee(employee));
+        }
+        return mapEmployeeList;
+    }
+
+    public List<Map<String, Object>> getAllManager() {
+        List<Employee> managers = employeeRepository.getManagers();
+        List<Employee> result = managers.stream().collect(Collectors.toList());
         List<Map<String, Object>> mapEmployeeList = new ArrayList<>();
         for (Employee employee : result) {
             mapEmployeeList.add(MapTheEmployee(employee));
