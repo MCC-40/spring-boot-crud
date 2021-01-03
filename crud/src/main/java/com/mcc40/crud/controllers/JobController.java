@@ -36,7 +36,7 @@ public class JobController {
 
     @RequestMapping("search")
     public String getByIdEmployee(String id) {
-        Job job = service.getByIdJob(id);
+        Job job = service.getById(id);
         System.out.println(job.getTitle()+ " | " + job.getMinSalary() + " | " + job.getMaxSalary());
         return "index";
     }
