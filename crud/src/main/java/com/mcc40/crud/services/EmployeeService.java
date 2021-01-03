@@ -83,9 +83,6 @@ public class EmployeeService {
         Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
         try {
             if (!optionalEmployee.isPresent()) {
-                employee.setJob(jobRepository.findById(employee.getJob().getId()).get());
-                employee.setManager(employeeRepository.findById(employee.getManager().getId()).get());
-                employee.setDepartment(departmentRepository.findById(employee.getDepartment().getId()).get());
                 employeeRepository.save(employee);
                 result = "Inserted";
             } else {
@@ -106,18 +103,7 @@ public class EmployeeService {
             if (!optionalEmployee.isPresent()) {
                 result = "Employee not exist";
             } else {
-                Employee oldEmployee = optionalEmployee.get();
-                oldEmployee.setFirstName(employee.getFirstName());
-                oldEmployee.setLastName(employee.getLastName());
-                oldEmployee.setEmail(employee.getEmail());
-                oldEmployee.setPhoneNumber(employee.getPhoneNumber());
-                oldEmployee.setHireDate(employee.getHireDate());
-                employee.setJob(jobRepository.findById(employee.getJob().getId()).get());
-                oldEmployee.setSalary(employee.getSalary());
-                oldEmployee.setCommissionPct(employee.getCommissionPct());
-                oldEmployee.setManager(employeeRepository.findById(employee.getManager().getId()).get());
-                employee.setDepartment(departmentRepository.findById(employee.getManager().getId()).get());
-                employeeRepository.save(oldEmployee);
+                employeeRepository.save(employee);
                 result = "Updated";
             }
         } catch (Exception e) {
