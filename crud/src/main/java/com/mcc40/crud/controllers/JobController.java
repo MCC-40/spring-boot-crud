@@ -43,14 +43,14 @@ public class JobController {
 
     @RequestMapping("save")
     public String saveEmployee(Job job) {
-        System.out.println(service.saveJob(job));
+        System.out.println(service.insert(job));
         return "index";
     }
 //
 
     @RequestMapping("delete")
     public String deleteJob(String id) {
-        if (service.deleteJob(id)) {
+        if (service.deleteById(id)) {
             System.out.println("Delete Success");
         } else {
             System.out.println("Delete Fail");

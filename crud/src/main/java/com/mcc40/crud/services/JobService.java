@@ -5,12 +5,14 @@
  */
 package com.mcc40.crud.services;
 
+import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.repositories.JobRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,18 +36,53 @@ public class JobService {
     }
 
     //get by id
-    public Job getByIdJob(String id) {
-        return jobRepository.findById(id).get();
+   public Job getById(String id) {
+        Optional<Job> job = jobRepository.findById(id);
+        if (job.isPresent()) {
+            return job.get();
+        } else {
+            return null;
+        }
+    }
+
+    public List<Job> getByKeyword(String keyword) {
+        List<Job> jobList = new ArrayList<>();
+
+        jobList = jobRepository.findAll();
+        if (keyword != null) {
+            jobList = jobList.stream().filter(d
+                    -> d.getId().toString().contains(keyword)
+                    || d.getTitle().toString().contains(keyword)
+            ).collect(Collectors.toList());
+        }
+
+        return jobList;
     }
 
     //insert
-    public String saveJob(Job job) {
+    public String insert(Job job) {
         String result = null;
         Optional<Job> optionalJob = jobRepository.findById(job.getId());
         try {
-            if (optionalJob.isPresent() == false) {
+            if (!optionalJob.isPresent()) {
                 jobRepository.save(job);
                 result = "Inserted";
+            } else {
+                result = "Job already exist";
+            } 
+        } catch (Exception e) {
+            result = "Job insert error";
+            System.out.println(e.toString());
+        }
+        return result;
+    }
+    
+    public String update(Job job) {
+        String result = null;
+        Optional<Job> optionalJob = jobRepository.findById(job.getId());
+        try {
+            if (!optionalJob.isPresent()) {
+                result = "Job is not exist";
             } else if (optionalJob.isPresent()) {
                 Job oldJob = optionalJob.get();
                 oldJob.setTitle(job.getTitle());
@@ -55,14 +92,14 @@ public class JobService {
                 result = "Updated";
             } 
         } catch (Exception e) {
-            result = "Unknown Error";
+            result = "Job update error";
             System.out.println(e.toString());
         }
         return result;
     }
 
     //delete
-    public boolean deleteJob(String id) {
+    public boolean deleteById(String id) {
         jobRepository.deleteById(id);
         return !jobRepository.findById(id).isPresent();
     }

@@ -5,24 +5,24 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
-import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Job;
 import com.mcc40.crud.services.JobService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author Yoshua
+ * @author Mochamad Yusuf
  */
 @RestController
 @RequestMapping("api/jobs")
@@ -35,66 +35,67 @@ public class JobRestController {
         this.service = service;
     }
 
-//    @GetMapping("")
-//    public ResponseEntity<List<Job>> getAllJob() {
-//        return ResponseEntity.status(200).body(service.getAllJob());
-//    }
-    
-    @GetMapping("")
-    public ResponseEntity<List<Job>> searchJob(String keyword) {
-        List<Job> jobList = service.getAllJob();
-        if (keyword != null) {
-            jobList = jobList.stream().filter(d
-                    -> d.getId().toString().contains(keyword)
-                    || d.getTitle().toString().contains(keyword)
-            ).collect(Collectors.toList());
+    @GetMapping
+    public ResponseEntity<List<Job>> getByKeyword(String keyword) {
+        System.out.println(keyword);
+        List<Job> mapList = service.getByKeyword(keyword);
+        if (mapList.size() > 0) {
+            return ResponseEntity.status(200).body(mapList);
+        } else {
+            return ResponseEntity.status(404).build();
         }
-        if (jobList.size() > 0) {
-            return ResponseEntity.status(200).body(jobList);
+    }
+    
+    @GetMapping("id")
+    public ResponseEntity<Job> getById(String id) {
+        System.out.println(id);
+        Job map = service.getById(id);
+        if (map != null) {
+            return ResponseEntity.status(200).body(map);
         } else {
             return ResponseEntity.status(404).build();
         }
     }
 
-    @GetMapping("search")
-    public String getByIdJob(String id) {
-        Job job = service.getByIdJob(id);
-        System.out.println(job.getTitle() + " | " + job.getMinSalary() + " | " + job.getMaxSalary());
-        return "index";
-    }
-
-    @PostMapping("")
-    public ResponseEntity<Map<String, String>> saveJob(@RequestBody Job job, @RequestBody Department department) {
-        Map status = new HashMap();
+    @PostMapping
+    public ResponseEntity<Map<String, String>> insert(@RequestBody Job job) {
         System.out.println(job);
-//        if (job.getId() == null) {
-//            status.put("Status", "No Content");
-//            return ResponseEntity.status(204).body(status);
-//        }
-        String result = service.saveJob(job);
+        Map status = new HashMap();
+        
+        String result = service.insert(job);
         status.put("Status", result);
-        if (result.equals("Inserted") || result.equals("Updated")) {
+        if (result.equals("Inserted")) {
             return ResponseEntity.accepted().body(status);
         } else {
             return ResponseEntity.status(500).body(status);
         }
     }
-//
 
-    @RequestMapping("delete")
-    public String deleteJob(String id) {
-        if (service.deleteJob(id)) {
-            System.out.println("Delete Success");
+    @PutMapping
+    public ResponseEntity<Map<String, String>> update(@RequestBody Job job) {
+        System.out.println(job);
+        Map status = new HashMap();
+
+        String result = service.update(job);
+        status.put("Status", result);
+        
+        if (result.equals("Updated")) {
+            return ResponseEntity.accepted().body(status);
         } else {
-            System.out.println("Delete Fail");
+            return ResponseEntity.status(500).body(status);
         }
-        return "index";
     }
 
-    @RequestMapping("test-yoshua")
-    public String getFirstNameLocation() {
-        service.getJobTitleAndDepartmentName();
-        return "index";
+    @DeleteMapping
+    public ResponseEntity<Map<String, String>> delete(String id) {
+        Map status = new HashMap();
+        if (service.deleteById(id)) {
+            status.put("Status", "Success");
+            return ResponseEntity.accepted().body(status);
+        } else {
+            status.put("Status", "Failed");
+            return ResponseEntity.status(500).body(status);
+        }
     }
 
 }
