@@ -28,7 +28,7 @@ public class LocationController {
     
     @RequestMapping("")
     public String index(){
-        for (Location location : service.getAllLocation()) {
+        for (Location location : service.getAll()) {
             System.out.println(location.getId()+ " | " + location.getStreetAddress());
         }
         return "index";

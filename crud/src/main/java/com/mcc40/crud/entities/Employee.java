@@ -5,11 +5,15 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -61,23 +65,30 @@ public class Employee implements Serializable {
     private BigDecimal salary;
     @Column(name = "commission_pct")
     private BigDecimal commissionPct;
+    
     @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Department> departmentList;
+    
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinColumn(name = "job", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Job job;
+    
     @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
-    @JsonIgnore
+    
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
-    @JsonIgnore
+    
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinColumn(name = "department", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Department department;
+    
     @JsonIgnore
     @JoinColumn(name = "id", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.LAZY)
@@ -106,5 +117,14 @@ public class Employee implements Serializable {
 
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
+    }
+    
+     @JsonAnyGetter
+    public Map<String, Object> getJsonProperties() {
+        Map map = new LinkedHashMap();
+        map.put("job", getJob().getId());
+        map.put("manager", getManager() == null ? null : getManager().getId());
+        map.put("department", getDepartment() == null ? null : getDepartment().getId());
+        return map;
     }
 }

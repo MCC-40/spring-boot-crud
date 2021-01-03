@@ -5,10 +5,14 @@
  */
 package com.mcc40.crud.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,14 +44,17 @@ public class Department implements Serializable {
     @Basic(optional = false)
     @Column(name = "name")
     private String name;
-    @JsonBackReference("location")
+    
+    @JsonProperty(access = Access.WRITE_ONLY)
     @JoinColumn(name = "location", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Location location;
-    @JsonBackReference("manager")
+    
+    @JsonProperty(access = Access.WRITE_ONLY)
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee manager;
+    
     @JsonIgnore
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
@@ -66,6 +73,26 @@ public class Department implements Serializable {
 
     public void setEmployeeList(List<Employee> employeeList) {
         this.employeeList = employeeList;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getJsonProperties() {
+        Map map = new LinkedHashMap();
+        if (getManager() != null) {
+            map.put("managerId", getManager().getId());
+            map.put("manager", getManager().getFirstName() + " " + getManager().getLastName());
+        } else {
+            map.put("managerId", null);
+            map.put("manager", "No manager");
+        }
+        if (getLocation() != null) {
+            map.put("locationId", getLocation().getId());
+            map.put("location", getLocation().getStreetAddress());
+        } else {
+            map.put("locationId", null);
+            map.put("location", "Not Assigned");
+        }
+        return map;
     }
 
 }

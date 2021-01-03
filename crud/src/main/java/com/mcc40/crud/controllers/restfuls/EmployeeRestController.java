@@ -7,14 +7,11 @@ package com.mcc40.crud.controllers.restfuls;
 
 import com.mcc40.crud.entities.Employee;
 import com.mcc40.crud.services.EmployeeService;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,122 +22,80 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author Yoshua
+ * @author Mochamad Yusuf
  */
 @RestController
-@RequestMapping("api/employee")
+@RequestMapping("api/employees")
 public class EmployeeRestController {
 
-    static EmployeeService service;
+    EmployeeService service;
 
     @Autowired
     public EmployeeRestController(EmployeeService service) {
         this.service = service;
     }
 
-    public static Map<String, Object> MapTheEmployee(Employee employee) {
-        Map<String, Object> e = new HashMap<>();
-        e.put("id", employee.getId());
-        e.put("firstName", employee.getFirstName());
-        e.put("lastName", employee.getLastName());
-        e.put("email", employee.getEmail());
-        e.put("phoneNumber", employee.getPhoneNumber());
-        e.put("hireDate", employee.getHireDate());
-        e.put("job", employee.getJob().getId());
-        e.put("salary", employee.getSalary());
-        e.put("commissionPct", employee.getCommissionPct());
-        e.put("manager", employee.getManager() == null ? null : employee.getManager().getId());
-        e.put("department", employee.getDepartment() == null ? null : employee.getDepartment().getId());
-        return e;
-    }
-
-//    public static String registerEmployee(Map<String, Object> data) {
-//        service.registerEmployee(data);
-//        return "Inserted";
-//    }
-    @GetMapping("")
-    public static ResponseEntity<List<Map<String, Object>>> getById(Integer id) {
-        List<Employee> employees = service.getAllEmployee();
-        if (id != null) {
-            employees = employees.stream()
-                    .filter(employee
-                            -> employee.getId() == id
-                    )
-                    .collect(Collectors.toList());
-        }
-
-        List<Map<String, Object>> mapEmployeeList = new ArrayList<>();
-        for (Employee employee : employees) {
-            mapEmployeeList.add(MapTheEmployee(employee));
-        }
-        return ResponseEntity.ok().body(mapEmployeeList);
-    }
-
-//    @GetMapping("")
-//    public static ResponseEntity<Map<String, Object>> getById(Integer id) {
-//        Employee employee = service.getByIdEmployee(id);
-//        return ResponseEntity.ok().body(MapTheEmployee(employee));
-//    }
-    @GetMapping("search")
-    public ResponseEntity<List<Map<String, Object>>> searchJob(String keyword) {
+    @GetMapping
+    public ResponseEntity<List<Employee>> getByKeyword(String keyword) {
         System.out.println(keyword);
-        List<Employee> employees = service.getAllEmployee();
-        List<Employee> result = employees.stream()
-                .filter(employee
-                        -> Integer.toString(employee.getId()).contains(keyword)
-                || employee.getLastName().toLowerCase().contains(keyword.toLowerCase())
-                || employee.getFirstName().toLowerCase().contains(keyword.toLowerCase())
-                )
-                .collect(Collectors.toList());
-
-        List<Map<String, Object>> mapEmployeeList = new ArrayList<>();
-        for (Employee employee : result) {
-            mapEmployeeList.add(MapTheEmployee(employee));
+        List<Employee> mapList = service.getByKeyword(keyword);
+        if (mapList.size() > 0) {
+            return ResponseEntity.status(200).body(mapList);
+        } else {
+            return ResponseEntity.status(404).build();
         }
-        return ResponseEntity.ok().body(mapEmployeeList);
+    }
+    
+    @GetMapping("id")
+    public ResponseEntity<Employee> getById(Integer id) {
+        System.out.println(id);
+        Employee map = service.getById(id);
+        if (map != null) {
+            return ResponseEntity.status(200).body(map);
+        } else {
+            return ResponseEntity.status(404).build();
+        }
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> insertEmployee(@Validated @RequestBody Employee employee) {
+    public ResponseEntity<Map<String, String>> insert(@RequestBody Employee employee) {
+        System.out.println(employee);
         Map status = new HashMap();
-        if (employee.getId() == null) {
-            status.put("Status", "No Content");
-            return ResponseEntity.status(200).body(status);
-        } else if (service.isJobPresent(employee.getId())) {
-            status.put("Status", "Use Method PUT to update");
-            return ResponseEntity.status(200).body(status);
-        }
-        String result = service.saveEmployee(employee);
+        
+        String result = service.insert(employee);
         status.put("Status", result);
         if (result.equals("Inserted")) {
             return ResponseEntity.accepted().body(status);
+        } else {
+            return ResponseEntity.status(500).body(status);
         }
-        return ResponseEntity.status(500).body(status);
     }
 
     @PutMapping
-    public ResponseEntity<Map<String, String>> updateLastName(@Validated @RequestBody Employee employee) {
+    public ResponseEntity<Map<String, String>> update(@RequestBody Employee employee) {
+        System.out.println(employee);
         Map status = new HashMap();
-        if (employee.getId() == null) {
-            status.put("Status", "No Content");
-            return ResponseEntity.status(200).body(status);
-        } else if (!service.isJobPresent(employee.getId())) {
-            status.put("Status", "Use Method POST to insert new data");
-            return ResponseEntity.status(200).body(status);
-        }
-        String result = service.saveEmployee(employee);
+
+        String result = service.update(employee);
         status.put("Status", result);
+        
         if (result.equals("Updated")) {
             return ResponseEntity.accepted().body(status);
+        } else {
+            return ResponseEntity.status(500).body(status);
         }
-        return ResponseEntity.status(500).body(status);
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteEmployee(int id) {
-        if (service.deleteEmployee(id)) {
-            return ResponseEntity.status(200).body("Delete Success");
+    public ResponseEntity<Map<String, String>> delete(int id) {
+        Map status = new HashMap();
+        if (service.deleteById(id)) {
+            status.put("Status", "Success");
+            return ResponseEntity.accepted().body(status);
+        } else {
+            status.put("Status", "Failed");
+            return ResponseEntity.status(500).body(status);
         }
-        return ResponseEntity.status(500).body("Delete Fail");
     }
+
 }

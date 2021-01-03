@@ -13,8 +13,11 @@ import com.mcc40.crud.entities.User;
 import com.mcc40.crud.repositories.DepartmentRepository;
 import com.mcc40.crud.repositories.EmployeeRepository;
 import com.mcc40.crud.repositories.JobRepository;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,13 +44,36 @@ public class EmployeeService {
         return optionalJob.isPresent();
     }
 
+    public List<Employee> getByKeyword(String keyword) {
+        List<Employee> employeeList = new ArrayList<>();
+        List<Map<String, Object>> mapList = new ArrayList<>();
+
+        if (keyword != null) {
+            employeeList = employeeRepository.findAll();
+            employeeList = employeeList.stream().filter(d
+                    -> d.getId().toString().contains(keyword)
+                    || d.getFirstName().toString().contains(keyword)
+                    || d.getLastName().toString().contains(keyword)
+                    || d.getEmail().toString().contains(keyword)
+                    || d.getPhoneNumber().toString().contains(keyword)
+            ).collect(Collectors.toList());
+        } else {
+            employeeList = employeeRepository.findAll();
+        }
+
+        for (Employee employee : employeeList) {
+            mapList.add(employee.getJsonProperties());
+        }
+        return employeeList;
+    }
+    
     //get all 
-    public List<Employee> getAllEmployee() {
+    public List<Employee> getAll() {
         return employeeRepository.findAll();
     }
 
     //get by id
-    public Employee getByIdEmployee(int id) {
+    public Employee getById(int id) {
         Optional<Employee> employee = employeeRepository.findById(id);
         System.out.println(employee.isPresent());
         if (!employee.isPresent()) {
@@ -58,10 +84,9 @@ public class EmployeeService {
     }
 
     //insert
-    public String saveEmployee(Employee employee) {
+    public String insert(Employee employee) {
         String result = null;
         Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
-//        try {
         if (optionalEmployee.isPresent() == false) {
             employee.setJob(jobRepository.findById(employee.getJob().getId()).get());
             employee.setManager(employeeRepository.findById(employee.getManager().getId()).get());
@@ -83,15 +108,35 @@ public class EmployeeService {
             employeeRepository.save(oldEmployee);
             result = "Updated";
         }
-//        } catch (Exception e) {
-//            result = "Unknown Error";
-//            System.err.println(e.getStackTrace());
-//        }
+        return result;
+    }
+
+    //insert
+    public String update(Employee employee) {
+        String result = null;
+        Optional<Employee> optionalEmployee = employeeRepository.findById(employee.getId());
+        if (optionalEmployee.isPresent()) {
+            Employee oldEmployee = optionalEmployee.get();
+            oldEmployee.setFirstName(employee.getFirstName());
+            oldEmployee.setLastName(employee.getLastName());
+            oldEmployee.setEmail(employee.getEmail());
+            oldEmployee.setPhoneNumber(employee.getPhoneNumber());
+            oldEmployee.setHireDate(employee.getHireDate());
+            employee.setJob(jobRepository.findById(employee.getJob().getId()).get());
+            oldEmployee.setSalary(employee.getSalary());
+            oldEmployee.setCommissionPct(employee.getCommissionPct());
+            oldEmployee.setManager(employeeRepository.findById(employee.getManager().getId()).get());
+            employee.setDepartment(departmentRepository.findById(employee.getManager().getId()).get());
+            employeeRepository.save(oldEmployee);
+            result = "Updated";
+        } else {
+            result = "Employee not exist";
+        }
         return result;
     }
 
     //delete
-    public boolean deleteEmployee(int id) {
+    public boolean deleteById(int id) {
         employeeRepository.deleteById(id);
         return !employeeRepository.findById(id).isPresent();
     }

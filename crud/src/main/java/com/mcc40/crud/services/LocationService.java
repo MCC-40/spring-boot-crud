@@ -29,7 +29,7 @@ public class LocationService {
         this.locationRepository = locationRepository;
     }
     
-    public List<Location> getAllLocation(){
+    public List<Location> getAll(){
         return locationRepository.findAll();
     }
     

@@ -10,7 +10,6 @@ import com.mcc40.crud.services.DepartmentService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,49 +35,59 @@ public class DepartmentRestController {
         this.service = service;
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<Map<String, Object>>> searchDepartment(String keyword, Integer id) {
+    @GetMapping
+    public ResponseEntity<List<Department>> getByKeyword(String keyword) {
         System.out.println(keyword);
-        List<Map<String, Object>> mapList = service.searchByKeywordOrId(keyword, id);
+        List<Department> mapList = service.getByKeyword(keyword);
         if (mapList.size() > 0) {
             return ResponseEntity.status(200).body(mapList);
         } else {
             return ResponseEntity.status(404).build();
         }
     }
+    
+    @GetMapping("id")
+    public ResponseEntity<Department> getById(Integer id) {
+        System.out.println(id);
+        Department map = service.getById(id);
+        if (map != null) {
+            return ResponseEntity.status(200).body(map);
+        } else {
+            return ResponseEntity.status(404).build();
+        }
+    }
 
-    @PostMapping("")
-    public ResponseEntity<Map<String, String>> departmentSave(@RequestBody Department department) {
+    @PostMapping
+    public ResponseEntity<Map<String, String>> insert(@RequestBody Department department) {
         System.out.println(department);
-        System.out.println(department.getManager());
         Map status = new HashMap();
         
-        String result = service.saveDepartment(department);
+        String result = service.insert(department);
         status.put("Status", result);
-        if (result.equals("Inserted") || result.equals("Updated")) {
+        if (result.equals("Inserted")) {
             return ResponseEntity.accepted().body(status);
         } else {
             return ResponseEntity.status(500).body(status);
         }
     }
 
-    
-    @PutMapping("")
-    public ResponseEntity<Map<String, String>> departmentSaveWithPut(@RequestBody Department department) {
+    @PutMapping
+    public ResponseEntity<Map<String, String>> update(@RequestBody Department department) {
         System.out.println(department);
         Map status = new HashMap();
 
-        String result = service.putDepartment(department);
+        String result = service.update(department);
         status.put("Status", result);
-        if (result.equals("Inserted") || result.equals("Updated")) {
+        
+        if (result.equals("Updated")) {
             return ResponseEntity.accepted().body(status);
         } else {
             return ResponseEntity.status(500).body(status);
         }
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<Map<String, String>> deleteDepartmentById(int id) {
+    @DeleteMapping
+    public ResponseEntity<Map<String, String>> delete(int id) {
         Map status = new HashMap();
         if (service.deleteById(id)) {
             status.put("Status", "Success");

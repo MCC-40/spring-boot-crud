@@ -38,13 +38,13 @@ public class LocationRestController {
     //Get All
     @GetMapping("")
     public ResponseEntity<List<Location>> getAllLocation() {
-        return ResponseEntity.status(200).body(service.getAllLocation());
+        return ResponseEntity.status(200).body(service.getAll());
     }
 
     //Get by keyword
     @GetMapping("search")
     public ResponseEntity <List<Location>> getLocation(String keyword){
-        List<Location> locations = service.getAllLocation();
+        List<Location> locations = service.getAll();
         List<Location> result = (List<Location>) locations
                 .stream()
                 .filter((location) ->

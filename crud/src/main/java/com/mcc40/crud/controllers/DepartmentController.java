@@ -34,7 +34,7 @@ public class DepartmentController {
 
     @RequestMapping("") //localhost:8081/
     public String departmentGetAll() {
-        for (Department department : service.getAllDepartments()) {
+        for (Department department : service.getAll()) {
             System.out.println(department.getId()+ " | " + department.getName());
         }
         return "index"; //index.html
@@ -42,8 +42,8 @@ public class DepartmentController {
 
     @RequestMapping("find")
     public String getDepartmentById(int id) {
-        System.out.println(service.getByIdDepartment(id).getId()+ " | "
-                + service.getByIdDepartment(id).getName());
+        System.out.println(service.getById(id).getId()+ " | "
+                + service.getById(id).getName());
         return "index"; //index.html
     }
 
@@ -52,13 +52,13 @@ public class DepartmentController {
         Department department = new Department();
         department.setId(id);
         department.setName(name);
-        System.out.println(service.saveDepartment(department));
+        System.out.println(service.insert(department));
         return "index"; //index.html
     }
 
     @RequestMapping("delete")
     public String deleteDepartmentById(int id) {
-        System.out.println("Mencoba menghapus: " + service.getByIdDepartment(id).getName());
+        System.out.println("Mencoba menghapus: " + service.getById(id).getName());
         System.out.println(service.deleteById(id) ? "Delete berhasil" : "Delete gagal");
         return "index"; //index.html
     }

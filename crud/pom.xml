@@ -120,6 +120,12 @@
             <artifactId>hibernate-jpamodelgen</artifactId>
             <version>5.0.12.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180130</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>

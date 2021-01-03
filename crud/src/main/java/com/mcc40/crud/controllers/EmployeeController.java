@@ -29,7 +29,7 @@ public class EmployeeController {
 
     @RequestMapping("") 
     public String getAllEmployee() {
-        for (Employee employee : service.getAllEmployee()) {
+        for (Employee employee : service.getAll()) {
             System.out.println(employee.getFirstName() + " | " + employee.getLastName());
         }
         return "index"; //index.html
@@ -37,20 +37,20 @@ public class EmployeeController {
 
     @RequestMapping("search") 
     public String getByIdEmployee(int id) {
-        Employee employee = service.getByIdEmployee(id);
+        Employee employee = service.getById(id);
         System.out.println(employee.getFirstName() + " | " + employee.getLastName());
         return "index";
     }
 
     @RequestMapping("save") 
     public String saveEmployee(Employee employee) {
-        System.out.println(service.saveEmployee(employee));
+        System.out.println(service.insert(employee));
         return "index"; 
     }
 //
     @RequestMapping("delete") 
     public String deleteEmployee(int id) {
-        if (service.deleteEmployee(id)) {
+        if (service.deleteById(id)) {
             System.out.println("Delete Success");
         } else {
             System.out.println("Delete Fail");

@@ -7,7 +7,9 @@ package com.mcc40.crud.controllers.restfuls;
 
 import com.mcc40.crud.entities.Country;
 import com.mcc40.crud.services.CountryService;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,13 +39,29 @@ public class CountryRestController {
     
     //Get All
     @GetMapping("")
-    public ResponseEntity<List<Country>> getAllCountry() {
-        return ResponseEntity.status(200).body(service.getAllCountries());
+    public ResponseEntity< List<Map<String, Object>>> getAllCountry() {
+        
+        List<Country> countries = service.getAllCountries();
+        
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        
+        for (Country country : countries) {
+            Map map = new LinkedHashMap();
+            
+            map.put("id", country.getId());
+            map.put("name", country.getName());
+            map.put("regionId", country.getRegion().getId());
+            map.put("regionName", country.getRegion().getName());
+            
+            mapList.add(map);
+        }
+        
+        return ResponseEntity.status(200).body(mapList);
     }
 
     //Get method search by keyword
     @GetMapping("search")
-    public ResponseEntity<List<Country>> getCountry(String keyword){
+    public ResponseEntity<List<Map<String, Object>>> getCountry(String keyword){
         List<Country> countries = service.getAllCountries();
         List<Country> result = (List<Country>) countries
                 .stream()
@@ -52,7 +70,16 @@ public class CountryRestController {
                         country.getName().contains(keyword) ||
                         country.getRegion().toString().contains(keyword)
                     ).collect(Collectors.toList());
-        return ResponseEntity.status(200).body(result);
+        
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        
+        for (Country country : result) {
+            Map map = new LinkedHashMap();
+            
+            mapList.add(map);
+        }
+        
+        return ResponseEntity.status(200).body(mapList);
     }
     
     @PostMapping("")
