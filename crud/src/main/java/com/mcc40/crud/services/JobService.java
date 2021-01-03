@@ -84,11 +84,7 @@ public class JobService {
             if (!optionalJob.isPresent()) {
                 result = "Job is not exist";
             } else if (optionalJob.isPresent()) {
-                Job oldJob = optionalJob.get();
-                oldJob.setTitle(job.getTitle());
-                oldJob.setMinSalary(job.getMinSalary());
-                oldJob.setMaxSalary(job.getMaxSalary());
-                job = oldJob;
+                jobRepository.save(job);
                 result = "Updated";
             } 
         } catch (Exception e) {
