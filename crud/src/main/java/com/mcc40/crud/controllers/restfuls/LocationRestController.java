@@ -59,7 +59,7 @@ public class LocationRestController {
 
     @PostMapping
     public ResponseEntity<Map<String, String>> insert(@RequestBody Location location) {
-        System.out.println(location);
+        System.out.println("insert = " + location);
         Map status = new HashMap();
         
         String result = service.insert(location);
@@ -73,7 +73,7 @@ public class LocationRestController {
 
     @PutMapping
     public ResponseEntity<Map<String, String>> update(@RequestBody Location location) {
-        System.out.println(location);
+        System.out.println("update = " + location);
         Map status = new HashMap();
 
         String result = service.update(location);

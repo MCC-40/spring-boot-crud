@@ -59,13 +59,13 @@ public class LocationService {
     //insert
 
     public String insert(Location location) {
-        String result = null;
+        String result = "Unknown error";
         Optional<Location> optionalLocation = locationRepository.findById(location.getId());
         try {
             if (optionalLocation.isPresent() == false) {
                 locationRepository.save(location);
                 result = "Inserted";
-            } else if (optionalLocation.get().equals(true)) {
+            } else {
                 result = "Location already exist";
             }
         } catch (Exception e) {
@@ -76,14 +76,13 @@ public class LocationService {
     }
 
     public String update(Location location) {
-        String result = null;
+        String result = "Unknown error";
         Optional<Location> optionalLocation = locationRepository.findById(location.getId());
         try {
             if (!optionalLocation.isPresent()) {
                 result = "Location not exist";
-            } else if (optionalLocation.get().equals(true)) {
-                Location oldLocation = optionalLocation.get();
-                oldLocation.setId(location.getId());
+            } else {
+                locationRepository.save(location);
                 result = "Updated";
             }
         } catch (Exception e) {

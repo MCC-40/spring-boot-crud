@@ -37,9 +37,10 @@ public class EmployeeRestController {
 
     @GetMapping
     public ResponseEntity<List<Employee>> getByKeyword(String keyword) {
-        System.out.println(keyword);
+        System.out.println("search: " + keyword);
         List<Employee> mapList = service.getByKeyword(keyword);
         if (mapList.size() > 0) {
+            System.out.println("return " + mapList.size());
             return ResponseEntity.status(200).body(mapList);
         } else {
             return ResponseEntity.status(404).build();
