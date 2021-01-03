@@ -61,7 +61,7 @@ public class EmployeeService {
         e.put("job", employee.getJob().getTitle());
         e.put("salary", employee.getSalary());
         e.put("commissionPct", employee.getCommissionPct());
-        e.put("manager", employee.getManager() == null ? null : employee.getManager().getLastName());
+        e.put("manager", employee.getManager() == null ? null : employee.getManager().getFirstName() + " " + employee.getManager().getLastName());
         e.put("department", employee.getDepartment() == null ? null : employee.getDepartment().getName());
         return e;
     }
@@ -105,7 +105,6 @@ public class EmployeeService {
 
     //register
     public String registerEmployee(Map<String, Object> data) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         String result = "Inserted";
         Employee employee = new Employee();

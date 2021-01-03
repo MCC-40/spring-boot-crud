@@ -20,6 +20,6 @@ import org.springframework.stereotype.Repository;
 public interface EmployeeRepository extends JpaRepository<Employee, Integer>{
         Optional<Employee> findByEmail(String email);
         
-        @Query(value = "SELECT * FROM employees E JOIN employees M ON E.manager = M.id GROUP BY M.id", nativeQuery = true)
+        @Query(value = "SELECT M.id, M.first_name, M.last_name, M.email, M.phone_number, M.hire_date, M.hire_date, M.job, M.salary, M.commission_pct, M.manager, M.department FROM employees E JOIN employees M ON E.manager = M.id GROUP BY M.id ORDER BY M.id ASC", nativeQuery = true)
         public List<Employee> getManagers();
 }
