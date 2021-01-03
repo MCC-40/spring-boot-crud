@@ -5,14 +5,11 @@
  */
 package com.mcc40.crud.controllers.restfuls;
 
-import com.mcc40.crud.entities.Department;
 import com.mcc40.crud.entities.Region;
 import com.mcc40.crud.services.RegionService;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,55 +35,61 @@ public class RegionRestController {
         this.service = service;
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<Region>> searchRegion(String keyword) {
-        List<Region> regionList = service.getAllRegion();
-        if (keyword != null) {
-            regionList = regionList.stream().filter(r
-                    -> r.getId().toString().contains(keyword)
-                    || r.getName().contains(keyword)
-            ).collect(Collectors.toList());
+    @GetMapping
+    public ResponseEntity<List<Region>> getByKeyword(String keyword) {
+        System.out.println(keyword);
+        List<Region> mapList = service.getByKeyword(keyword);
+        if (mapList.size() > 0) {
+            return ResponseEntity.status(200).body(mapList);
+        } else {
+            return ResponseEntity.status(404).build();
         }
-        if (regionList.size() > 0) {
-            return ResponseEntity.status(200).body(regionList);
+    }
+    
+    @GetMapping("id")
+    public ResponseEntity<Region> getById(Integer id) {
+        System.out.println(id);
+        Region map = service.getById(id);
+        if (map != null) {
+            return ResponseEntity.status(200).body(map);
         } else {
             return ResponseEntity.status(404).build();
         }
     }
 
-    @PostMapping("")
-    public ResponseEntity<Map<String, String>> regionSave(@RequestBody Region region) {
+    @PostMapping
+    public ResponseEntity<Map<String, String>> insert(@RequestBody Region region) {
         System.out.println(region);
         Map status = new HashMap();
-
-        String result = service.saveRegion(region);
+        
+        String result = service.insert(region);
         status.put("Status", result);
-        if (result.equals("Inserted") || result.equals("Updated")) {
+        if (result.equals("Inserted")) {
             return ResponseEntity.accepted().body(status);
         } else {
             return ResponseEntity.status(500).body(status);
         }
     }
 
-    @PutMapping("")
-    public ResponseEntity<Map<String, String>> regionSaveWithPut(@RequestBody Region region) {
-        System.out.println("Incoming put");
+    @PutMapping
+    public ResponseEntity<Map<String, String>> update(@RequestBody Region region) {
         System.out.println(region);
         Map status = new HashMap();
 
-        String result = service.saveRegion(region);
+        String result = service.update(region);
         status.put("Status", result);
-        if (result.equals("Inserted") || result.equals("Updated")) {
+        
+        if (result.equals("Updated")) {
             return ResponseEntity.accepted().body(status);
         } else {
             return ResponseEntity.status(500).body(status);
         }
     }
 
-    @DeleteMapping("")
-    public ResponseEntity<Map<String, String>> deleteRegionById(int id) {
+    @DeleteMapping
+    public ResponseEntity<Map<String, String>> delete(int id) {
         Map status = new HashMap();
-        if (service.deleteRegion(id)) {
+        if (service.deleteById(id)) {
             status.put("Status", "Success");
             return ResponseEntity.accepted().body(status);
         } else {

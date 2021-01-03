@@ -37,6 +37,7 @@ public class Region implements Serializable {
     private Integer id;
     @Column(name = "name")
     private String name;
+    
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "region", fetch = FetchType.LAZY)
     private List<Country> countryList;
