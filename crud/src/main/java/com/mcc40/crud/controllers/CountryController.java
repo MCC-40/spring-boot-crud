@@ -37,8 +37,8 @@ public class CountryController {
 
     @RequestMapping("find")
     public String getCountryById(String id) {
-        System.out.println(service.getByIdCountry(id).getId()+ " | "
-                + service.getByIdCountry(id).getName());
+        System.out.println(service.getById(id).getId()+ " | "
+                + service.getById(id).getName());
         return "index"; //index.html
     }
 
@@ -47,13 +47,13 @@ public class CountryController {
         Country country = new Country();
         country.setId(id);
         country.setName(name);
-        System.out.println(service.saveCountry(country));
+        System.out.println(service.insert(country));
         return "index"; //index.html
     }
     
     @RequestMapping("delete")
     public String deleteCountryById(String id) {
-        System.out.println("Mencoba menghapus: " + service.getByIdCountry(id).getName());
+        System.out.println("Mencoba menghapus: " + service.getById(id).getName());
         System.out.println(service.deleteById(id) ? "Delete berhasil" : "Delete gagal");
         return "index"; //index.html
     }

@@ -5,8 +5,13 @@
  */
 package com.mcc40.crud.entities;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -47,15 +52,19 @@ public class Location implements Serializable {
     private String city;
     @Column(name = "state_province")
     private String stateProvince;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinColumn(name = "country", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Country country;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Department> departmentList;
 
     public Location() {
     }
-    
+
     @XmlTransient
     public List<Department> getDepartmentList() {
         return departmentList;
@@ -64,5 +73,11 @@ public class Location implements Serializable {
     public void setDepartmentList(List<Department> departmentList) {
         this.departmentList = departmentList;
     }
-    
+
+    @JsonAnyGetter
+    public Map<String, Object> getJsonProperties() {
+        Map map = new LinkedHashMap();
+        map.put("country", getCountry() == null ? null : getCountry().getId());
+        return map;
+    }
 }
