@@ -60,6 +60,8 @@ public class EmployeeRestController {
 
     @PostMapping
     public ResponseEntity<Map<String, String>> insertEmployee(@Validated @RequestBody Employee employee) {
+        System.out.println("QWE");
+        System.out.println(employee);
         Map status = new HashMap();
         if (service.isEmplyeePresent(employee.getId())) {
             status.put("Status", "Use Method PUT to update");

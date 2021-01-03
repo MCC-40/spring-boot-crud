@@ -67,7 +67,6 @@ public class Employee implements Serializable {
     private BigDecimal salary;
     @Column(name = "commission_pct")
     private BigDecimal commissionPct;
-    @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Department> departmentList;
     @JoinColumn(name = "job", referencedColumnName = "id")
@@ -76,14 +75,13 @@ public class Employee implements Serializable {
     private Job job;
     @JoinColumn(name = "department", referencedColumnName = "id")
     @JsonBackReference("department")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     private Department department;
-    @JsonIgnore
     @OneToMany(mappedBy = "manager", fetch = FetchType.LAZY)
     private List<Employee> employeeList;
     @JoinColumn(name = "manager", referencedColumnName = "id")
     @JsonBackReference("manager")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     private Employee manager;
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "employee", fetch = FetchType.LAZY)
     private User user;
