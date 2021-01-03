@@ -36,7 +36,7 @@ public class LocationController {
     
     @RequestMapping("search")
     public String location(int id){
-        Location location = service.getByLocationId(id);
+        Location location = service.getById(id);
             System.out.println(location.getId()+ " | " + location.getStreetAddress());
             return "index";
     }
@@ -44,14 +44,14 @@ public class LocationController {
     @RequestMapping("save")
     public String saveLocation(Location location){
        
-       System.out.println(service.saveLocation(location));
+       System.out.println(service.insert(location));
         
        return "index";
     }
     
     @RequestMapping("delete")
     public String saveLocation(int id){
-            System.out.println(service.deleteLocation(id));
+            System.out.println(service.deleteById(id));
         
         return "index";
     }

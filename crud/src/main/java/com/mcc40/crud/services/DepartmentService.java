@@ -42,21 +42,15 @@ public class DepartmentService {
 
     public List<Department> getByKeyword(String keyword) {
         List<Department> departmentList = new ArrayList<>();
-        List<Map<String, Object>> mapList = new ArrayList<>();
 
+        departmentList = departmentRepository.findAll();
         if (keyword != null) {
-            departmentList = departmentRepository.findAll();
             departmentList = departmentList.stream().filter(d
                     -> d.getId().toString().contains(keyword)
                     || d.getName().toString().contains(keyword)
             ).collect(Collectors.toList());
-        } else {
-            departmentList = departmentRepository.findAll();
         }
 
-        for (Department department : departmentList) {
-            mapList.add(department.getJsonProperties());
-        }
         return departmentList;
     }
 
@@ -68,10 +62,10 @@ public class DepartmentService {
                 departmentRepository.save(department);
                 result = "Inserted";
             } else {
-                result = "Data already exist";
+                result = "Department already exist";
             }
         } catch (Exception e) {
-            result = "Unknown Error";
+            result = "Department insert error";
             System.out.println(e.toString());
         }
         return result;
@@ -82,23 +76,17 @@ public class DepartmentService {
         Optional<Department> optionalDepartment = departmentRepository.findById(department.getId());
         try {
             if (!optionalDepartment.isPresent()) {
-                result = "Data not exist";
+                result = "Department not exist";
             } else {
                 Department oldDepartment = optionalDepartment.get();
-                if (department.getName() != null) {
-                    oldDepartment.setName(department.getName());
-                }
-                if (department.getManager() != null) {
-                    oldDepartment.setManager(department.getManager());
-                }
-                if (department.getLocation() != null) {
-                    oldDepartment.setLocation(department.getLocation());
-                }
+                oldDepartment.setName(department.getName());
+                oldDepartment.setManager(department.getManager());
+                oldDepartment.setLocation(department.getLocation());
                 departmentRepository.save(oldDepartment);
                 result = "Updated";
             }
         } catch (Exception e) {
-            result = "Unknown Error";
+            result = "Department update error";
             System.out.println(e.toString());
         }
         return result;
